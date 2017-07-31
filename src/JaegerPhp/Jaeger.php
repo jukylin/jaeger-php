@@ -8,9 +8,13 @@ use OpenTracing\Propagators\Writer;
 use OpenTracing\Propagators\Reader;
 use OpenTracing\Propagator;
 use OpenTracing\Tracer;
-use JaegerPhp\ThriftGen\Agent\AgentClient;
+use JaegerPhp\UdpClient;
 
 class Jaeger implements Tracer{
+
+    private $udpHost = '';
+
+    private $udpPort = '';
 
     public static $spans = [];
 
@@ -18,7 +22,11 @@ class Jaeger implements Tracer{
 
     public static $handleProto = null;
 
-    public function __construct($serviceName = ''){
+    public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775'){
+
+        $this->udpHost = $udpHost;
+        $this->udpPort = $udpPort;
+
         if($serviceName == '') {
             self::$serviceName = $_SERVER['SERVER_NAME'];
         }else{
@@ -109,9 +117,9 @@ class Jaeger implements Tracer{
      * 结束,发送信息到jaeger
      */
     public function flush(){
-        $buildSpan = [];
+        $batch = [];
 
-        $buildSpan['process'] = [
+        $batch['process'] = [
             'serviceName' => self::$serviceName,
             'tags' => [
                 [
@@ -154,9 +162,11 @@ class Jaeger implements Tracer{
             $spans[] = $span;
         }
 
-        $buildSpan['spans'] = $spans;
+        $batch['spans'] = $spans;
 
-        (new AgentClient())->buildThrift($buildSpan);
+        if($this->udpHost != '' && $this->udpPort != '') {
+            (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
+        }
     }
 
 

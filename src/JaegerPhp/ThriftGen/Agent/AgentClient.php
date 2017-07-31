@@ -19,22 +19,18 @@ class AgentClient
         self::$handleProto = new TCompactProtocol($tran);
 
         self::$handleProto->writeMessageBegin('emitBatch', TMessageType::ONEWAY, 1);
-
         self::$handleProto->writeStructBegin('emitBatch_args');
 
         $this->handleBatch($data);
-
         self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
 
+        self::$handleProto->writeStructEnd();
         self::$handleProto->writeMessageEnd();
 
         $msg = $tran->read(Helper::UDP_PACKET_MAX_LENGTH);
-        $msg = str_replace(Helper::UDP_PACKET_MAX_LENGTH, "", $msg);
-        $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        $len = strlen($msg);
-        socket_sendto($sock, $msg, $len, 0, '172.17.0.5', 5775);
-        socket_close($sock);
+
+
+        return str_replace(Helper::UDP_PACKET_MAX_LENGTH, "", $msg);
     }
 
 

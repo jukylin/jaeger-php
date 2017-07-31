@@ -35,7 +35,7 @@ class JSpan implements Span{
      * @return SpanContext
      */
     public function getContext(){
-
+        return $this->spanContext;
     }
 
     /**
