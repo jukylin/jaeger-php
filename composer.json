@@ -2,6 +2,7 @@
   "name":              "jukylin/jaeger-php",
   "description":       "php client for jaeger",
   "keywords":          ["jaeger"],
+  "minimum-stability": "stable",
   "license":           "MIT",
   "require":           {
     "php": ">=7.0",
