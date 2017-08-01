@@ -1,5 +1,5 @@
 {
-  "name":              "Aqiling/jaeger-php",
+  "name":              "jukylin/jaeger-php",
   "description":       "php client for jaeger",
   "keywords":          ["jaeger"],
   "license":           "MIT",
