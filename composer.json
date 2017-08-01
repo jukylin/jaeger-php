@@ -8,6 +8,12 @@
     "packaged/thrift" : "0.10.0",
     "jcchavezs/opentracing":"dev-master"
   },
+  "authors": [
+    {
+      "name": "qiling",
+      "email": "742161455@qq.com"
+    }
+  ],
   "autoload":          {
     "psr-4": {
       "JaegerPhp\\": "src/"
