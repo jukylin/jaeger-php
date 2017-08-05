@@ -22,10 +22,14 @@ class UdpClient{
 
     public function EmitBatch($batch){
         $enitThrift = (new AgentClient())->buildThrift($batch);
-
-        $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         $len = strlen($enitThrift);
-        socket_sendto($sock, $enitThrift, $len, 0, $this->host, $this->post);
-        socket_close($sock);
+        if($len > 0) {
+            $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+            socket_sendto($sock, $enitThrift, $len, 0, $this->host, $this->post);
+            socket_close($sock);
+        }
+
+
+        return $len;
     }
 }

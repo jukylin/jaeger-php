@@ -38,7 +38,7 @@ class Jaeger implements Tracer{
         , $startTimestamp = null, array $tags = []
     ){
         $parentSpan = null;
-        $spanContext = $parentReference->referencedContext();
+        $spanContext = $parentReference->getContext();
         if($spanContext->traceId){
             $parentSpan = $spanContext;
         }
@@ -165,7 +165,15 @@ class Jaeger implements Tracer{
         $batch['spans'] = $spans;
 
         if($this->udpHost != '' && $this->udpPort != '') {
-            (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
+            try {
+                return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
+            }catch (\Exception $e){
+                //use debug
+                //var_dump($e->getMessage());
+                return 0;
+            }
+        }else{
+            return 0;
         }
     }
 
