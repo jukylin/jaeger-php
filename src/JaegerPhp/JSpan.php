@@ -19,6 +19,7 @@ class JSpan implements Span{
     ];
 
     public function __construct($operationName, JSpanContext $spanContext){
+        $this->setIsClient();
         $this->operationName = $operationName;
         $this->startTime = Helper::microtimeToInt();
         $this->spanContext = $spanContext;
