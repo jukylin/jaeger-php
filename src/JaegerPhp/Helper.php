@@ -14,6 +14,16 @@ class Helper{
 
 
     public static function identifier(){
-        return strrev(microtime(true) * 10000 . rand(10, 99));
+        return strrev(microtime(true) * 10000 . rand(1000, 9999));
+    }
+
+
+    /**
+     * 转为16进制
+     * @param $string
+     * @return string
+     */
+    public static function toHex($string){
+        return sprintf("%x", $string);
     }
 }

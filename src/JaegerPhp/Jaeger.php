@@ -44,11 +44,11 @@ class Jaeger implements Tracer{
         }
 
         if(!$parentSpan){
-            $traceId = Helper::identifier();
-            $spanId = Helper::identifier();
+            $traceId = Helper::toHex(Helper::identifier());
+            $spanId = Helper::toHex(Helper::identifier());
             $newSpan = new JSpanContext($traceId, $spanId, 0, 1, null, 0);
         }else{
-            $newSpan = new JSpanContext($parentSpan->traceId, Helper::identifier(), $parentSpan->spanId, 1, null, 0, $this);
+            $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier()), $parentSpan->spanId, 1, null, 0, $this);
         }
 
         $span = new JSpan($operationName, $newSpan);
@@ -106,7 +106,7 @@ class Jaeger implements Tracer{
                 return new JSpanContext($traceId, $spanId, $parentId, $flags, null, 0);
             }
 
-            return new JSpanContext(0, 0, 0, 0, null, 0);;
+            return new JSpanContext(0, 0, 0, 0, null, 0);
         }else{
             throw new Exception("不支持format");
         }
@@ -138,10 +138,10 @@ class Jaeger implements Tracer{
         foreach(self::$spans as $span){
             $spContext = $span->spanContext;
             $span = [
-                'traceIdLow' => intval($spContext->traceId),
+                'traceIdLow' => hexdec($spContext->traceId),
                 'traceIdHigh' => 0,
-                'spanId' => intval($spContext->spanId),
-                'parentSpanId' => intval($spContext->parentId),
+                'spanId' => hexdec($spContext->spanId),
+                'parentSpanId' => hexdec($spContext->parentId),
                 'operationName' => $span->getOperationName(),
                 'flags' => intval($spContext->flags),
                 'startTime' => $span->startTime,
@@ -153,9 +153,9 @@ class Jaeger implements Tracer{
                 $span['references'] = [
                     [
                         'refType' =>  1,
-                        'traceIdLow' => intval($spContext->traceId),
+                        'traceIdLow' => hexdec($spContext->traceId),
                         'traceIdHigh' => 0,
-                        'spanId' => intval($spContext->parentId),
+                        'spanId' => hexdec($spContext->parentId),
                     ],
                 ];
             }
