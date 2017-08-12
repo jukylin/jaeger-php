@@ -48,11 +48,14 @@ class Jaeger implements Tracer{
             $spanId = Helper::toHex(Helper::identifier());
             $newSpan = new JSpanContext($traceId, $spanId, 0, 1, null, 0);
         }else{
-            $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier()), $parentSpan->spanId, 1, null, 0, $this);
+            $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
+                , $parentSpan->spanId, $parentSpan->flags, null, 0, $this);
         }
 
         $span = new JSpan($operationName, $newSpan);
-        self::$spans[] = $span;
+        if($newSpan->flags == 1) {
+            self::$spans[] = $span;
+        }
 
         return $span;
     }
@@ -117,6 +120,11 @@ class Jaeger implements Tracer{
      * 结束,发送信息到jaeger
      */
     public function flush(){
+
+        if(count(self::$spans) < 1){
+            return 0;
+        }
+
         $batch = [];
 
         $batch['process'] = [
