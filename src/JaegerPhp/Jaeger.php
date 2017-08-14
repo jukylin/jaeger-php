@@ -171,7 +171,7 @@ class Jaeger implements Tracer{
         }
 
         $batch['spans'] = $spans;
-
+//echo json_encode($batch);exit;
         if($this->udpHost != '' && $this->udpPort != '') {
             try {
                 return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
@@ -190,11 +190,19 @@ class Jaeger implements Tracer{
         $resultTags = [];
         if($tags){
             foreach ($tags as $key => $tag){
-                $resultTags[] = [
-                    'key' => $key,
-                    'vStr' => $tag,
-                    'vType' => "STRING"
-                ];
+                if($key == "error"){
+                    $resultTags[] = [
+                        'key' => $key,
+                        'vBool' => $tag,
+                        'vType' => "BOOL"
+                    ];
+                }else{
+                    $resultTags[] = [
+                        'key' => $key,
+                        'vStr' => strval($tag),
+                        'vType' => "STRING"
+                    ];
+                }
             }
         }
 
@@ -207,19 +215,21 @@ class Jaeger implements Tracer{
         $resultLogs = [];
         if($logs){
             foreach($logs as $log){
+                $fields = [];
+                foreach ($log['fields'] as $field){
+                    $field = [
+                        'key' => $field['key'],
+                        'vType' => 'STRING',
+                        'vStr' => $field['value'],
+                    ];
+                    $fields[] = $field;
+                }
                 $resultLogs[] = [
                     "timestamp" => $log['timestamp'],
-                    "fields" => [
-                        [
-                            'key' => $log['key'],
-                            'vType' => 'STRING',
-                            'vStr' => $log['value'],
-                        ]
-                    ],
+                    "fields" => $fields,
                 ];
             }
         }
-
 
         return $resultLogs;
     }

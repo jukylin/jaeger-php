@@ -78,15 +78,15 @@ class JSpan implements Span{
      * @throws SpanAlreadyFinished if the span is already finished
      */
     public function log(array $fields = [], $timestamp = null){
+        $log['timestamp'] = $timestamp ?? Helper::microtimeToInt();
         foreach($fields as $key => $field){
-            $log[] = [
+            $field = [
                 "value" => $field,
-                "timestamp" => $timestamp ?? Helper::microtimeToInt(),
                 "key" => $key,
             ];
+            $log['fields'][] = $field;
         }
-
-        $this->logs = array_merge($this->logs, $log);
+        $this->logs[] = $log;
     }
 
     /**

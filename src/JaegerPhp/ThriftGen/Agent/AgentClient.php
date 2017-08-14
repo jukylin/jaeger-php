@@ -6,7 +6,7 @@ use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Type\TMessageType;
 use Thrift\Type\TType;
-
+use JaegerPhp\ThriftGen\Agent\Types;
 
 class AgentClient
 {
@@ -278,7 +278,7 @@ class AgentClient
 
         if (isset($tag['vType'])) {
             self::$handleProto->writeFieldBegin('vType', TType::I32, 2);
-            self::$handleProto->writeI32(intval($tag['vType']));
+            self::$handleProto->writeI32(Types::stringToTagType($tag['vType']));
             self::$handleProto->writeFieldEnd();
         }
 
