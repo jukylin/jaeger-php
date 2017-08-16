@@ -3,26 +3,34 @@
 namespace JaegerPhp;
 
 use OpenTracing\Span;
+use JaegerPhp\Jaeger;
 
 class JSpan implements Span{
 
-    public $startTime = '';
-    public $finishTime = '';
     private $operationName = '';
-    public $spanKind = '';
-    public $spanContext = null;
-    public $duration = 0;
-    public $logs = [];
-    public $tags = [];
-    private $specialTags = [
-        'spanKind'
-    ];
 
-    public function __construct($operationName, JSpanContext $spanContext){
+    public $startTime = '';
+
+    public $finishTime = '';
+
+    public $spanKind = '';
+
+    public $spanContext = null;
+
+    public $duration = 0;
+
+    public $logs = [];
+
+    public $tags = [];
+
+    public $jaegerObj = null;
+
+    public function __construct($operationName, JSpanContext $spanContext, Jaeger $jaegerObj = null){
         $this->setIsClient();
         $this->operationName = $operationName;
         $this->startTime = Helper::microtimeToInt();
         $this->spanContext = $spanContext;
+        $this->jaegerObj = $jaegerObj;
     }
 
     /**
@@ -48,6 +56,7 @@ class JSpan implements Span{
     public function finish($finishTime = null, array $logRecords = []){
         $this->finishTime = $finishTime == null ? Helper::microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
+        $this->jaegerObj->reportSpan($this);
     }
 
     /**

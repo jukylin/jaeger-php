@@ -9,6 +9,8 @@ use OpenTracing\Propagators\Reader;
 use OpenTracing\Propagator;
 use OpenTracing\Tracer;
 use JaegerPhp\UdpClient;
+use JaegerPhp\JSpan;
+use JaegerPhp\Reporter\Reporter;
 
 class Jaeger implements Tracer{
 
@@ -16,16 +18,19 @@ class Jaeger implements Tracer{
 
     private $udpPort = '';
 
+    private $reporter = null;
+
     public static $spans = [];
 
     public static $serviceName = '';
 
     public static $handleProto = null;
 
-    public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775'){
+    public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775',Reporter $reporter){
 
         $this->udpHost = $udpHost;
         $this->udpPort = $udpPort;
+        $this->reporter = $reporter;
 
         if($serviceName == '') {
             self::$serviceName = $_SERVER['SERVER_NAME'];
@@ -34,6 +39,15 @@ class Jaeger implements Tracer{
         }
     }
 
+
+    /**
+     * init span info
+     * @param string $operationName
+     * @param SpanReference|null $parentReference
+     * @param null $startTimestamp
+     * @param array $tags
+     * @return JSpan
+     */
     public function startSpan($operationName, SpanReference $parentReference = null
         , $startTimestamp = null, array $tags = []
     ){
@@ -52,7 +66,7 @@ class Jaeger implements Tracer{
                 , $parentSpan->spanId, $parentSpan->flags, null, 0, $this);
         }
 
-        $span = new JSpan($operationName, $newSpan);
+        $span = new JSpan($operationName, $newSpan, $this);
         if($newSpan->flags == 1) {
             self::$spans[] = $span;
         }
@@ -76,7 +90,7 @@ class Jaeger implements Tracer{
         if($format == Propagator::TEXT_MAP){
             $carrier->set(Helper::TracerStateHeaderName, $spanContext->buildString());
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
         }
     }
 
@@ -91,7 +105,7 @@ class Jaeger implements Tracer{
         if($format == Propagator::TEXT_MAP){
             $injectObj[Helper::TracerStateHeaderName] = $spanContext->buildString();
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
         }
     }
 
@@ -111,7 +125,18 @@ class Jaeger implements Tracer{
 
             return new JSpanContext(0, 0, 0, 0, null, 0);
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
+        }
+    }
+
+
+    /**
+     *
+     * @param \JaegerPhp\JSpan $span
+     */
+    public function reportSpan(JSpan $span){
+        if($span->spanContext->isSampled()){
+            $this->reporter->report($span);
         }
     }
 
@@ -169,20 +194,22 @@ class Jaeger implements Tracer{
             }
             $spans[] = $span;
         }
+        // clean will Emit spans
+        self::$spans = [];
 
         $batch['spans'] = $spans;
-//echo json_encode($batch);exit;
-        if($this->udpHost != '' && $this->udpPort != '') {
-            try {
-                return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
-            }catch (\Exception $e){
-                //use debug
-                //var_dump($e->getMessage());
-                return 0;
-            }
-        }else{
-            return 0;
-        }
+//
+//        if($this->udpHost != '' && $this->udpPort != '') {
+//            try {
+//                return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
+//            }catch (\Exception $e){
+//                //use debug
+//                //var_dump($e->getMessage());
+//                return 0;
+//            }
+//        }else{
+//            return 0;
+//        }
     }
 
 
