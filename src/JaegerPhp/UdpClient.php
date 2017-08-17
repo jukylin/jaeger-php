@@ -13,6 +13,7 @@ use JaegerPhp\ThriftGen\Agent\AgentClient;
 class UdpClient{
 
     private $host = '';
+
     private $post = '';
 
     public function __construct($host, $post){
