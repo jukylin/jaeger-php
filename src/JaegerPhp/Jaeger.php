@@ -26,6 +26,8 @@ class Jaeger implements Tracer{
 
     public static $handleProto = null;
 
+    public static $tags = [];
+
     public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775',Reporter $reporter){
 
         $this->udpHost = $udpHost;
@@ -37,6 +39,19 @@ class Jaeger implements Tracer{
         }else{
             self::$serviceName = $serviceName;
         }
+
+        self::$tags = [
+            [
+                'key' => 'ip',
+                'vType' => 'STRING',
+                'vStr' => $_SERVER['SERVER_ADDR'],
+            ],
+            [
+                'key' => 'port',
+                'vType' => 'STRING',
+                'vStr' => $_SERVER['SERVER_PORT'],
+            ],
+        ];
     }
 
 
@@ -145,123 +160,8 @@ class Jaeger implements Tracer{
      * 结束,发送信息到jaeger
      */
     public function flush(){
-
-        if(count(self::$spans) < 1){
-            return 0;
-        }
-
-        $batch = [];
-
-        $batch['process'] = [
-            'serviceName' => self::$serviceName,
-            'tags' => [
-                [
-                    'key' => 'ip',
-                    'vType' => 'STRING',
-                    'vStr' => $_SERVER['SERVER_ADDR'],
-                ],
-                [
-                    'key' => 'port',
-                    'vType' => 'STRING',
-                    'vStr' => $_SERVER['SERVER_PORT'],
-                ],
-            ],
-        ];
-
-        foreach(self::$spans as $span){
-            $spContext = $span->spanContext;
-            $span = [
-                'traceIdLow' => hexdec($spContext->traceId),
-                'traceIdHigh' => 0,
-                'spanId' => hexdec($spContext->spanId),
-                'parentSpanId' => hexdec($spContext->parentId),
-                'operationName' => $span->getOperationName(),
-                'flags' => intval($spContext->flags),
-                'startTime' => $span->startTime,
-                'duration' => $span->duration,
-                'tags' => $this->buildTags($span->tags),
-                'logs' => $this->buildLogs($span->logs),
-            ];
-            if($spContext->parentId != 0){
-                $span['references'] = [
-                    [
-                        'refType' =>  1,
-                        'traceIdLow' => hexdec($spContext->traceId),
-                        'traceIdHigh' => 0,
-                        'spanId' => hexdec($spContext->parentId),
-                    ],
-                ];
-            }
-            $spans[] = $span;
-        }
-        // clean will Emit spans
-        self::$spans = [];
-
-        $batch['spans'] = $spans;
-//
-//        if($this->udpHost != '' && $this->udpPort != '') {
-//            try {
-//                return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
-//            }catch (\Exception $e){
-//                //use debug
-//                //var_dump($e->getMessage());
-//                return 0;
-//            }
-//        }else{
-//            return 0;
-//        }
+        $this->reporter->close();
     }
-
-
-    private function buildTags($tags){
-        $resultTags = [];
-        if($tags){
-            foreach ($tags as $key => $tag){
-                if($key == "error"){
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vBool' => $tag,
-                        'vType' => "BOOL"
-                    ];
-                }else{
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vStr' => strval($tag),
-                        'vType' => "STRING"
-                    ];
-                }
-            }
-        }
-
-
-        return $resultTags;
-    }
-
-
-    private function buildLogs($logs){
-        $resultLogs = [];
-        if($logs){
-            foreach($logs as $log){
-                $fields = [];
-                foreach ($log['fields'] as $field){
-                    $field = [
-                        'key' => $field['key'],
-                        'vType' => 'STRING',
-                        'vStr' => $field['value'],
-                    ];
-                    $fields[] = $field;
-                }
-                $resultLogs[] = [
-                    "timestamp" => $log['timestamp'],
-                    "fields" => $fields,
-                ];
-            }
-        }
-
-        return $resultLogs;
-    }
-
-
 }
 
 

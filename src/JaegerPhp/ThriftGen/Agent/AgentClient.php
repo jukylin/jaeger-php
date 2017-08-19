@@ -11,21 +11,20 @@ use JaegerPhp\ThriftGen\Agent\Types;
 class AgentClient
 {
 
-    public static $handleProto = null;
+    public static $tptl = null;
 
-    public function buildThrift($data)
+    public function buildThrift($batch)
     {
         $tran = new TMemoryBuffer(Helper::UDP_PACKET_MAX_LENGTH);
-        self::$handleProto = new TCompactProtocol($tran);
+        self::$tptl = new TCompactProtocol($tran);
+        self::$tptl->writeMessageBegin('emitBatch', TMessageType::ONEWAY, 1);
+        self::$tptl->writeStructBegin('emitBatch_args');
 
-        self::$handleProto->writeMessageBegin('emitBatch', TMessageType::ONEWAY, 1);
-        self::$handleProto->writeStructBegin('emitBatch_args');
+        $this->handleBatch($batch);
+        self::$tptl->writeFieldStop();
 
-        $this->handleBatch($data);
-        self::$handleProto->writeFieldStop();
-
-        self::$handleProto->writeStructEnd();
-        self::$handleProto->writeMessageEnd();
+        self::$tptl->writeStructEnd();
+        self::$tptl->writeMessageEnd();
 
         $msg = $tran->read(Helper::UDP_PACKET_MAX_LENGTH);
 
@@ -34,286 +33,45 @@ class AgentClient
     }
 
 
-    public function handleBatch($data)
+    public function handleBatch($batch)
     {
+        self::$tptl->writeFieldBegin("batch", TType::STRUCT, 1);
 
-        self::$handleProto->writeFieldBegin("batch", TType::STRUCT, 1);
+        self::$tptl->writeStructBegin("Batch");
+        $this->handleThriftProcess($batch['thriftProcess']);
+        $this->handleThriftSpans($batch['thriftSpans']);
 
-        self::$handleProto->writeStructBegin("Batch");
+        self::$tptl->writeFieldStop();
+        self::$tptl->writeStructEnd();
 
-        $this->handleProcess($data);
-
-        $this->handleSpans($data);
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
-
-        self::$handleProto->writeFieldEnd();
+        self::$tptl->writeFieldEnd();
     }
 
 
-    public function handleSpans($data)
+    public function handleThriftSpans($thriftSpans)
     {
-        self::$handleProto->writeFieldBegin("spans", TType::LST, 2);
-        self::$handleProto->writeListBegin(TType::STRUCT, count($data['spans']));
+        self::$tptl->writeFieldBegin("spans", TType::LST, 2);
+        self::$tptl->writeListBegin(TType::STRUCT, count($thriftSpans));
 
-        foreach ($data['spans'] as $span) {
-            $this->handleSpan($span);
+        $agentSpan = new Span();
+
+        foreach ($thriftSpans as $thriftSpan){
+            $agentSpan->overWriteThriftSpan($thriftSpan);
+            $agentSpan->write(self::$tptl);
         }
 
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
+        self::$tptl->writeListEnd();
+        self::$tptl->writeFieldEnd();
     }
 
 
-    public function handleSpan($span)
+    public function handleThriftProcess($thriftProcess)
     {
-        self::$handleProto->writeStructBegin("Span");
-
-        self::$handleProto->writeFieldBegin('traceIdLow', TType::I64, 1);
-        self::$handleProto->writeI64($span['traceIdLow']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('traceIdHigh', TType::I64, 2);
-        self::$handleProto->writeI64($span['traceIdHigh']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('spanId', TType::I64, 3);
-        self::$handleProto->writeI64($span['spanId']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('parentSpanId', TType::I64, 4);
-        self::$handleProto->writeI64($span['parentSpanId']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('operationName', TType::STRING, 5);
-        self::$handleProto->writeString($span['operationName']);
-        self::$handleProto->writeFieldEnd();
-
-        if (isset($span['references'])) {
-            $this->handleSpanRefes($span['references']);
-        }
-
-        self::$handleProto->writeFieldBegin('flags', TType::I32, 7);
-        self::$handleProto->writeI32($span['flags']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('startTime', TType::I64, 8);
-        self::$handleProto->writeI64($span['startTime']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin('duration', TType::I64, 9);
-        self::$handleProto->writeI64($span['duration']);
-        self::$handleProto->writeFieldEnd();
-
-        if (isset($span['tags'])) {
-            $this->handleSpanTags($span['tags']);
-        }
-
-        if (isset($span['logs'])) {
-            $this->handleSpanLogs($span['logs']);
-        }
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
+        self::$tptl->writeFieldBegin("process", TType::STRUCT, 1);
+        (new Process($thriftProcess))->write(self::$tptl);
+        self::$tptl->writeFieldEnd();
     }
 
 
-    public function handleSpanLogs($logs)
-    {
-        self::$handleProto->writeFieldBegin('logs', TType::LST, 11);
-        self::$handleProto->writeListBegin(TType::STRUCT, count($logs));
-
-        foreach ($logs as $log) {
-            $this->handleLog($log);
-        }
-
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleLog($log)
-    {
-        self::$handleProto->writeStructBegin("Log");
-
-        self::$handleProto->writeFieldBegin('timestamp', TType::I64, 1);
-        self::$handleProto->writeI64($log['timestamp']);
-        self::$handleProto->writeFieldEnd();
-
-        $this->handleLogFields($log['fields']);
-
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
-    }
-
-
-    public function handleLogFields($fields)
-    {
-        self::$handleProto->writeFieldBegin('fields', TType::LST, 2);
-        self::$handleProto->writeListBegin(TType::STRUCT, count($fields));
-
-        foreach ($fields as $field) {
-            $this->handleTag($field);
-        }
-
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleSpanTags($tags)
-    {
-        self::$handleProto->writeFieldBegin('tags', TType::LST, 10);
-        self::$handleProto->writeListBegin(TType::STRUCT, count($tags));
-
-        foreach ($tags as $tag) {
-            $this->handleTag($tag);
-        }
-
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleSpanRefes($references)
-    {
-        self::$handleProto->writeFieldBegin('references', TType::LST, 6);
-        self::$handleProto->writeListBegin(TType::STRUCT, count($references));
-        foreach ($references as $refe) {
-            $this->handleSpanRefe($refe);
-        }
-
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleSpanRefe($refe)
-    {
-        self::$handleProto->writeStructBegin("SpanRef");
-
-        self::$handleProto->writeFieldBegin("refType", TType::I32, 1);
-        self::$handleProto->writeI32($refe['refType']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin("traceIdLow", TType::I64, 2);
-        self::$handleProto->writeI64($refe['traceIdLow']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin("traceIdHigh", TType::I64, 3);
-        self::$handleProto->writeI64($refe['traceIdHigh']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldBegin("spanId", TType::I64, 4);
-        self::$handleProto->writeI64($refe['spanId']);
-        self::$handleProto->writeFieldEnd();
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
-    }
-
-
-    public function handleProcess($data)
-    {
-
-        self::$handleProto->writeFieldBegin("process", TType::STRUCT, 1);
-
-        $this->handleProcessProcess($data);
-
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleProcessProcess($data)
-    {
-
-        self::$handleProto->writeStructBegin("Process");
-
-        $this->handleProcessSName($data);
-        $this->handleProcessTags($data);
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
-    }
-
-
-    public function handleProcessSName($data)
-    {
-        self::$handleProto->writeFieldBegin("serviceName", TType::STRING, 1);
-
-        self::$handleProto->writeString($data["process"]["serviceName"]);
-
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleProcessTags($data)
-    {
-        self::$handleProto->writeFieldBegin("tags", TType::LST, 2);
-
-        self::$handleProto->writeListBegin(TType::STRUCT, count($data["process"]["tags"]));
-        if (isset($data['process']['tags'])) {
-            foreach ($data['process']['tags'] as $tag) {
-                $this->handleTag($tag);
-            }
-        }
-
-        self::$handleProto->writeListEnd();
-        self::$handleProto->writeFieldEnd();
-    }
-
-
-    public function handleTag($tag)
-    {
-
-        self::$handleProto->writeStructBegin("Tag");
-
-        if (isset($tag['key'])) {
-            self::$handleProto->writeFieldBegin("key", TType::STRING, 1);
-            self::$handleProto->writeString(strval($tag['key']));
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vType'])) {
-            self::$handleProto->writeFieldBegin('vType', TType::I32, 2);
-            self::$handleProto->writeI32(Types::stringToTagType($tag['vType']));
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vStr'])) {
-            self::$handleProto->writeFieldBegin('vStr', TType::STRING, 3);
-            self::$handleProto->writeString($tag['vStr']);
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vDouble'])) {
-            self::$handleProto->writeFieldBegin('vDouble', TType::DOUBLE, 4);
-            self::$handleProto->writeDouble($tag['vDouble']);
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vBool'])) {
-            self::$handleProto->writeFieldBegin('vBool', TType::BOOL, 5);
-            self::$handleProto->writeBool($tag['vBool']);
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vLong'])) {
-            self::$handleProto->writeFieldBegin('vLong', TType::I64, 6);
-            self::$handleProto->writeI64($tag['vLong']);
-            self::$handleProto->writeFieldEnd();
-        }
-
-        if (isset($tag['vBinary'])) {
-            self::$handleProto->writeFieldBegin('vBinary', TType::STRING, 7);
-            self::$handleProto->writeByte($tag['vBinary']);
-            self::$handleProto->writeFieldEnd();
-        }
-
-        self::$handleProto->writeFieldStop();
-        self::$handleProto->writeStructEnd();
-    }
 }
 ?>

@@ -3,6 +3,7 @@
 namespace JaegerPhp\ThriftGen\Agent;
 
 use Thrift\Protocol\TProtocol;
+use Thrift\Type\TType;
 
 class Tags implements TStruct{
 

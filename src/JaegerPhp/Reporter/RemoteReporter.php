@@ -22,6 +22,6 @@ class RemoteReporter implements Reporter{
 
     public function close()
     {
-        // TODO: Implement close() method.
+        $this->tran->flush();
     }
 }

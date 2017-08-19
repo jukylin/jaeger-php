@@ -2,7 +2,6 @@
 
 namespace JaegerPhp\ThriftGen\Agent;
 
-
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;
 
@@ -14,9 +13,10 @@ class Process implements TStruct{
 
     public static $tags = [];
 
-    public function __construct($serviceName, $tags = '')
+    public function __construct($processThrift)
     {
-        self::$serviceName = $serviceName;
+        self::$serviceName = isset($processThrift['serviceName']) ? $processThrift['serviceName'] : '';
+        self::$tags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
     }
 
 
@@ -55,6 +55,7 @@ class Process implements TStruct{
             self::$tptl->writeFieldEnd();
         }
     }
+
 
     public function read(TProtocol $t){}
 }
