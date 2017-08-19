@@ -9,12 +9,12 @@ use OpenTracing\Propagators\Reader;
 use OpenTracing\Propagator;
 use OpenTracing\Tracer;
 use JaegerPhp\UdpClient;
+use JaegerPhp\JSpan;
+use JaegerPhp\Reporter\Reporter;
 
 class Jaeger implements Tracer{
 
-    private $udpHost = '';
-
-    private $udpPort = '';
+    private $reporter = null;
 
     public static $spans = [];
 
@@ -22,18 +22,58 @@ class Jaeger implements Tracer{
 
     public static $handleProto = null;
 
-    public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775'){
+    public static $tags = [];
 
-        $this->udpHost = $udpHost;
-        $this->udpPort = $udpPort;
+    public static $instance = null;
+
+    private function __construct($serviceName = '', Reporter $reporter){
+
+        $this->reporter = $reporter;
 
         if($serviceName == '') {
             self::$serviceName = $_SERVER['SERVER_NAME'];
         }else{
             self::$serviceName = $serviceName;
         }
+
+        self::$tags = [
+            [
+                'key' => 'ip',
+                'vType' => 'STRING',
+                'vStr' => $_SERVER['SERVER_ADDR'],
+            ],
+            [
+                'key' => 'port',
+                'vType' => 'STRING',
+                'vStr' => $_SERVER['SERVER_PORT'],
+            ],
+        ];
     }
 
+
+    private function __clone(){
+
+    }
+
+
+    public static function getInstance($serviceName = '', Reporter $reporter = null)
+    {
+        if(! (self::$instance instanceof self) )
+        {
+            self::$instance = new self($serviceName, $reporter);
+        }
+        return self::$instance;
+    }
+
+
+    /**
+     * init span info
+     * @param string $operationName
+     * @param SpanReference|null $parentReference
+     * @param null $startTimestamp
+     * @param array $tags
+     * @return JSpan
+     */
     public function startSpan($operationName, SpanReference $parentReference = null
         , $startTimestamp = null, array $tags = []
     ){
@@ -49,10 +89,10 @@ class Jaeger implements Tracer{
             $newSpan = new JSpanContext($traceId, $spanId, 0, 1, null, 0);
         }else{
             $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
-                , $parentSpan->spanId, $parentSpan->flags, null, 0, $this);
+                , $parentSpan->spanId, $parentSpan->flags, null, 0);
         }
 
-        $span = new JSpan($operationName, $newSpan);
+        $span = new JSpan($operationName, $newSpan, $this);
         if($newSpan->flags == 1) {
             self::$spans[] = $span;
         }
@@ -76,7 +116,7 @@ class Jaeger implements Tracer{
         if($format == Propagator::TEXT_MAP){
             $carrier->set(Helper::TracerStateHeaderName, $spanContext->buildString());
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
         }
     }
 
@@ -91,7 +131,7 @@ class Jaeger implements Tracer{
         if($format == Propagator::TEXT_MAP){
             $injectObj[Helper::TracerStateHeaderName] = $spanContext->buildString();
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
         }
     }
 
@@ -111,8 +151,17 @@ class Jaeger implements Tracer{
 
             return new JSpanContext(0, 0, 0, 0, null, 0);
         }else{
-            throw new Exception("不支持format");
+            throw new Exception("not support format");
         }
+    }
+
+
+    /**
+     *
+     * @param \JaegerPhp\JSpan $span
+     */
+    public function reportSpan($thriftSpan){
+        $this->reporter->report($thriftSpan);
     }
 
 
@@ -120,120 +169,8 @@ class Jaeger implements Tracer{
      * 结束,发送信息到jaeger
      */
     public function flush(){
-
-        if(count(self::$spans) < 1){
-            return 0;
-        }
-
-        $batch = [];
-
-        $batch['process'] = [
-            'serviceName' => self::$serviceName,
-            'tags' => [
-                [
-                    'key' => 'ip',
-                    'vType' => 'STRING',
-                    'vStr' => $_SERVER['SERVER_ADDR'],
-                ],
-                [
-                    'key' => 'port',
-                    'vType' => 'STRING',
-                    'vStr' => $_SERVER['SERVER_PORT'],
-                ],
-            ],
-        ];
-
-        foreach(self::$spans as $span){
-            $spContext = $span->spanContext;
-            $span = [
-                'traceIdLow' => hexdec($spContext->traceId),
-                'traceIdHigh' => 0,
-                'spanId' => hexdec($spContext->spanId),
-                'parentSpanId' => hexdec($spContext->parentId),
-                'operationName' => $span->getOperationName(),
-                'flags' => intval($spContext->flags),
-                'startTime' => $span->startTime,
-                'duration' => $span->duration,
-                'tags' => $this->buildTags($span->tags),
-                'logs' => $this->buildLogs($span->logs),
-            ];
-            if($spContext->parentId != 0){
-                $span['references'] = [
-                    [
-                        'refType' =>  1,
-                        'traceIdLow' => hexdec($spContext->traceId),
-                        'traceIdHigh' => 0,
-                        'spanId' => hexdec($spContext->parentId),
-                    ],
-                ];
-            }
-            $spans[] = $span;
-        }
-
-        $batch['spans'] = $spans;
-//echo json_encode($batch);exit;
-        if($this->udpHost != '' && $this->udpPort != '') {
-            try {
-                return (new UdpClient($this->udpHost, $this->udpPort))->EmitBatch($batch);
-            }catch (\Exception $e){
-                //use debug
-                //var_dump($e->getMessage());
-                return 0;
-            }
-        }else{
-            return 0;
-        }
+        $this->reporter->close();
     }
-
-
-    private function buildTags($tags){
-        $resultTags = [];
-        if($tags){
-            foreach ($tags as $key => $tag){
-                if($key == "error"){
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vBool' => $tag,
-                        'vType' => "BOOL"
-                    ];
-                }else{
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vStr' => strval($tag),
-                        'vType' => "STRING"
-                    ];
-                }
-            }
-        }
-
-
-        return $resultTags;
-    }
-
-
-    private function buildLogs($logs){
-        $resultLogs = [];
-        if($logs){
-            foreach($logs as $log){
-                $fields = [];
-                foreach ($log['fields'] as $field){
-                    $field = [
-                        'key' => $field['key'],
-                        'vType' => 'STRING',
-                        'vStr' => $field['value'],
-                    ];
-                    $fields[] = $field;
-                }
-                $resultLogs[] = [
-                    "timestamp" => $log['timestamp'],
-                    "fields" => $fields,
-                ];
-            }
-        }
-
-        return $resultLogs;
-    }
-
 
 }
 

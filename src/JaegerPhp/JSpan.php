@@ -2,21 +2,28 @@
 
 namespace JaegerPhp;
 
+use JaegerPhp\ThriftGen\Agent\JaegerThriftSpan;
 use OpenTracing\Span;
+use JaegerPhp\Jaeger;
 
 class JSpan implements Span{
 
-    public $startTime = '';
-    public $finishTime = '';
     private $operationName = '';
+
+    public $startTime = '';
+
+    public $finishTime = '';
+
     public $spanKind = '';
+
     public $spanContext = null;
+
     public $duration = 0;
+
     public $logs = [];
+
     public $tags = [];
-    private $specialTags = [
-        'spanKind'
-    ];
+
 
     public function __construct($operationName, JSpanContext $spanContext){
         $this->setIsClient();
@@ -48,6 +55,11 @@ class JSpan implements Span{
     public function finish($finishTime = null, array $logRecords = []){
         $this->finishTime = $finishTime == null ? Helper::microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
+        
+        $thriftSpan = (new JaegerThriftSpan)->buildJaegerSpanThrift($this);
+        if($this->spanContext->isSampled()) {
+            Jaeger::getInstance()->reportSpan($thriftSpan);
+        }
     }
 
     /**

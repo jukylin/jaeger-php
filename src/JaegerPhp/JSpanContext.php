@@ -25,8 +25,6 @@ class JSpanContext implements SpanContext{
 
     // debugID can be set to some correlation ID when the context is being
     // extracted from a TextMap carrier.
-    //
-    // See JaegerDebugHeader in constants.go
     public $debugId;
 
 
@@ -61,5 +59,14 @@ class JSpanContext implements SpanContext{
 
     public function buildString(){
         return $this->traceId.':'.$this->spanId.':'.$this->parentId.':'.$this->flags;
+    }
+
+
+    /**
+     * 是否取样
+     * @return mixed
+     */
+    public function isSampled(){
+        return $this->flags;
     }
 }

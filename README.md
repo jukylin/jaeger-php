@@ -2,7 +2,7 @@
 
 ## principle of Distributed Tracing
 
-<img src="https://upload.cc/i/OhsjA0.jpg" />
+<img src="https://upload.cc/i/OhsjA0.jpg" width="700px" height="650px" />
 
 ## install
 > install via composer

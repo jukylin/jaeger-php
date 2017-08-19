@@ -26,4 +26,15 @@ class Helper{
     public static function toHex($string){
         return sprintf("%x", $string);
     }
+
+
+    /**
+     * 用于计算性能
+     * @return float
+     */
+    public function getmicrotime()
+    {
+        list($usec, $sec) = explode(" ",microtime());
+        return ((float)$usec + (float)$sec);
+    }
 }
