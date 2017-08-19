@@ -17,7 +17,7 @@ class JaegerThriftSpan{
         return $processThrift;
     }
 
-    public function buildJaegerThrift(JSpan $Jspan){
+    public function buildJaegerSpanThrift(JSpan $Jspan){
 
         $spContext = $Jspan->spanContext;
         $span = [

@@ -15,7 +15,7 @@ class AgentClient
 
     public function buildThrift($batch)
     {
-        $tran = new TMemoryBuffer(Helper::UDP_PACKET_MAX_LENGTH);
+        $tran = new TMemoryBuffer();
         self::$tptl = new TCompactProtocol($tran);
         self::$tptl->writeMessageBegin('emitBatch', TMessageType::ONEWAY, 1);
         self::$tptl->writeStructBegin('emitBatch_args');
@@ -26,10 +26,10 @@ class AgentClient
         self::$tptl->writeStructEnd();
         self::$tptl->writeMessageEnd();
 
-        $msg = $tran->read(Helper::UDP_PACKET_MAX_LENGTH);
+        $batchLen = $tran->available();
+        $batchThriftStr = $tran->read(Helper::UDP_PACKET_MAX_LENGTH);
 
-
-        return str_replace(Helper::UDP_PACKET_MAX_LENGTH, "", $msg);
+        return ['len' => $batchLen, 'thriftStr' => $batchThriftStr];
     }
 
 
@@ -54,7 +54,6 @@ class AgentClient
         self::$tptl->writeListBegin(TType::STRUCT, count($thriftSpans));
 
         $agentSpan = new Span();
-
         foreach ($thriftSpans as $thriftSpan){
             $agentSpan->overWriteThriftSpan($thriftSpan);
             $agentSpan->write(self::$tptl);

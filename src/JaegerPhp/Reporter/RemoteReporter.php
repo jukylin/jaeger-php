@@ -14,9 +14,9 @@ class RemoteReporter implements Reporter{
         $this->tran = $tran;
     }
 
-    public function report(JSpan $span)
+    public function report($thriftSpan)
     {
-        $this->tran->append($span);
+        $this->tran->append($thriftSpan);
     }
 
 

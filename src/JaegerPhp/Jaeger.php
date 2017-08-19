@@ -14,10 +14,6 @@ use JaegerPhp\Reporter\Reporter;
 
 class Jaeger implements Tracer{
 
-    private $udpHost = '';
-
-    private $udpPort = '';
-
     private $reporter = null;
 
     public static $spans = [];
@@ -28,10 +24,10 @@ class Jaeger implements Tracer{
 
     public static $tags = [];
 
-    public function __construct($serviceName = '', $udpHost = '0.0.0.0', $udpPort = '5775',Reporter $reporter){
+    public static $instance = null;
 
-        $this->udpHost = $udpHost;
-        $this->udpPort = $udpPort;
+    private function __construct($serviceName = '', Reporter $reporter){
+
         $this->reporter = $reporter;
 
         if($serviceName == '') {
@@ -52,6 +48,21 @@ class Jaeger implements Tracer{
                 'vStr' => $_SERVER['SERVER_PORT'],
             ],
         ];
+    }
+
+
+    private function __clone(){
+
+    }
+
+
+    public static function getInstance($serviceName = '', Reporter $reporter = null)
+    {
+        if(! (self::$instance instanceof self) )
+        {
+            self::$instance = new self($serviceName, $reporter);
+        }
+        return self::$instance;
     }
 
 
@@ -78,7 +89,7 @@ class Jaeger implements Tracer{
             $newSpan = new JSpanContext($traceId, $spanId, 0, 1, null, 0);
         }else{
             $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
-                , $parentSpan->spanId, $parentSpan->flags, null, 0, $this);
+                , $parentSpan->spanId, $parentSpan->flags, null, 0);
         }
 
         $span = new JSpan($operationName, $newSpan, $this);
@@ -149,10 +160,8 @@ class Jaeger implements Tracer{
      *
      * @param \JaegerPhp\JSpan $span
      */
-    public function reportSpan(JSpan $span){
-        if($span->spanContext->isSampled()){
-            $this->reporter->report($span);
-        }
+    public function reportSpan($thriftSpan){
+        $this->reporter->report($thriftSpan);
     }
 
 
@@ -162,6 +171,7 @@ class Jaeger implements Tracer{
     public function flush(){
         $this->reporter->close();
     }
+
 }
 
 

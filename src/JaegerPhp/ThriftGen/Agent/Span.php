@@ -21,7 +21,12 @@ class Span implements TStruct{
     public function write(TProtocol $t)
     {
         self::$tptl = $t;
-        $this->handleSpan(self::$thriftSpan);
+        if(isset(self::$thriftSpan['writed']) && self::$thriftSpan['writed']){
+            $tran = self::$tptl->getTransport();
+            $tran->write(self::$thriftSpan['writed']);
+        } else {
+            $this->handleSpan(self::$thriftSpan);
+        }
     }
 
 

@@ -6,7 +6,7 @@ use JaegerPhp\JSpan;
 
 interface Reporter{
 
-    public function report(JSpan $span);
+    public function report($thriftSpan);
 
     public function close();
 }

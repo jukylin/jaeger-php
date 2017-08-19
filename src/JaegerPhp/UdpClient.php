@@ -21,8 +21,9 @@ class UdpClient{
     }
 
     public function EmitBatch($batch){
-        $enitThrift = (new AgentClient())->buildThrift($batch);
-        $len = strlen($enitThrift);
+        $buildThrift = (new AgentClient())->buildThrift($batch);
+        $len = $buildThrift['len'];
+        $enitThrift = $buildThrift['thriftStr'];
         $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         socket_sendto($sock, $enitThrift, $len, 0, $this->host, $this->post);
         socket_close($sock);
