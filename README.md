@@ -13,7 +13,7 @@
 {
   "minimum-stability": "dev",
   "require":           {
-    "jukylin/jaeger-php" : "^1.0",
+    "jukylin/jaeger-php" : "^2.0",
     "opentracing/opentracing":"dev-master"
   }
 }
