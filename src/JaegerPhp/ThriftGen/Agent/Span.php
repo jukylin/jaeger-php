@@ -1,7 +1,6 @@
 <?php
 namespace JaegerPhp\ThriftGen\Agent;
 
-use JaegerPhp\JSpan;
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;
 
@@ -21,9 +20,9 @@ class Span implements TStruct{
     public function write(TProtocol $t)
     {
         self::$tptl = $t;
-        if(isset(self::$thriftSpan['writed']) && self::$thriftSpan['writed']){
+        if(isset(self::$thriftSpan['wrote']) && self::$thriftSpan['wrote']){
             $tran = self::$tptl->getTransport();
-            $tran->write(self::$thriftSpan['writed']);
+            $tran->write(self::$thriftSpan['wrote']);
         } else {
             $this->handleSpan(self::$thriftSpan);
         }

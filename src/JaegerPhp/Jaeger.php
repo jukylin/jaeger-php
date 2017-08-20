@@ -8,8 +8,6 @@ use OpenTracing\Propagators\Writer;
 use OpenTracing\Propagators\Reader;
 use OpenTracing\Propagator;
 use OpenTracing\Tracer;
-use JaegerPhp\UdpClient;
-use JaegerPhp\JSpan;
 use JaegerPhp\Reporter\Reporter;
 
 class Jaeger implements Tracer{

@@ -5,7 +5,6 @@ namespace JaegerPhp\Transport;
 
 use JaegerPhp\Helper;
 use JaegerPhp\Jaeger;
-use JaegerPhp\JSpan;
 use JaegerPhp\ThriftGen\Agent\JaegerThriftSpan;
 use JaegerPhp\ThriftGen\Agent\Process;
 use JaegerPhp\ThriftGen\Agent\Span;

@@ -32,7 +32,7 @@ class Helper{
      * 用于计算性能
      * @return float
      */
-    public function getmicrotime()
+    public static function getmicrotime()
     {
         list($usec, $sec) = explode(" ",microtime());
         return ((float)$usec + (float)$sec);

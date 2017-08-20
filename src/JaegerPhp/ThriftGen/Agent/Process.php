@@ -13,32 +13,35 @@ class Process implements TStruct{
 
     public static $tags = [];
 
-    public static $writed = '';
+    public static $wrote = '';
 
     public function __construct($processThrift)
     {
         self::$serviceName = isset($processThrift['serviceName']) ? $processThrift['serviceName'] : '';
         self::$tags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
-        self::$writed = isset($processThrift['writed']) ? $processThrift['writed'] : '';
+        self::$wrote = isset($processThrift['wrote']) ? $processThrift['wrote'] : '';
     }
 
 
     public function write(TProtocol $t){
         self::$tptl = $t;
 
-        if(self::$writed){
+
+        if(self::$wrote){
             $tran = self::$tptl->getTransport();
-            $tran->write(self::$writed);
+            $tran->write(self::$wrote);
         } else {
 
             self::$tptl->writeStructBegin("Process");
 
             $this->handleProcessSName();
             $this->handleProcessTags();
-
+            
             self::$tptl->writeFieldStop();
             self::$tptl->writeStructEnd();
         }
+
+
     }
 
 
