@@ -20,15 +20,24 @@ class UdpClient{
         list($this->host, $this->post) = explode(":", $hostPost);
     }
 
+
+    /**
+     * 发送数据
+     * @param $batch
+     * @return bool
+     */
     public function EmitBatch($batch){
         $buildThrift = (new AgentClient())->buildThrift($batch);
-        $len = $buildThrift['len'];
-        $enitThrift = $buildThrift['thriftStr'];
-        $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        socket_sendto($sock, $enitThrift, $len, 0, $this->host, $this->post);
-        socket_close($sock);
+        if(isset($buildThrift['len']) && $buildThrift['len']) {
+            $len = $buildThrift['len'];
+            $enitThrift = $buildThrift['thriftStr'];
+            $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+            socket_sendto($sock, $enitThrift, $len, 0, $this->host, $this->post);
+            socket_close($sock);
 
-
-        return $len;
+            return true;
+        }else{
+            return false;
+        }
     }
 }
