@@ -56,15 +56,22 @@ class TransportUdp implements Transport{
     }
 
 
+    public function buildAndCalcSizeOfProcessThrift(){
+        self::$processThrift = (new JaegerThriftSpan())->buildJaegerProcessThrift(Jaeger::getInstance());
+        self::$process = (new Process(self::$processThrift));
+        self::$processSize = $this->getAndCalcSizeOfSerializedThrift(self::$process, self::$processThrift);
+        self::$bufferSize += self::$processSize;
+    }
+
+
+    /**
+     * 收集将要发送的thriftSpan
+     * @param $thriftSpan
+     */
     public function append($thriftSpan){
 
-        $jts = new JaegerThriftSpan();
-
         if(self::$process == null){
-            self::$processThrift = $jts->buildJaegerProcessThrift(Jaeger::getInstance());
-            self::$process = (new Process(self::$processThrift));
-            self::$processSize = $this->getAndCalcSizeOfSerializedThrift(self::$process, self::$processThrift);
-            self::$bufferSize += self::$processSize;
+            $this->buildAndCalcSizeOfProcessThrift();
         }
 
         $agentSpan = new Span($thriftSpan);
@@ -93,6 +100,7 @@ class TransportUdp implements Transport{
      * @return mixed
      */
     private function getAndCalcSizeOfSerializedThrift(TStruct $ts, &$serializedThrift){
+
         $ts->write($this->thriftProtocol);
         $serThriftStrlen = $this->tran->available();
         //获取后buf清空

@@ -26,7 +26,6 @@ class Process implements TStruct{
     public function write(TProtocol $t){
         self::$tptl = $t;
 
-
         if(self::$wrote){
             $tran = self::$tptl->getTransport();
             $tran->write(self::$wrote);

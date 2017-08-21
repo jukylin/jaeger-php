@@ -37,7 +37,6 @@ class Config {
         $trace = Jaeger::getInstance($serviceName, $this->reporter);
         GlobalTracer::set($trace);
 
-
         return $trace;
     }
 
