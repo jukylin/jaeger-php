@@ -121,6 +121,8 @@ class TransportUdp implements Transport{
         $emitRes = (new UdpClient(self::$hostPort))->EmitBatch(['thriftProcess' => self::$processThrift
             , 'thriftSpans' => self::$thriftSpans]);
         if($emitRes){
+            self::$thriftSpans = [];
+            self::$processThrift = null;
             return $thriftSpanSum;
         }else{
             return 0;
