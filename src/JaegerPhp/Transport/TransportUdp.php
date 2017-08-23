@@ -109,12 +109,23 @@ class TransportUdp implements Transport{
     }
 
 
+    /**
+     * @return int
+     */
     public function flush(){
-        if(count(self::$thriftSpans) <= 0){
+        $thriftSpanSum = count(self::$thriftSpans);
+        if($thriftSpanSum <= 0){
             return 0;
         }
 
-        (new UdpClient(self::$hostPort))->EmitBatch(['thriftProcess' => self::$processThrift
+        $emitRes = (new UdpClient(self::$hostPort))->EmitBatch(['thriftProcess' => self::$processThrift
             , 'thriftSpans' => self::$thriftSpans]);
+        if($emitRes){
+            self::$thriftSpans = [];
+            self::$processThrift = null;
+            return $thriftSpanSum;
+        }else{
+            return 0;
+        }
     }
 }
