@@ -14,27 +14,35 @@ class Jaeger implements Tracer{
 
     private $reporter = null;
 
-    public static $spans = [];
-
-    public static $serviceName = '';
-
     public static $handleProto = null;
 
-    public static $tags = [];
+    public $spans = [];
 
-    public static $instance = null;
+    public $tags = [];
 
-    private function __construct($serviceName = '', Reporter $reporter){
+    public $process = null;
+
+    public $procesSize = 0;
+
+    public $serviceName = '';
+
+    public $bufferSize = '';
+
+    public $processThrift = '';
+
+    public $spanThrifts = [];
+
+    public function __construct($serviceName = '', Reporter $reporter){
 
         $this->reporter = $reporter;
 
         if($serviceName == '') {
-            self::$serviceName = $_SERVER['SERVER_NAME'];
+            $this->serviceName = $_SERVER['SERVER_NAME'];
         }else{
-            self::$serviceName = $serviceName;
+            $this->serviceName = $serviceName;
         }
 
-        self::$tags = [
+        $this->tags = [
             [
                 'key' => 'ip',
                 'vType' => 'STRING',
@@ -46,21 +54,6 @@ class Jaeger implements Tracer{
                 'vStr' => $_SERVER['SERVER_PORT'],
             ],
         ];
-    }
-
-
-    private function __clone(){
-
-    }
-
-
-    public static function getInstance($serviceName = '', Reporter $reporter = null)
-    {
-        if(! (self::$instance instanceof self) )
-        {
-            self::$instance = new self($serviceName, $reporter);
-        }
-        return self::$instance;
     }
 
 
@@ -92,7 +85,7 @@ class Jaeger implements Tracer{
 
         $span = new JSpan($operationName, $newSpan, $this);
         if($newSpan->flags == 1) {
-            self::$spans[] = $span;
+            $this->spans[] = $span;
         }
 
         return $span;
@@ -154,12 +147,13 @@ class Jaeger implements Tracer{
     }
 
 
-    /**
-     *
-     * @param \JaegerPhp\JSpan $span
-     */
-    public function reportSpan($thriftSpan){
-        $this->reporter->report($thriftSpan);
+    public function getSpans(){
+        return $this->spans;
+    }
+
+
+    public function reportSpan(){
+        $this->reporter->report($this);
     }
 
 
@@ -167,7 +161,9 @@ class Jaeger implements Tracer{
      * 结束,发送信息到jaeger
      */
     public function flush(){
+        $this->reportSpan();
         $this->reporter->close();
+        Config::getInstance()->destroyTrace($this->serviceName);
     }
 
 }

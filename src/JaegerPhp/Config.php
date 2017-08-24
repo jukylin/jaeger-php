@@ -3,9 +3,11 @@
 namespace JaegerPhp;
 
 use JaegerPhp\Reporter\RemoteReporter;
+use JaegerPhp\Reporter\Reporter;
 use JaegerPhp\Transport\TransportUdp;
 use OpenTracing\GlobalTracer;
 use OpenTracing\Carriers\TextMap;
+use OpenTracing\NoopTracer;
 use OpenTracing\Propagator;
 use OpenTracing\SpanContext;
 use OpenTracing\SpanReference;
@@ -56,6 +58,10 @@ class Config {
             throw new Exception("serviceName require");
         }
 
+        if(isset(self::$trace[$serviceName]) && empty(self::$trace[$serviceName])){
+            return self::$trace[$serviceName];
+        }
+
         if($this->transport == null){
             $this->transport = new TransportUdp($agentHostPort);
         }
@@ -64,12 +70,15 @@ class Config {
             $this->reporter = new RemoteReporter($this->transport);
         }
 
-        self::$trace = Jaeger::getInstance($serviceName, $this->reporter);
-        GlobalTracer::set(self::$trace);
+        $trace = new Jaeger($serviceName, $this->reporter);
+        self::$trace[$serviceName] = $trace;
+
+
+        return $trace;
     }
 
 
-    public function setTransport(Transport $transport){
+    public function setTransport(Transport\Transport $transport){
         $this->transport = $transport;
     }
 
@@ -84,45 +93,25 @@ class Config {
     }
 
 
-    public static function getTrace(){
-        return GlobalTracer::get();
-    }
-
-
     /**
-     * 从超全局变量提取TracerStateHeaderName和创建span
-     * @param $operationName
-     * @return null
+     * 销毁对象
+     * @param $serviceName
      */
-    public function startSpan($operationName){
-        $mapText = array_merge($_REQUEST, $_SERVER);
-        $spanContext = self::$trace->extract(Propagator::TEXT_MAP, TextMap::create($mapText));
-
-        return self::$trace->startSpan($operationName
-            , SpanReference::createAsChildOf($spanContext));
-    }
-
-
-    /**
-     * 把TracerStateHeaderName 注入到超全局变量 或者 $injectTarget
-     */
-    public function inject(SpanContext $spanContext, &$injectTarget = []){
-
-        if(empty($injectTarget)){
-            $injectTarget = &$_SERVER;
+    public function destroyTrace($serviceName){
+        if(isset(self::$trace[$serviceName])){
+            unset(self::$trace[$serviceName]);
         }
-
-        self::$trace->injectJaeger($spanContext, Propagator::TEXT_MAP
-            , $injectTarget);
-
-        return true;
     }
 
 
     public function flushTrace(){
-        if(self::$trace != null) {
-            self::$trace->flush();
+        if(count(self::$trace) > 0) {
+            foreach(self::$trace as $trace){
+                $trace->reportSpan();
+            }
+            $this->reporter->close();
         }
+
         return 0;
     }
 }

@@ -56,10 +56,10 @@ class JSpan implements Span{
         $this->finishTime = $finishTime == null ? Helper::microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
 
-        $thriftSpan = (new JaegerThriftSpan)->buildJaegerSpanThrift($this);
-        if($this->spanContext->isSampled()) {
-            Jaeger::getInstance()->reportSpan($thriftSpan);
-        }
+//        $thriftSpan = (new JaegerThriftSpan)->buildJaegerSpanThrift($this);
+//        if($this->spanContext->isSampled()) {
+//            Jaeger::getInstance()->reportSpan($thriftSpan);
+//        }
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace JaegerPhp\Reporter;
 
+use JaegerPhp\Jaeger;
 use JaegerPhp\JSpan;
 use JaegerPhp\Transport\Transport;
 
@@ -14,9 +15,9 @@ class RemoteReporter implements Reporter{
         $this->tran = $tran;
     }
 
-    public function report($thriftSpan)
+    public function report(Jaeger $jaeger)
     {
-        $this->tran->append($thriftSpan);
+        $this->tran->append($jaeger);
     }
 
 
