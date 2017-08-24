@@ -5,12 +5,7 @@ namespace JaegerPhp;
 use JaegerPhp\Reporter\RemoteReporter;
 use JaegerPhp\Reporter\Reporter;
 use JaegerPhp\Transport\TransportUdp;
-use OpenTracing\GlobalTracer;
-use OpenTracing\Carriers\TextMap;
 use OpenTracing\NoopTracer;
-use OpenTracing\Propagator;
-use OpenTracing\SpanContext;
-use OpenTracing\SpanReference;
 
 class Config {
 
@@ -25,6 +20,8 @@ class Config {
     public static $span = null;
 
     public static $instance = null;
+
+    public static $disabled = false;
 
     private function __construct(){
 
@@ -54,6 +51,11 @@ class Config {
      * @throws \Exception
      */
     public function initTrace($serviceName, $agentHostPort = ''){
+
+        if(self::$disabled){
+            return NoopTracer::create();
+        }
+
         if($serviceName == ''){
             throw new Exception("serviceName require");
         }
@@ -61,6 +63,7 @@ class Config {
         if(isset(self::$trace[$serviceName]) && empty(self::$trace[$serviceName])){
             return self::$trace[$serviceName];
         }
+
 
         if($this->transport == null){
             $this->transport = new TransportUdp($agentHostPort);
@@ -75,6 +78,15 @@ class Config {
 
 
         return $trace;
+    }
+
+
+    /**
+     * 是否开启
+     * @param $disabled
+     */
+    public function setDisabled($disabled){
+        self::$disabled = $disabled;
     }
 
 

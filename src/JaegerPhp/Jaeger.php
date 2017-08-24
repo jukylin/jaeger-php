@@ -83,8 +83,8 @@ class Jaeger implements Tracer{
                 , $parentSpan->spanId, $parentSpan->flags, null, 0);
         }
 
-        $span = new JSpan($operationName, $newSpan, $this);
-        if($newSpan->flags == 1) {
+        $span = new JSpan($operationName, $newSpan);
+        if($newSpan->isSampled() == 1) {
             $this->spans[] = $span;
         }
 
@@ -106,21 +106,6 @@ class Jaeger implements Tracer{
     public function inject(SpanContext $spanContext, $format, Writer $carrier){
         if($format == Propagator::TEXT_MAP){
             $carrier->set(Helper::TracerStateHeaderName, $spanContext->buildString());
-        }else{
-            throw new Exception("not support format");
-        }
-    }
-
-
-    /**
-     * 注入
-     * @param SpanContext $spanContext
-     * @param int|string $format
-     * @param array $injectObj
-     */
-    public function injectJaeger(SpanContext $spanContext, $format, &$injectObj = []){
-        if($format == Propagator::TEXT_MAP){
-            $injectObj[Helper::TracerStateHeaderName] = $spanContext->buildString();
         }else{
             throw new Exception("not support format");
         }
@@ -153,6 +138,7 @@ class Jaeger implements Tracer{
 
 
     public function reportSpan(){
+
         $this->reporter->report($this);
     }
 
