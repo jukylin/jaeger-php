@@ -24,7 +24,7 @@ class Jaeger implements Tracer{
 
     public $procesSize = 0;
 
-    public $serviceName = '';
+    public $serverName = '';
 
     public $bufferSize = '';
 
@@ -32,28 +32,33 @@ class Jaeger implements Tracer{
 
     public $spanThrifts = [];
 
-    public function __construct($serviceName = '', Reporter $reporter){
+    public function __construct($serverName = '', Reporter $reporter){
 
         $this->reporter = $reporter;
 
-        if($serviceName == '') {
-            $this->serviceName = $_SERVER['SERVER_NAME'];
+        if($serverName == '') {
+            $this->serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'unknow server';
         }else{
-            $this->serviceName = $serviceName;
+            $this->serverName = $serverName;
         }
 
-        $this->tags = [
-            [
+        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+        if($ip){
+            $this->tags[] =             [
                 'key' => 'ip',
                 'vType' => 'STRING',
-                'vStr' => $_SERVER['SERVER_ADDR'],
-            ],
-            [
+                'vStr' => $ip,
+            ];
+        }
+
+        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
+        if($port){
+            $this->tags[] =  [
                 'key' => 'port',
                 'vType' => 'STRING',
-                'vStr' => $_SERVER['SERVER_PORT'],
-            ],
-        ];
+                'vStr' => $port,
+            ];
+        }
     }
 
 
