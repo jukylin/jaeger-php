@@ -114,13 +114,10 @@ class Config {
 
     public function flushTrace(){
         if(count(self::$trace) > 0) {
-            $s = Helper::getmicrotime();
             foreach(self::$trace as $trace){
                 $trace->reportSpan();
             }
             $this->reporter->close();
-            $e = Helper::getmicrotime();
-            echo "end1:".($e - $s);
         }
 
         return true;
