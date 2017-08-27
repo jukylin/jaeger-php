@@ -6,6 +6,7 @@ use JaegerPhp\Reporter\RemoteReporter;
 use JaegerPhp\Reporter\Reporter;
 use JaegerPhp\Transport\TransportUdp;
 use OpenTracing\NoopTracer;
+use GuzzleHttp\Promise;
 
 class Config {
 
@@ -50,18 +51,18 @@ class Config {
      * @return Jaeger|null
      * @throws \Exception
      */
-    public function initTrace($serviceName, $agentHostPort = ''){
+    public function initTrace($serverName, $agentHostPort = ''){
 
         if(self::$disabled){
             return NoopTracer::create();
         }
 
-        if($serviceName == ''){
-            throw new Exception("serviceName require");
+        if($serverName == ''){
+            throw new Exception("serverName require");
         }
 
-        if(isset(self::$trace[$serviceName]) && empty(self::$trace[$serviceName])){
-            return self::$trace[$serviceName];
+        if(isset(self::$trace[$serverName]) && empty(self::$trace[$serverName])){
+            return self::$trace[$serverName];
         }
 
 
@@ -73,8 +74,8 @@ class Config {
             $this->reporter = new RemoteReporter($this->transport);
         }
 
-        $trace = new Jaeger($serviceName, $this->reporter);
-        self::$trace[$serviceName] = $trace;
+        $trace = new Jaeger($serverName, $this->reporter);
+        self::$trace[$serverName] = $trace;
 
 
         return $trace;
@@ -109,9 +110,9 @@ class Config {
      * 销毁对象
      * @param $serviceName
      */
-    public function destroyTrace($serviceName){
-        if(isset(self::$trace[$serviceName])){
-            unset(self::$trace[$serviceName]);
+    public function destroyTrace($serverName){
+        if(isset(self::$trace[$serverName])){
+            unset(self::$trace[$serverName]);
         }
     }
 
@@ -124,6 +125,6 @@ class Config {
             $this->reporter->close();
         }
 
-        return 0;
+        return true;
     }
 }

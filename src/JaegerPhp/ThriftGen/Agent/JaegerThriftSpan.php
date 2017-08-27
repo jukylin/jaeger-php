@@ -11,7 +11,7 @@ class JaegerThriftSpan{
 
     public function buildJaegerProcessThrift(Jaeger $jaeger){
         $processThrift = [
-            'serviceName' => $jaeger->serviceName,
+            'serverName' => $jaeger->serverName,
             'tags' => $jaeger->tags,
         ];
         return $processThrift;
