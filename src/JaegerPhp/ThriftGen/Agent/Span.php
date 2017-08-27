@@ -10,10 +10,34 @@ class Span implements TStruct{
 
     public static $tptl = null;
 
+    public static $instance = null;
 
-    public function __construct($thriftSpan = [])
+    private function __construct()
     {
+    }
+
+
+    private function __clone()
+    {
+    }
+
+
+    public static function getInstance(){
+        if(! (self::$instance instanceof self) )
+        {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+
+    public function setThriftSpan($thriftSpan = []){
         self::$thriftSpan = $thriftSpan;
+    }
+
+
+    public function getThriftSpan(){
+        return self::$thriftSpan;
     }
 
 
@@ -32,11 +56,6 @@ class Span implements TStruct{
     public function read(TProtocol $t)
     {
         // TODO: Implement read() method.
-    }
-
-
-    public function overWriteThriftSpan($thriftSpan){
-        self::$thriftSpan = $thriftSpan;
     }
 
 
@@ -127,7 +146,9 @@ class Span implements TStruct{
         self::$tptl->writeFieldBegin('fields', TType::LST, 2);
         self::$tptl->writeListBegin(TType::STRUCT, count($fields));
 
-        (new Tags($fields))->write(self::$tptl);
+        $tagsObj = Tags::getInstance();
+        $tagsObj->setThriftTags($fields);
+        $tagsObj->write(self::$tptl);
 
         self::$tptl->writeListEnd();
         self::$tptl->writeFieldEnd();
@@ -139,7 +160,9 @@ class Span implements TStruct{
         self::$tptl->writeFieldBegin('tags', TType::LST, 10);
         self::$tptl->writeListBegin(TType::STRUCT, count($tags));
 
-        (new Tags($tags))->write(self::$tptl);
+        $tagsObj = Tags::getInstance();
+        $tagsObj->setThriftTags($tags);
+        $tagsObj->write(self::$tptl);
 
         self::$tptl->writeListEnd();
         self::$tptl->writeFieldEnd();

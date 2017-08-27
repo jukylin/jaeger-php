@@ -41,24 +41,11 @@ class Jaeger implements Tracer{
         }else{
             $this->serverName = $serverName;
         }
+    }
 
-        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
-        if($ip){
-            $this->tags[] =             [
-                'key' => 'ip',
-                'vType' => 'STRING',
-                'vStr' => $ip,
-            ];
-        }
 
-        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
-        if($port){
-            $this->tags[] =  [
-                'key' => 'port',
-                'vType' => 'STRING',
-                'vStr' => $port,
-            ];
-        }
+    public function setTags(array $tags = []){
+        $this->tags = array_merge($this->tags, $tags);
     }
 
 
@@ -89,6 +76,10 @@ class Jaeger implements Tracer{
         }
 
         $span = new JSpan($operationName, $newSpan);
+        if(empty($tags)){
+            $span->addTags($tags);
+        }
+
         if($newSpan->isSampled() == 1) {
             $this->spans[] = $span;
         }
@@ -143,7 +134,6 @@ class Jaeger implements Tracer{
 
 
     public function reportSpan(){
-
         $this->reporter->report($this);
     }
 

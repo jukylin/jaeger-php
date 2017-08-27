@@ -9,11 +9,29 @@ class Tags implements TStruct{
 
     public static $tptl = null;
 
+    public static $instance = null;
+
     public $tags = null;
 
-    public function __construct($tags)
-    {
-        $this->tags = $tags;
+    public $thriftTags = null;
+
+
+    private function __construct(){
+
+    }
+
+
+    private function __clone(){
+
+    }
+
+
+    public static function getInstance(){
+        if(!(self::$instance instanceof self)){
+            self::$instance = new self();
+        }
+
+        return self::$instance;
     }
 
 
@@ -21,7 +39,11 @@ class Tags implements TStruct{
 
         self::$tptl = $t;
 
-        foreach($this->tags as $tag) {
+        if(empty($this->thriftTags)){
+            return false;
+        }
+
+        foreach($this->thriftTags as $tag) {
 
             self::$tptl->writeStructBegin("Tag");
 
@@ -70,10 +92,80 @@ class Tags implements TStruct{
             self::$tptl->writeFieldStop();
             self::$tptl->writeStructEnd();
         }
+
+
+        return true;
     }
 
 
     public function read(TProtocol $t){
 
+    }
+
+
+    public function setThriftTags($thriftTags){
+        $this->thriftTags = $thriftTags;
+    }
+
+
+    public function setTags($tags){
+        $this->tags = $tags;
+    }
+
+
+    public function buildTags(){
+
+        $thriftTags = [];
+        if(empty($this->tags)){
+            return $thriftTags;
+        }
+
+        foreach ($this->tags as $k => $v){
+            switch(gettype($v)){
+                case "string":
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'STRING',
+                        'vStr' => $v,
+                    ];
+                    break;
+                case "boolean":
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'BOOL',
+                        'vBool' => $v,
+                    ];
+                    break;
+                case "double":
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'DOUBLE',
+                        'vDouble' => $v,
+                    ];
+                    break;
+                case "integer":
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'DOUBLE',
+                        'vDouble' => $v,
+                    ];
+                    break;
+                case "array":
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'STRING',
+                        'vStr' => json_encode($v, JSON_UNESCAPED_UNICODE),
+                    ];
+                default:
+                    $thriftTags[] = [
+                        'key' => $k,
+                        'vType' => 'STRING',
+                        'vStr' => is_string($v),
+                    ];
+            }
+        }
+
+
+        return $thriftTags;
     }
 }
