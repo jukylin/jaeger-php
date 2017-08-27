@@ -154,7 +154,7 @@ class Jaeger implements Tracer{
     public function flush(){
         $this->reportSpan();
         $this->reporter->close();
-        Config::getInstance()->destroyTrace($this->serviceName);
+        Config::getInstance()->destroyTrace($this->serverName);
     }
 
 }

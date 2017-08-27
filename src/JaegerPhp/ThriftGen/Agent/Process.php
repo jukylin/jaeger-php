@@ -9,7 +9,7 @@ class Process implements TStruct{
 
     public static $tptl = null;
 
-    public static $serviceName = '';
+    public static $serverName = '';
 
     public static $tags = [];
 
@@ -17,7 +17,7 @@ class Process implements TStruct{
 
     public function __construct($processThrift)
     {
-        self::$serviceName = isset($processThrift['serviceName']) ? $processThrift['serviceName'] : '';
+        self::$serverName = isset($processThrift['serverName']) ? $processThrift['serverName'] : '';
         self::$tags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
         self::$wrote = isset($processThrift['wrote']) ? $processThrift['wrote'] : '';
     }
@@ -46,9 +46,9 @@ class Process implements TStruct{
 
     public function handleProcessSName()
     {
-        self::$tptl->writeFieldBegin("serviceName", TType::STRING, 1);
+        self::$tptl->writeFieldBegin("serverName", TType::STRING, 1);
 
-        self::$tptl->writeString(self::$serviceName);
+        self::$tptl->writeString(self::$serverName);
 
         self::$tptl->writeFieldEnd();
     }
