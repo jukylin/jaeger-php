@@ -10,10 +10,27 @@ class JaegerThriftSpan{
 
 
     public function buildJaegerProcessThrift(Jaeger $jaeger){
+        $tags = [];
+        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+        if($ip){
+            $tags['ip'] = $ip;
+        }
+
+        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
+        if($port){
+            $tags['port'] = $port;
+        }
+        $tags = array_merge($tags, $jaeger->tags);
+        $tagsObj = Tags::getInstance();
+        $tagsObj->setTags($tags);
+        $thriftTags = $tagsObj->buildTags();
+
         $processThrift = [
             'serverName' => $jaeger->serverName,
-            'tags' => $jaeger->tags,
+            'tags' => $thriftTags,
         ];
+
+
         return $processThrift;
     }
 

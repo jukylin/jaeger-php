@@ -101,11 +101,6 @@ class Config {
     }
 
 
-    public function setTags($tags){
-        $this->tags = $tags;
-    }
-
-
     /**
      * 销毁对象
      * @param $serviceName
@@ -119,10 +114,13 @@ class Config {
 
     public function flushTrace(){
         if(count(self::$trace) > 0) {
+            $s = Helper::getmicrotime();
             foreach(self::$trace as $trace){
                 $trace->reportSpan();
             }
             $this->reporter->close();
+            $e = Helper::getmicrotime();
+            echo "end1:".($e - $s);
         }
 
         return true;

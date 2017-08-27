@@ -74,7 +74,9 @@ class TransportUdp implements Transport{
         foreach($jaeger->spans as $k => $span){
 
             $spanThrift = (new JaegerThriftSpan())->buildJaegerSpanThrift($span);
-            $agentSpan = new Span($spanThrift);
+
+            $agentSpan = Span::getInstance();
+            $agentSpan->setThriftSpan($spanThrift);
             $spanSize = $this->getAndCalcSizeOfSerializedThrift($agentSpan, $spanThrift);
 
             if($spanSize > self::$maxSpanBytes){

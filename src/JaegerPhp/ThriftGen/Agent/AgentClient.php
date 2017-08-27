@@ -53,9 +53,9 @@ class AgentClient
         self::$tptl->writeFieldBegin("spans", TType::LST, 2);
         self::$tptl->writeListBegin(TType::STRUCT, count($thriftSpans));
 
-        $agentSpan = new Span();
+        $agentSpan = Span::getInstance();
         foreach ($thriftSpans as $thriftSpan){
-            $agentSpan->overWriteThriftSpan($thriftSpan);
+            $agentSpan->setThriftSpan($thriftSpan);
             $agentSpan->write(self::$tptl);
         }
 

@@ -11,14 +11,14 @@ class Process implements TStruct{
 
     public static $serverName = '';
 
-    public static $tags = [];
+    public static $thriftTags = [];
 
     public static $wrote = '';
 
     public function __construct($processThrift)
     {
         self::$serverName = isset($processThrift['serverName']) ? $processThrift['serverName'] : '';
-        self::$tags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
+        self::$thriftTags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
         self::$wrote = isset($processThrift['wrote']) ? $processThrift['wrote'] : '';
     }
 
@@ -56,11 +56,13 @@ class Process implements TStruct{
 
     public function handleProcessTags()
     {
-        if(count(self::$tags) > 0) {
+        if(count(self::$thriftTags) > 0) {
             self::$tptl->writeFieldBegin("tags", TType::LST, 2);
-            self::$tptl->writeListBegin(TType::STRUCT, count(self::$tags));
+            self::$tptl->writeListBegin(TType::STRUCT, count(self::$thriftTags));
 
-            (new Tags(self::$tags))->write(self::$tptl);
+            $tagsObj = Tags::getInstance();
+            $tagsObj->setThriftTags(self::$thriftTags);
+            $tagsObj->write(self::$tptl);
 
             self::$tptl->writeListEnd();
             self::$tptl->writeFieldEnd();
