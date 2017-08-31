@@ -85,13 +85,7 @@ class JSpan implements Span{
      */
     public function log(array $fields = [], $timestamp = null){
         $log['timestamp'] = $timestamp ?? Helper::microtimeToInt();
-        foreach($fields as $key => $field){
-            $field = [
-                "value" => $field,
-                "key" => $key,
-            ];
-            $log['fields'][] = $field;
-        }
+        $log['fields'] = $fields;
         $this->logs[] = $log;
     }
 

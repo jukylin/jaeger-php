@@ -68,25 +68,13 @@ class JaegerThriftSpan{
 
 
     private function buildTags($tags){
+
         $resultTags = [];
         if($tags){
-            foreach ($tags as $key => $tag){
-                if($key == "error"){
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vBool' => $tag,
-                        'vType' => "BOOL"
-                    ];
-                }else{
-                    $resultTags[] = [
-                        'key' => $key,
-                        'vStr' => strval($tag),
-                        'vType' => "STRING"
-                    ];
-                }
-            }
+            $tagsObj = Tags::getInstance();
+            $tagsObj->setTags($tags);
+            $resultTags = $tagsObj->buildTags();
         }
-
 
         return $resultTags;
     }
@@ -95,16 +83,10 @@ class JaegerThriftSpan{
     private function buildLogs($logs){
         $resultLogs = [];
         if($logs){
+            $tagsObj = Tags::getInstance();
             foreach($logs as $log){
-                $fields = [];
-                foreach ($log['fields'] as $field){
-                    $field = [
-                        'key' => $field['key'],
-                        'vType' => 'STRING',
-                        'vStr' => $field['value'],
-                    ];
-                    $fields[] = $field;
-                }
+                $tagsObj->setTags($log['fields']);
+                $fields = $tagsObj->buildTags();
                 $resultLogs[] = [
                     "timestamp" => $log['timestamp'],
                     "fields" => $fields,
