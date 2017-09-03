@@ -17,7 +17,7 @@ class ConstSampler implements Sampler{
 
     private $tags = [];
 
-    public function __construct($decision){
+    public function __construct($decision = true){
         $this->decision = $decision;
         $this->tags[Helper::SAMPLER_TYPE_TAG_KEY] = 'const';
         $this->tags[Helper::SAMPLER_PARAM_TAG_KEY] = $decision;

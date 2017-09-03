@@ -6,9 +6,8 @@ use JaegerPhp\Reporter\RemoteReporter;
 use JaegerPhp\Reporter\Reporter;
 use JaegerPhp\Transport\TransportUdp;
 use OpenTracing\NoopTracer;
-use JaegerPhp\Sampler;
+use JaegerPhp\Sampler\Sampler;
 use JaegerPhp\Sampler\ConstSampler;
-use JaegerPhp\Sampler\ProbabilisticSampler;
 
 class Config {
 
@@ -79,7 +78,7 @@ class Config {
         }
 
         if($this->sampler == null){
-            $this->sampler = new ProbabilisticSampler(0.1);
+            $this->sampler = new ConstSampler(true);
         }
 
         $trace = new Jaeger($serverName, $this->reporter, $this->sampler);

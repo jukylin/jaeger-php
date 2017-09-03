@@ -17,7 +17,8 @@ class ProbabilisticSampler implements Sampler{
 
     private $tags = [];
 
-    public function __construct($rate){
+    
+    public function __construct($rate = 0.0001){
         $this->rate = $rate;
         $this->tags[Helper::SAMPLER_TYPE_TAG_KEY] = 'probabilistic';
         $this->tags[Helper::SAMPLER_PARAM_TAG_KEY] = $rate;
