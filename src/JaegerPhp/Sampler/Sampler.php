@@ -15,5 +15,5 @@ interface Sampler
 
     public function Close();
 
-    public function Equal();
+    public function getTags();
 }

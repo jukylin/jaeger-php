@@ -2,6 +2,7 @@
 
 namespace JaegerPhp;
 
+use JaegerPhp\Sampler\Sampler;
 use OpenTracing\SpanReference;
 use OpenTracing\SpanContext;
 use OpenTracing\Propagators\Writer;
@@ -13,6 +14,8 @@ use JaegerPhp\Reporter\Reporter;
 class Jaeger implements Tracer{
 
     private $reporter = null;
+
+    private $sampler = null;
 
     public static $handleProto = null;
 
@@ -32,9 +35,12 @@ class Jaeger implements Tracer{
 
     public $spanThrifts = [];
 
-    public function __construct($serverName = '', Reporter $reporter){
+    public function __construct($serverName = '', Reporter $reporter, Sampler $sampler){
 
         $this->reporter = $reporter;
+
+        $this->sampler = $sampler;
+        $this->setTags($this->sampler->getTags());
 
         if($serverName == '') {
             $this->serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'unknow server';
@@ -69,7 +75,10 @@ class Jaeger implements Tracer{
         if(!$parentSpan){
             $traceId = Helper::toHex(Helper::identifier());
             $spanId = Helper::toHex(Helper::identifier());
-            $newSpan = new JSpanContext($traceId, $spanId, 0, 1, null, 0);
+
+            $flags = $this->sampler->IsSampled();
+var_dump($flags);exit;
+            $newSpan = new JSpanContext($traceId, $spanId, 0, $flags, null, 0);
         }else{
             $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
                 , $parentSpan->spanId, $parentSpan->flags, null, 0);

@@ -6,13 +6,17 @@ use JaegerPhp\Reporter\RemoteReporter;
 use JaegerPhp\Reporter\Reporter;
 use JaegerPhp\Transport\TransportUdp;
 use OpenTracing\NoopTracer;
-use GuzzleHttp\Promise;
+use JaegerPhp\Sampler;
+use JaegerPhp\Sampler\ConstSampler;
+use JaegerPhp\Sampler\ProbabilisticSampler;
 
 class Config {
 
     private $transport = null;
 
     private $reporter = null;
+
+    private $sampler = null;
 
     private $tags = [];
 
@@ -74,7 +78,11 @@ class Config {
             $this->reporter = new RemoteReporter($this->transport);
         }
 
-        $trace = new Jaeger($serverName, $this->reporter);
+        if($this->sampler == null){
+            $this->sampler = new ProbabilisticSampler(0.1);
+        }
+
+        $trace = new Jaeger($serverName, $this->reporter, $this->sampler);
         self::$trace[$serverName] = $trace;
 
 
@@ -100,6 +108,10 @@ class Config {
         $this->reporter = $reporter;
     }
 
+
+    public function setSampler(Sampler $sampler){
+        $this->sampler = $sampler;
+    }
 
     /**
      * 销毁对象

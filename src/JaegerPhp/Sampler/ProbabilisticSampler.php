@@ -8,25 +8,37 @@
 
 namespace JaegerPhp\Sampler;
 
+use JaegerPhp\Helper;
 
-class ProbabilisticSampler
-{
+class ProbabilisticSampler implements Sampler{
 
-    public function IsSampled()
-    {
-        // TODO: Implement IsSampled() method.
+    // min 0, max 1
+    private $rate = 0;
+
+    private $tags = [];
+
+    public function __construct($rate){
+        $this->rate = $rate;
+        $this->tags[Helper::SAMPLER_TYPE_TAG_KEY] = 'probabilistic';
+        $this->tags[Helper::SAMPLER_PARAM_TAG_KEY] = $rate;
     }
 
 
-    public function Close()
-    {
-        // TODO: Implement Close() method.
+    public function IsSampled(){
+        if(mt_rand(1, 1 / $this->rate) == 1){
+            return true;
+        }else{
+            return false;
+        }
     }
 
 
-    public function Equal()
-    {
-        // TODO: Implement Equal() method.
+    public function Close(){
+        //nothing to do
     }
 
+
+    public function getTags(){
+        return $this->tags;
+    }
 }

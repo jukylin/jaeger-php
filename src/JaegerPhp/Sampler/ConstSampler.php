@@ -9,24 +9,31 @@
 namespace JaegerPhp\Sampler;
 
 
-class ConstSampler implements Sampler
-{
+use JaegerPhp\Helper;
 
-    public function IsSampled()
-    {
-        // TODO: Implement IsSampled() method.
+class ConstSampler implements Sampler{
+
+    private $decision = '';
+
+    private $tags = [];
+
+    public function __construct($decision){
+        $this->decision = $decision;
+        $this->tags[Helper::SAMPLER_TYPE_TAG_KEY] = 'const';
+        $this->tags[Helper::SAMPLER_PARAM_TAG_KEY] = $decision;
+    }
+
+    public function IsSampled(){
+        return $this->decision;
     }
 
 
-    public function Close()
-    {
-        // TODO: Implement Close() method.
+    public function Close(){
+        //nothing to do
     }
 
 
-    public function Equal()
-    {
-        // TODO: Implement Equal() method.
+    public function getTags(){
+        return $this->tags;
     }
-
 }
