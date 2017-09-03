@@ -77,7 +77,6 @@ class Jaeger implements Tracer{
             $spanId = Helper::toHex(Helper::identifier());
 
             $flags = $this->sampler->IsSampled();
-var_dump($flags);exit;
             $newSpan = new JSpanContext($traceId, $spanId, 0, $flags, null, 0);
         }else{
             $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
@@ -143,7 +142,9 @@ var_dump($flags);exit;
 
 
     public function reportSpan(){
-        $this->reporter->report($this);
+        if(count($this->spans) > 0) {
+            $this->reporter->report($this);
+        }
     }
 
 
