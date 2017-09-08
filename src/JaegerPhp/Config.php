@@ -64,7 +64,7 @@ class Config {
             throw new Exception("serverName require");
         }
 
-        if(isset(self::$trace[$serverName]) && empty(self::$trace[$serverName])){
+        if(isset(self::$trace[$serverName]) && !empty(self::$trace[$serverName])){
             return self::$trace[$serverName];
         }
 
