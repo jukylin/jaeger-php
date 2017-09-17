@@ -84,7 +84,7 @@ class JSpan implements Span{
      * @throws SpanAlreadyFinished if the span is already finished
      */
     public function log(array $fields = [], $timestamp = null){
-        $log['timestamp'] = $timestamp ?? Helper::microtimeToInt();
+        $log['timestamp'] = $timestamp ? $timestamp : Helper::microtimeToInt();
         $log['fields'] = $fields;
         $this->logs[] = $log;
     }
