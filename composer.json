@@ -7,7 +7,7 @@
   "require":           {
     "php": ">=5.6.0",
     "packaged/thrift" : "0.10.0",
-    "opentracing/opentracing" : "*"
+    "opentracing/opentracing" : "1.0-beta1@dev"
   },
   "authors": [
     {
