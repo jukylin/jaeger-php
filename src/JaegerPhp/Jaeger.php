@@ -80,7 +80,7 @@ class Jaeger implements Tracer{
 
         if(!$parentSpan){
             $traceId = Helper::toHex(Helper::identifier());
-            $spanId = Helper::toHex(Helper::identifier());
+            $spanId = $traceId;
 
             $flags = $this->sampler->IsSampled();
             $newSpan = new JSpanContext($traceId, $spanId, 0, $flags, null, 0);
