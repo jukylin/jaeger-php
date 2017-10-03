@@ -19,6 +19,8 @@ class Config {
 
     private $tags = [];
 
+    private $gen128bit = false;
+
     public static $trace = null;
 
     public static $span = null;
@@ -82,6 +84,9 @@ class Config {
         }
 
         $trace = new Jaeger($serverName, $this->reporter, $this->sampler);
+        if($this->gen128bit == truel){
+            $trace->gen128bit();
+        }
         self::$trace[$serverName] = $trace;
 
 
@@ -111,6 +116,12 @@ class Config {
     public function setSampler(Sampler $sampler){
         $this->sampler = $sampler;
     }
+
+
+    public function gen128bit(){
+        $this->gen128bit = true;
+    }
+
 
     /**
      * 销毁对象
