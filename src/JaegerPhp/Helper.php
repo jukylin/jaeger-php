@@ -27,8 +27,12 @@ class Helper{
      * @param $string
      * @return string
      */
-    public static function toHex($string){
-        return sprintf("%x", $string);
+    public static function toHex($string1, $string2 = ""){
+        if($string2 == "") {
+            return sprintf("%x", $string1);
+        }else{
+            return sprintf("%x%016x", $string1, $string2);
+        }
     }
 
 

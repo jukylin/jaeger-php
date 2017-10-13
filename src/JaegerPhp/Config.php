@@ -19,6 +19,8 @@ class Config {
 
     private $tags = [];
 
+    private $gen128bit = false;
+
     public static $trace = null;
 
     public static $span = null;
@@ -116,6 +118,12 @@ class Config {
     public function setSampler(Sampler $sampler){
         $this->sampler = $sampler;
     }
+
+
+    public function gen128bit(){
+        $this->gen128bit = true;
+    }
+
 
     /**
      * 销毁对象

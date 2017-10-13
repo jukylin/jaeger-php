@@ -17,6 +17,8 @@ class Jaeger implements Tracer{
 
     private $sampler = null;
 
+    private $gen128bit = false;
+
     public static $handleProto = null;
 
     public $spans = [];
@@ -79,8 +81,14 @@ class Jaeger implements Tracer{
         }
 
         if(!$parentSpan){
-            $traceId = Helper::toHex(Helper::identifier());
-            $spanId = $traceId;
+            $low = Helper::identifier();
+            if($this->gen128bit == true){
+                $high = Helper::identifier();
+                $traceId = Helper::toHex($low, $high);
+            }else{
+                $traceId = Helper::toHex($low);
+            }
+            $spanId = Helper::toHex($low);
 
             $flags = $this->sampler->IsSampled();
             $newSpan = new JSpanContext($traceId, $spanId, 0, $flags, null, 0);
@@ -165,6 +173,11 @@ class Jaeger implements Tracer{
         }
 
         return $tags;
+    }
+
+
+    public function gen128bit(){
+        $this->gen128bit = true;
     }
 
 
