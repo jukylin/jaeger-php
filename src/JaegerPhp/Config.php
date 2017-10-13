@@ -84,9 +84,11 @@ class Config {
         }
 
         $trace = new Jaeger($serverName, $this->reporter, $this->sampler);
-        if($this->gen128bit == truel){
+
+        if($this->gen128bit == true){
             $trace->gen128bit();
         }
+
         self::$trace[$serverName] = $trace;
 
 
