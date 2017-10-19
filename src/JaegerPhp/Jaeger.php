@@ -98,7 +98,7 @@ class Jaeger implements Tracer{
         }
 
         $span = new JSpan($operationName, $newSpan);
-        if(empty($tags)){
+        if(!empty($tags)){
             $span->addTags($tags);
         }
 
