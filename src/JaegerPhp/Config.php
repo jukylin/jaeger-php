@@ -138,8 +138,9 @@ class Config {
 
     public function flushTrace(){
         if(count(self::$trace) > 0) {
-            foreach(self::$trace as $trace){
+            foreach(self::$trace as $key => $trace){
                 $trace->reportSpan();
+                unset(self::$trace[$key]);
             }
             $this->reporter->close();
         }
