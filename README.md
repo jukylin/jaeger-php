@@ -26,7 +26,7 @@
 
 ```
 $traceConfig = Config::getInstance();
-$trace = $traceConfig->initTrace('example', '0.0.0.0:5775');
+$trace = $traceConfig->initTrace('example', '0.0.0.0:6831');
 ```
 
 ## Extract from Superglobals
