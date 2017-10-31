@@ -65,7 +65,13 @@ $span->log(['error' => "HTTP request timeout"]);
 
 ```
 
-## finish span and flush trace 
+## close Trace
+
+```
+$traceConfig->setDisabled(true);
+```
+
+## finish span and flush Trace 
 
 ```
 $span->finish();
