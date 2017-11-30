@@ -2,7 +2,7 @@
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
-use JaegerPhp\Config;
+use Jaeger\Config;
 use GuzzleHttp\Client;
 use OpenTracing\Propagator;
 use OpenTracing\Carriers\TextMap;
@@ -20,7 +20,7 @@ $spanContext = $trace->extract(Propagator::TEXT_MAP, $textMap);
 $serverSpan = $trace->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
 $trace->inject($serverSpan->getContext(), Propagator::TEXT_MAP, $textMap);
 $injectTarget = $textMap->getIterator()->getArrayCopy();
-$_SERVER[\JaegerPhp\Helper::TracerStateHeaderName] = $injectTarget[\JaegerPhp\Helper::TracerStateHeaderName];
+$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $injectTarget[\Jaeger\Helper::TracerStateHeaderName];
 //init server span end
 
 
@@ -33,7 +33,7 @@ $spanContext = $clientTrace->extract(Propagator::TEXT_MAP, $textMap);
 $clientSapn1 = $clientTrace->startSpan('HTTP1', SpanReference::createAsChildOf($spanContext));
 $clientTrace->inject($clientSapn1->spanContext, Propagator::TEXT_MAP, $textMap);
 $tmp = $textMap->getIterator()->getArrayCopy();
-$injectTarget1[\JaegerPhp\Helper::TracerStateHeaderName] = $tmp[\JaegerPhp\Helper::TracerStateHeaderName];
+$injectTarget1[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
 
 $method = 'GET';
 $url = 'https://github.com/';
@@ -54,7 +54,7 @@ $spanContext = $clientTrace->extract(Propagator::TEXT_MAP, $textMap);
 $clientSpan2 = $clientTrace->startSpan('HTTP2', SpanReference::createAsChildOf($spanContext));
 $clientTrace->inject($clientSpan2->spanContext, Propagator::TEXT_MAP, $textMap);
 $tmp = $textMap->getIterator()->getArrayCopy();
-$injectTarget2[\JaegerPhp\Helper::TracerStateHeaderName] = $tmp[\JaegerPhp\Helper::TracerStateHeaderName];
+$injectTarget2[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
 
 $method = 'GET';
 $url = 'https://github.com/search?utf8=✓&q=jaeger-php';

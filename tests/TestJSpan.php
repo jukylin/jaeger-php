@@ -3,7 +3,7 @@
 require_once '../../autoload.php';
 
 use OpenTracing\NoopSpanContext;
-use JaegerPhp\JSpan;
+use Jaeger\JSpan;
 
 class TestJSpan extends PHPUnit_Framework_TestCase
 {

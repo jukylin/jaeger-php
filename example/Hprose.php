@@ -2,7 +2,7 @@
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
 use Hprose\Client;
-use JaegerPhp\Config;
+use Jaeger\Config;
 use OpenTracing\Propagator;
 use OpenTracing\Carriers\TextMap;
 use OpenTracing\SpanReference;
@@ -20,7 +20,7 @@ $spanContext = $trace->extract(Propagator::TEXT_MAP, $textMap);
 $serverSpan = $trace->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
 $trace->inject($serverSpan->getContext(), Propagator::TEXT_MAP, $textMap);
 $injectTarget = $textMap->getIterator()->getArrayCopy();
-$_SERVER[\JaegerPhp\Helper::TracerStateHeaderName] = $injectTarget[\JaegerPhp\Helper::TracerStateHeaderName];
+$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $injectTarget[\Jaeger\Helper::TracerStateHeaderName];
 //init server span end
 
 $clientTrace = $traceConfig->initTrace('Hprose');
@@ -32,7 +32,7 @@ $spanContext = $clientTrace->extract(Propagator::TEXT_MAP, $textMap);
 $clientSapn = $clientTrace->startSpan('get', SpanReference::createAsChildOf($spanContext));
 $clientTrace->inject($clientSapn->spanContext, Propagator::TEXT_MAP, $textMap);
 $tmp = $textMap->getIterator()->getArrayCopy();
-$header[\JaegerPhp\Helper::TracerStateHeaderName] = $tmp[\JaegerPhp\Helper::TracerStateHeaderName];
+$header[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
 
 $url = 'http://0.0.0.0:8080/main';
 $client = Client::create($url, false);

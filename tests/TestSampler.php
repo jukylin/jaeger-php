@@ -2,8 +2,8 @@
 
 require_once '../../autoload.php';
 
-use JaegerPhp\Sampler\ConstSampler;
-use JaegerPhp\Sampler\ProbabilisticSampler;
+use Jaeger\Sampler\ConstSampler;
+use Jaeger\Sampler\ProbabilisticSampler;
 
 class TestSampler extends PHPUnit_Framework_TestCase
 {

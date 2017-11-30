@@ -2,10 +2,10 @@
 
 require_once '../../autoload.php';
 
-use JaegerPhp\Jaeger;
-use JaegerPhp\Reporter\RemoteReporter;
-use JaegerPhp\Sampler\ConstSampler;
-use JaegerPhp\Transport\TransportUdp;
+use Jaeger\Jaeger;
+use Jaeger\Reporter\RemoteReporter;
+use Jaeger\Sampler\ConstSampler;
+use Jaeger\Transport\TransportUdp;
 
 class TestJaeger extends PHPUnit_Framework_TestCase
 {

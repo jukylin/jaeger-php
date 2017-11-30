@@ -2,7 +2,7 @@
 
 require_once '../../autoload.php';
 
-use JaegerPhp\Config;
+use Jaeger\Config;
 use OpenTracing\NoopTracer;
 
 class TestConfig extends PHPUnit_Framework_TestCase

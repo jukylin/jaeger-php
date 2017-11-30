@@ -49,7 +49,7 @@ $serverSpan = $trace->startSpan('example HTTP', SpanReference::createAsChildOf($
 $textMap = TextMap::create($_SERVER);
 $clientTrace->inject($clientSapn1->spanContext, Propagator::TEXT_MAP, $textMap);
 $tmp = $textMap->getIterator()->getArrayCopy();
-$_SERVER[\JaegerPhp\Helper::TracerStateHeaderName] = $tmp[\JaegerPhp\Helper::TracerStateHeaderName];
+$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
 
 ```
 
