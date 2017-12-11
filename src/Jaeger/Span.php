@@ -2,10 +2,9 @@
 
 namespace Jaeger;
 
-use OpenTracing\Span;
 use OpenTracing\SpanContext;
 
-class JSpan implements Span{
+class Span implements \OpenTracing\Span{
 
     private $operationName = '';
 

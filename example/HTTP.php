@@ -3,7 +3,7 @@
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
 use Jaeger\Config;
-use GuzzleHttp\Client;
+//use GuzzleHttp\Client;
 use OpenTracing\Propagator;
 use OpenTracing\Carriers\TextMap;
 use OpenTracing\SpanReference;
@@ -37,10 +37,10 @@ $injectTarget1[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::Tra
 
 $method = 'GET';
 $url = 'https://github.com/';
-$client = new Client();
-$res = $client->request($method, $url,['headers' => $injectTarget1]);
+//$client = new Client();
+//$res = $client->request($method, $url,['headers' => $injectTarget1]);
 
-$clientSapn1->addTags(['http.status_code' => $res->getStatusCode()
+$clientSapn1->addTags(['http.status_code' => 200
     , 'http.method' => 'GET', 'http.url' => $url]);
 $clientSapn1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
 $clientSapn1->finish();
@@ -58,10 +58,10 @@ $injectTarget2[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::Tra
 
 $method = 'GET';
 $url = 'https://github.com/search?utf8=✓&q=jaeger-php';
-$client = new Client();
-$res = $client->request($method, $url, ['headers' => $injectTarget2]);
+//$client = new Client();
+//$res = $client->request($method, $url, ['headers' => $injectTarget2]);
 
-$clientSpan2->addTags(['http.status_code' => $res->getStatusCode()
+$clientSpan2->addTags(['http.status_code' => 200
     , 'http.method' => 'GET', 'http.url' => $url]);
 $clientSpan2->log(['message' => "HTTP2 ". $method .' '. $url .' end !']);
 $clientSpan2->finish();

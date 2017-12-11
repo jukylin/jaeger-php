@@ -3,7 +3,7 @@
 namespace Jaeger\ThriftGen\Agent;
 
 use Jaeger\Jaeger;
-use Jaeger\JSpan;
+use Jaeger\Span;
 
 
 class JaegerThriftSpan{
@@ -13,12 +13,12 @@ class JaegerThriftSpan{
         $tags = [];
         $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
         if($ip){
-            $tags['ip'] = $ip;
+            $tags['peer.ipv4'] = $ip;
         }
 
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '';
         if($port){
-            $tags['port'] = $port;
+            $tags['peer.port'] = $port;
         }
         $tags = array_merge($tags, $jaeger->tags);
         $tagsObj = Tags::getInstance();
@@ -34,7 +34,7 @@ class JaegerThriftSpan{
         return $processThrift;
     }
 
-    public function buildJaegerSpanThrift(JSpan $Jspan){
+    public function buildJaegerSpanThrift(Span $Jspan){
 
         $spContext = $Jspan->spanContext;
         $span = [

@@ -69,7 +69,7 @@ class Jaeger implements Tracer{
      * @param SpanReference|null $parentReference
      * @param null $startTimestamp
      * @param array $tags
-     * @return JSpan
+     * @return Span
      */
     public function startSpan($operationName, SpanReference $parentReference = null
         , $startTimestamp = null, array $tags = []
@@ -91,13 +91,13 @@ class Jaeger implements Tracer{
             $spanId = Helper::toHex($low);
 
             $flags = $this->sampler->IsSampled();
-            $newSpan = new JSpanContext($traceId, $spanId, 0, $flags, null, 0);
+            $newSpan = new \Jaeger\SpanContext($traceId, $spanId, 0, $flags, null, 0);
         }else{
-            $newSpan = new JSpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
+            $newSpan = new \Jaeger\SpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
                 , $parentSpan->spanId, $parentSpan->flags, null, 0);
         }
 
-        $span = new JSpan($operationName, $newSpan);
+        $span = new Span($operationName, $newSpan);
         if(!empty($tags)){
             $span->addTags($tags);
         }
@@ -140,10 +140,10 @@ class Jaeger implements Tracer{
             $carrierInfo = $carrier->getIterator();
             if(isset($carrierInfo[Helper::TracerStateHeaderName]) && $carrierInfo[Helper::TracerStateHeaderName]){
                 list($traceId, $spanId, $parentId,$flags) = explode(':', $carrierInfo[Helper::TracerStateHeaderName]);
-                return new JSpanContext($traceId, $spanId, $parentId, $flags, null, 0);
+                return new \Jaeger\SpanContext($traceId, $spanId, $parentId, $flags, null, 0);
             }
 
-            return new JSpanContext(0, 0, 0, 0, null, 0);
+            return new \Jaeger\SpanContext(0, 0, 0, 0, null, 0);
         }else{
             throw new Exception("not support format");
         }

@@ -3,7 +3,7 @@
 namespace Jaeger\Reporter;
 
 use Jaeger\Jaeger;
-use Jaeger\JSpan;
+use Jaeger\Span;
 use Jaeger\Transport\Transport;
 
 class RemoteReporter implements Reporter{

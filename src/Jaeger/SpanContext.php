@@ -2,9 +2,8 @@
 
 namespace Jaeger;
 
-use OpenTracing\SpanContext;
 
-class JSpanContext implements SpanContext{
+class SpanContext implements \OpenTracing\SpanContext{
     // traceID represents globally unique ID of the trace.
     // Usually generated as a random number.
     public $traceId;
