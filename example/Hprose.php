@@ -55,7 +55,7 @@ $clientSapn->finish();
 //server span end
 $serverSpan->finish();
 //trace flush
-$traceConfig->flushTrace();
+$traceConfig->flush();
 
 echo "success\r\n";
 

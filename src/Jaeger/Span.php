@@ -108,32 +108,4 @@ class Span implements \OpenTracing\Span{
 
     }
 
-
-    public function setIsServer(){
-        $this->spanKind = 'server';
-        $this->addTags(['span.kind' => 'server']);
-    }
-
-
-    public function setIsClient(){
-        $this->spanKind = 'client';
-        $this->addTags(['span.kind' => 'client']);
-    }
-
-
-    public function isRPC(){
-        if($this->spanKind == 'server'
-            || $this->spanKind == 'client'){
-            return true;
-        }
-        return false;
-    }
-
-
-    public function isRPClient(){
-        if($this->spanKind == 'client'){
-            return true;
-        }
-        return false;
-    }
 }

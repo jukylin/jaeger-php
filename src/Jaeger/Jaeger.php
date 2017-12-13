@@ -158,6 +158,7 @@ class Jaeger implements Tracer{
     public function reportSpan(){
         if(count($this->spans) > 0) {
             $this->reporter->report($this);
+            $this->spans = [];
         }
     }
 
@@ -187,7 +188,6 @@ class Jaeger implements Tracer{
     public function flush(){
         $this->reportSpan();
         $this->reporter->close();
-        Config::getInstance()->destroyTrace($this->serverName);
     }
 
 }
