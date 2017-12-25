@@ -2,7 +2,7 @@
 
 namespace Jaeger;
 
-use Jaeger\ThriftGen\Agent\AgentClient;
+use Jaeger\Thrift\Agent\AgentClient;
 
 /**
  * 把数据发射到 jaeger-agent

@@ -1,12 +1,12 @@
 <?php
-namespace Jaeger\ThriftGen\Agent;
+namespace Jaeger\Thrift\Agent;
 
 use Jaeger\Helper;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Type\TMessageType;
 use Thrift\Type\TType;
-use Jaeger\ThriftGen\Agent\Types;
+use Jaeger\Thrift\Agent\Types;
 
 class AgentClient
 {

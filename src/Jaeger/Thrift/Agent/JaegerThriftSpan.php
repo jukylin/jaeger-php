@@ -1,6 +1,6 @@
 <?php
 
-namespace Jaeger\ThriftGen\Agent;
+namespace Jaeger\Thrift\Agent;
 
 use Jaeger\Jaeger;
 use Jaeger\Span;

@@ -1,5 +1,5 @@
 <?php
-namespace Jaeger\ThriftGen\Agent;
+namespace Jaeger\Thrift\Agent;
 
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;

@@ -5,10 +5,10 @@ namespace Jaeger\Transport;
 
 use Jaeger\Helper;
 use Jaeger\Jaeger;
-use Jaeger\ThriftGen\Agent\JaegerThriftSpan;
-use Jaeger\ThriftGen\Agent\Process;
-use Jaeger\ThriftGen\Agent\Span;
-use Jaeger\ThriftGen\Agent\TStruct;
+use Jaeger\Thrift\Agent\JaegerThriftSpan;
+use Jaeger\Thrift\Agent\Process;
+use Jaeger\Thrift\Agent\Span;
+use Jaeger\Thrift\Agent\TStruct;
 use Jaeger\UdpClient;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
