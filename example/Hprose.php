@@ -11,19 +11,19 @@ use OpenTracing\SpanReference;
 unset($_SERVER['argv']);
 
 //init server span start
-$traceConfig = Config::getInstance();
-$trace = $traceConfig->initTrace('example', '0.0.0.0:6831');
+$tracerConfig = Config::getInstance();
+$tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 
 $injectTarget = [];
 $textMap = TextMap::create($injectTarget);
-$spanContext = $trace->extract(Propagator::TEXT_MAP, $textMap);
-$serverSpan = $trace->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
-$trace->inject($serverSpan->getContext(), Propagator::TEXT_MAP, $textMap);
+$spanContext = $tracer->extract(Propagator::TEXT_MAP, $textMap);
+$serverSpan = $tracer->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
+$tracer->inject($serverSpan->getContext(), Propagator::TEXT_MAP, $textMap);
 $injectTarget = $textMap->getIterator()->getArrayCopy();
 $_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $injectTarget[\Jaeger\Helper::TracerStateHeaderName];
 //init server span end
 
-$clientTrace = $traceConfig->initTrace('Hprose');
+$clientTrace = $tracerConfig->initTrace('Hprose');
 
 //client span start
 $header = [];
@@ -55,7 +55,7 @@ $clientSapn->finish();
 //server span end
 $serverSpan->finish();
 //trace flush
-$traceConfig->flush();
+$tracerConfig->flush();
 
 echo "success\r\n";
 

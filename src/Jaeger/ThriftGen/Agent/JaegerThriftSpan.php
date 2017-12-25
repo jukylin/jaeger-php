@@ -53,7 +53,7 @@ class JaegerThriftSpan{
         if ($spContext->parentId != 0) {
             $span['references'] = [
                 [
-                    'refType' => 1,
+                    'refType' => SpanRefType::CHILD_OF,
                     'traceIdLow' => hexdec($spContext->traceId),
                     'traceIdHigh' => 0,
                     'spanId' => hexdec($spContext->parentId),

@@ -156,7 +156,7 @@ class Jaeger implements Tracer{
 
 
     public function reportSpan(){
-        if(count($this->spans) > 0) {
+        if($this->spans) {
             $this->reporter->report($this);
             $this->spans = [];
         }

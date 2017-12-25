@@ -24,7 +24,6 @@ class Span implements \OpenTracing\Span{
 
 
     public function __construct($operationName, SpanContext $spanContext){
-        $this->setIsClient();
         $this->operationName = $operationName;
         $this->startTime = Helper::microtimeToInt();
         $this->spanContext = $spanContext;

@@ -21,7 +21,7 @@ class Config {
 
     private $gen128bit = false;
 
-    public static $trace = null;
+    public static $tracer = null;
 
     public static $span = null;
 
@@ -66,8 +66,8 @@ class Config {
             throw new Exception("serverName require");
         }
 
-        if(isset(self::$trace[$serverName]) && !empty(self::$trace[$serverName])){
-            return self::$trace[$serverName];
+        if(isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])){
+            return self::$tracer[$serverName];
         }
 
 
@@ -83,16 +83,16 @@ class Config {
             $this->sampler = new ConstSampler(true);
         }
 
-        $trace = new Jaeger($serverName, $this->reporter, $this->sampler);
+        $tracer = new Jaeger($serverName, $this->reporter, $this->sampler);
 
         if($this->gen128bit == true){
-            $trace->gen128bit();
+            $tracer->gen128bit();
         }
 
-        self::$trace[$serverName] = $trace;
+        self::$tracer[$serverName] = $tracer;
 
 
-        return $trace;
+        return $tracer;
     }
 
 
@@ -102,45 +102,43 @@ class Config {
      */
     public function setDisabled($disabled){
         self::$disabled = $disabled;
+
+        return $this;
     }
 
 
     public function setTransport(Transport\Transport $transport){
         $this->transport = $transport;
+
+        return $this;
     }
 
 
     public function setReporter(Reporter $reporter){
         $this->reporter = $reporter;
+
+        return $this;
     }
 
 
     public function setSampler(Sampler $sampler){
         $this->sampler = $sampler;
+
+        return $this;
     }
 
 
     public function gen128bit(){
         $this->gen128bit = true;
+
+        return $this;
     }
 
 
-    /**
-     * 销毁对象
-     * @param $serviceName
-     */
-    public function destroyTrace($serverName){
-        if(isset(self::$trace[$serverName])){
-            unset(self::$trace[$serverName]);
-        }
-    }
-
-
-    public function flushTrace(){
-        if(count(self::$trace) > 0) {
-            foreach(self::$trace as $key => $trace){
-                $trace->reportSpan();
-                unset(self::$trace[$key]);
+    public function flush(){
+        if(count(self::$tracer) > 0) {
+            foreach(self::$tracer as $tracer){
+                $tracer->reportSpan();
             }
             $this->reporter->close();
         }
