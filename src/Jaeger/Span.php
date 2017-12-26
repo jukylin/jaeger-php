@@ -70,7 +70,7 @@ class Span implements \OpenTracing\Span{
      * @param array $tags
      * @throws SpanAlreadyFinished if the span is already finished
      */
-    public function addTags(array $tags){
+    public function setTags(array $tags){
         $this->tags = array_merge($this->tags, $tags);
     }
 

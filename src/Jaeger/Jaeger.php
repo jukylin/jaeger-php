@@ -5,11 +5,10 @@ namespace Jaeger;
 use Jaeger\Sampler\Sampler;
 use OpenTracing\SpanReference;
 use OpenTracing\SpanContext;
-use OpenTracing\Propagators\Writer;
-use OpenTracing\Propagators\Reader;
-use OpenTracing\Propagator;
+use OpenTracing\Formats;
 use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
+use OpenTracing\SpanOptions;
 
 class Jaeger implements Tracer{
 
@@ -71,19 +70,19 @@ class Jaeger implements Tracer{
      * @param array $tags
      * @return Span
      */
-    public function startSpan($operationName, SpanReference $parentReference = null
-        , $startTimestamp = null, array $tags = []
-    ){
-        $parentSpan = null;
-        $spanContext = $parentReference->getContext();
-        if($spanContext->traceId){
-            $parentSpan = $spanContext;
+    public function startSpan($operationName, $options = []){
+
+        if (is_array($options)) {
+            $options = SpanOptions::create($options);
         }
 
-        if(!$parentSpan){
-            $low = Helper::identifier();
+        $references = $options->getReferences();
+        $parentSpan = $references[0]->getContext();
+
+        if($parentSpan->traceId == 0){
+            $low = $this->generateId();
             if($this->gen128bit == true){
-                $high = Helper::identifier();
+                $high = $this->generateId();
                 $traceId = Helper::toHex($low, $high);
             }else{
                 $traceId = Helper::toHex($low);
@@ -93,14 +92,12 @@ class Jaeger implements Tracer{
             $flags = $this->sampler->IsSampled();
             $newSpan = new \Jaeger\SpanContext($traceId, $spanId, 0, $flags, null, 0);
         }else{
-            $newSpan = new \Jaeger\SpanContext($parentSpan->traceId, Helper::toHex(Helper::identifier())
+            $newSpan = new \Jaeger\SpanContext($parentSpan->traceId, Helper::toHex($this->generateId())
                 , $parentSpan->spanId, $parentSpan->flags, null, 0);
         }
 
         $span = new Span($operationName, $newSpan);
-        if(!empty($tags)){
-            $span->addTags($tags);
-        }
+        $span->setTags($options->getTags());
 
         if($newSpan->isSampled() == 1) {
             $this->spans[] = $span;
@@ -110,20 +107,15 @@ class Jaeger implements Tracer{
     }
 
 
-    public function startSpanWithOptions($operationName, $options){
-
-    }
-
-
     /**
      * 注入
      * @param SpanContext $spanContext
      * @param int|string $format
      * @param Writer $carrier
      */
-    public function inject(SpanContext $spanContext, $format, Writer $carrier){
-        if($format == Propagator::TEXT_MAP){
-            $carrier->set(Helper::TracerStateHeaderName, $spanContext->buildString());
+    public function inject(SpanContext $spanContext, $format, &$carrier){
+        if($format == Formats\TEXT_MAP){
+            $carrier[Helper::TracerStateHeaderName] = $spanContext->buildString();
         }else{
             throw new Exception("not support format");
         }
@@ -135,11 +127,10 @@ class Jaeger implements Tracer{
      * @param int|string $format
      * @param Reader $carrier
      */
-    public function extract($format, Reader $carrier){
-        if($format == Propagator::TEXT_MAP){
-            $carrierInfo = $carrier->getIterator();
-            if(isset($carrierInfo[Helper::TracerStateHeaderName]) && $carrierInfo[Helper::TracerStateHeaderName]){
-                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrierInfo[Helper::TracerStateHeaderName]);
+    public function extract($format, $carrier){
+        if($format == Formats\TEXT_MAP){
+            if(isset($carrier[Helper::TracerStateHeaderName]) && $carrier[Helper::TracerStateHeaderName]){
+                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[Helper::TracerStateHeaderName]);
                 return new \Jaeger\SpanContext($traceId, $spanId, $parentId, $flags, null, 0);
             }
 
@@ -190,6 +181,10 @@ class Jaeger implements Tracer{
         $this->reporter->close();
     }
 
+
+    private function generateId(){
+        return strrev(microtime(true) * 10000 . rand(1000, 9999));
+    }
 }
 
 
