@@ -3,7 +3,6 @@
 namespace Jaeger;
 
 use Jaeger\Sampler\Sampler;
-use OpenTracing\SpanReference;
 use OpenTracing\SpanContext;
 use OpenTracing\Formats;
 use OpenTracing\Tracer;
@@ -65,15 +64,15 @@ class Jaeger implements Tracer{
     /**
      * init span info
      * @param string $operationName
-     * @param SpanReference|null $parentReference
-     * @param null $startTimestamp
-     * @param array $tags
+     * @param array $options
      * @return Span
      */
     public function startSpan($operationName, $options = []){
 
         if (is_array($options)) {
             $options = SpanOptions::create($options);
+        }else{
+            throw new \Exception("options is not array");
         }
 
         $references = $options->getReferences();
@@ -110,8 +109,8 @@ class Jaeger implements Tracer{
     /**
      * 注入
      * @param SpanContext $spanContext
-     * @param int|string $format
-     * @param Writer $carrier
+     * @param string $format
+     * @param $carrier
      */
     public function inject(SpanContext $spanContext, $format, &$carrier){
         if($format == Formats\TEXT_MAP){
@@ -124,8 +123,8 @@ class Jaeger implements Tracer{
 
     /**
      * 提取
-     * @param int|string $format
-     * @param Reader $carrier
+     * @param string $format
+     * @param $carrier
      */
     public function extract($format, $carrier){
         if($format == Formats\TEXT_MAP){

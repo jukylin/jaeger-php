@@ -4,9 +4,7 @@ require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
 use Jaeger\Config;
 //use GuzzleHttp\Client;
-use OpenTracing\Propagator;
 use OpenTracing\Formats;
-use OpenTracing\SpanReference;
 
 unset($_SERVER['argv']);
 
@@ -15,17 +13,16 @@ $tracerConfig = Config::getInstance();
 $tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 
 $injectTarget = [];
-$spanContext = $tracer->extract(Formats\TEXT_MAP, $injectTarget);
+$spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
-$tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $injectTarget);
-$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $injectTarget[\Jaeger\Helper::TracerStateHeaderName];
+$tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 
 $clientTrace = $tracerConfig->initTrace('HTTP');
 
 //client span1 start
 $injectTarget1 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $injectTarget1);
+$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSapn1 = $clientTrace->startSpan('HTTP1', ['child_of' => $spanContext]);
 $clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
 
@@ -43,10 +40,9 @@ $clientSapn1->finish();
 
 //client span2 start
 $injectTarget2 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $injectTarget2);
+$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSpan2 = $clientTrace->startSpan('HTTP2', ['child_of' => $spanContext]);
 $clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
-$injectTarget2[\Jaeger\Helper::TracerStateHeaderName];
 
 $method = 'GET';
 $url = 'https://github.com/search?utf8=✓&q=jaeger-php';

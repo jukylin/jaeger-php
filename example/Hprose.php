@@ -3,9 +3,7 @@ require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
 use Hprose\Client;
 use Jaeger\Config;
-use OpenTracing\Propagator;
-use OpenTracing\Carriers\TextMap;
-use OpenTracing\SpanReference;
+use OpenTracing\Formats;
 
 
 unset($_SERVER['argv']);
@@ -14,25 +12,18 @@ unset($_SERVER['argv']);
 $tracerConfig = Config::getInstance();
 $tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 
-$injectTarget = [];
-$textMap = TextMap::create($injectTarget);
-$spanContext = $tracer->extract(Propagator::TEXT_MAP, $textMap);
-$serverSpan = $tracer->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
-$tracer->inject($serverSpan->getContext(), Propagator::TEXT_MAP, $textMap);
-$injectTarget = $textMap->getIterator()->getArrayCopy();
-$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $injectTarget[\Jaeger\Helper::TracerStateHeaderName];
+$spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
+$serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
+$tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 
 $clientTrace = $tracerConfig->initTrace('Hprose');
 
 //client span start
 $header = [];
-$textMap = TextMap::create($_SERVER);
-$spanContext = $clientTrace->extract(Propagator::TEXT_MAP, $textMap);
-$clientSapn = $clientTrace->startSpan('get', SpanReference::createAsChildOf($spanContext));
-$clientTrace->inject($clientSapn->spanContext, Propagator::TEXT_MAP, $textMap);
-$tmp = $textMap->getIterator()->getArrayCopy();
-$header[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
+$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSapn = $clientTrace->startSpan('get', ['child_of' => $spanContext]);
+$clientTrace->inject($clientSapn->spanContext, Formats\TEXT_MAP, $header);
 
 $url = 'http://0.0.0.0:8080/main';
 $client = Client::create($url, false);
@@ -42,8 +33,8 @@ if($header){
         $client->setHeader($key, $val);
     }
 }
-$clientSapn->addTags(['http.url' => $url]);
-$clientSapn->addTags(['http.method' => 'POST']);
+$clientSapn->setTags(['http.url' => $url]);
+$clientSapn->setTags(['http.method' => 'POST']);
 
 $result =  $client->get("Hprose");
 
