@@ -8,6 +8,7 @@ use OpenTracing\Formats;
 use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
 use OpenTracing\SpanOptions;
+use OpenTracing\Exceptions\UnsupportedFormat;
 
 class Jaeger implements Tracer{
 
@@ -78,7 +79,7 @@ class Jaeger implements Tracer{
         $references = $options->getReferences();
         $parentSpan = $references[0]->getContext();
 
-        if($parentSpan->traceId == 0){
+        if(!$parentSpan->traceId){
             $low = $this->generateId();
             if($this->gen128bit == true){
                 $high = $this->generateId();
@@ -116,7 +117,7 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             $carrier[Helper::TracerStateHeaderName] = $spanContext->buildString();
         }else{
-            throw new Exception("not support format");
+            throw new \Exception("not support format");
         }
     }
 
@@ -135,7 +136,7 @@ class Jaeger implements Tracer{
 
             return new \Jaeger\SpanContext(0, 0, 0, 0, null, 0);
         }else{
-            throw new Exception("not support format");
+            throw new \Exception("not support format");
         }
     }
 

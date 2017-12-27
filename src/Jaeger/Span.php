@@ -25,7 +25,7 @@ class Span implements \OpenTracing\Span{
 
     public function __construct($operationName, SpanContext $spanContext){
         $this->operationName = $operationName;
-        $this->startTime = Helper::microtimeToInt();
+        $this->startTime = $this->microtimeToInt();
         $this->spanContext = $spanContext;
     }
 
@@ -50,7 +50,7 @@ class Span implements \OpenTracing\Span{
      * @return mixed
      */
     public function finish($finishTime = null, array $logRecords = []){
-        $this->finishTime = $finishTime == null ? Helper::microtimeToInt() : $finishTime;
+        $this->finishTime = $finishTime == null ? $this->microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
     }
 
@@ -82,7 +82,7 @@ class Span implements \OpenTracing\Span{
      * @throws SpanAlreadyFinished if the span is already finished
      */
     public function log(array $fields = [], $timestamp = null){
-        $log['timestamp'] = $timestamp ? $timestamp : Helper::microtimeToInt();
+        $log['timestamp'] = $timestamp ? $timestamp : $this->microtimeToInt();
         $log['fields'] = $fields;
         $this->logs[] = $log;
     }
@@ -107,4 +107,8 @@ class Span implements \OpenTracing\Span{
 
     }
 
+
+    private function microtimeToInt(){
+        return intval(microtime(true) * 1000000);
+    }
 }

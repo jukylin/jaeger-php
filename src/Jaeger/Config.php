@@ -63,7 +63,7 @@ class Config {
         }
 
         if($serverName == ''){
-            throw new Exception("serverName require");
+            throw new \Exception("serverName require");
         }
 
         if(isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])){

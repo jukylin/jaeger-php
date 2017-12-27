@@ -12,15 +12,6 @@ class Helper{
 
     const SAMPLER_PARAM_TAG_KEY = 'sampler.param';
 
-    public static function microtimeToInt(){
-        return intval(microtime(true) * 1000000);
-    }
-
-
-    public static function identifier(){
-        return strrev(microtime(true) * 10000 . rand(1000, 9999));
-    }
-
 
     /**
      * 转为16进制
@@ -33,16 +24,5 @@ class Helper{
         }else{
             return sprintf("%x%016x", $string1, $string2);
         }
-    }
-
-
-    /**
-     * 用于计算性能
-     * @return float
-     */
-    public static function getmicrotime()
-    {
-        list($usec, $sec) = explode(" ",microtime());
-        return ((float)$usec + (float)$sec);
     }
 }

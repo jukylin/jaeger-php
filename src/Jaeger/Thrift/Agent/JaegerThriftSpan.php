@@ -4,7 +4,7 @@ namespace Jaeger\Thrift\Agent;
 
 use Jaeger\Jaeger;
 use Jaeger\Span;
-
+use Jaeger\Thrift\SpanRefType;
 
 class JaegerThriftSpan{
 
