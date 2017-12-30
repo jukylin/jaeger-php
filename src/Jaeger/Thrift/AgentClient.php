@@ -1,12 +1,11 @@
 <?php
-namespace Jaeger\Thrift\Agent;
+namespace Jaeger\Thrift;
 
 use Jaeger\Helper;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Type\TMessageType;
 use Thrift\Type\TType;
-use Jaeger\Thrift\Agent\Types;
 
 class AgentClient
 {
@@ -33,7 +32,7 @@ class AgentClient
     }
 
 
-    public function handleBatch($batch)
+    private function handleBatch($batch)
     {
         self::$tptl->writeFieldBegin("batch", TType::STRUCT, 1);
 
@@ -48,7 +47,7 @@ class AgentClient
     }
 
 
-    public function handleThriftSpans($thriftSpans)
+    private function handleThriftSpans($thriftSpans)
     {
         self::$tptl->writeFieldBegin("spans", TType::LST, 2);
         self::$tptl->writeListBegin(TType::STRUCT, count($thriftSpans));
@@ -64,7 +63,7 @@ class AgentClient
     }
 
 
-    public function handleThriftProcess($thriftProcess)
+    private function handleThriftProcess($thriftProcess)
     {
         self::$tptl->writeFieldBegin("process", TType::STRUCT, 1);
         (new Process($thriftProcess))->write(self::$tptl);

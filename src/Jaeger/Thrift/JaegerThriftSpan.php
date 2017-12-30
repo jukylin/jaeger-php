@@ -1,10 +1,9 @@
 <?php
 
-namespace Jaeger\Thrift\Agent;
+namespace Jaeger\Thrift;
 
 use Jaeger\Jaeger;
 use Jaeger\Span;
-use Jaeger\Thrift\SpanRefType;
 
 class JaegerThriftSpan{
 

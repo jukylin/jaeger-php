@@ -1,6 +1,6 @@
 <?php
 
-namespace Jaeger\Thrift\Agent;
+namespace Jaeger\Thrift;
 
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;
@@ -44,7 +44,7 @@ class Process implements TStruct{
     }
 
 
-    public function handleProcessSName()
+    private function handleProcessSName()
     {
         self::$tptl->writeFieldBegin("serverName", TType::STRING, 1);
 
@@ -54,7 +54,7 @@ class Process implements TStruct{
     }
 
 
-    public function handleProcessTags()
+    private function handleProcessTags()
     {
         if(count(self::$thriftTags) > 0) {
             self::$tptl->writeFieldBegin("tags", TType::LST, 2);
