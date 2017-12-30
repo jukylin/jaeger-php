@@ -5,10 +5,10 @@ namespace Jaeger\Transport;
 
 use Jaeger\Helper;
 use Jaeger\Jaeger;
-use Jaeger\Thrift\Agent\JaegerThriftSpan;
-use Jaeger\Thrift\Agent\Process;
-use Jaeger\Thrift\Agent\Span;
-use Jaeger\Thrift\Agent\TStruct;
+use Jaeger\Thrift\JaegerThriftSpan;
+use Jaeger\Thrift\Process;
+use Jaeger\Thrift\Span;
+use Jaeger\Thrift\TStruct;
 use Jaeger\UdpClient;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
@@ -16,6 +16,8 @@ use Thrift\Protocol\TCompactProtocol;
 class TransportUdp implements Transport{
 
     const EMITBATCHOVERHEAD = 30;
+
+    const UDP_PACKET_MAX_LENGTH = 65000;
 
     private $tran = null;
 
@@ -42,7 +44,7 @@ class TransportUdp implements Transport{
         self::$hostPort = $hostport;
 
         if($maxPacketSize == 0){
-            $maxPacketSize = Helper::UDP_PACKET_MAX_LENGTH;
+            $maxPacketSize = self::UDP_PACKET_MAX_LENGTH;
         }
 
         self::$maxSpanBytes = $maxPacketSize - self::EMITBATCHOVERHEAD;
@@ -80,7 +82,7 @@ class TransportUdp implements Transport{
             $spanSize = $this->getAndCalcSizeOfSerializedThrift($agentSpan, $spanThrift);
 
             if($spanSize > self::$maxSpanBytes){
-                //throw new Exception("Span is too large");
+                throw new \Exception("Span is too large");
                 continue;
             }
 
@@ -110,7 +112,7 @@ class TransportUdp implements Transport{
 
 
     /**
-     * 获取和计算序列化后的thrift字符长度
+     * 获取序列化后的thrift和计算序列化后的thrift字符长度
      * @param TStruct $ts
      * @param $serializedThrift
      * @return mixed
@@ -137,7 +139,9 @@ class TransportUdp implements Transport{
         $spanNum = 0;
         foreach (self::$batchs as $batch){
             $spanNum += count($batch['thriftSpans']);
-            (new UdpClient(self::$hostPort))->EmitBatch($batch);
+            $udp = new UdpClient(self::$hostPort);
+            $udp->emitBatch($batch);
+            $udp->close();
         }
 
         $this->resetBuffer();
