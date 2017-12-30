@@ -10,7 +10,7 @@ class JaegerThriftSpan{
 
     public function buildJaegerProcessThrift(Jaeger $jaeger){
         $tags = [];
-        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '127.0.0.1';
+        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
         if($ip){
             $tags['peer.ipv4'] = $ip;
         }

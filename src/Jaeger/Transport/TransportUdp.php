@@ -2,8 +2,6 @@
 
 namespace Jaeger\Transport;
 
-
-use Jaeger\Helper;
 use Jaeger\Jaeger;
 use Jaeger\Thrift\JaegerThriftSpan;
 use Jaeger\Thrift\Process;
@@ -12,12 +10,9 @@ use Jaeger\Thrift\TStruct;
 use Jaeger\UdpClient;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
+use Jaeger\Constants;
 
 class TransportUdp implements Transport{
-
-    const EMITBATCHOVERHEAD = 30;
-
-    const UDP_PACKET_MAX_LENGTH = 65000;
 
     private $tran = null;
 
@@ -44,10 +39,10 @@ class TransportUdp implements Transport{
         self::$hostPort = $hostport;
 
         if($maxPacketSize == 0){
-            $maxPacketSize = self::UDP_PACKET_MAX_LENGTH;
+            $maxPacketSize = Constants\UDP_PACKET_MAX_LENGTH;
         }
 
-        self::$maxSpanBytes = $maxPacketSize - self::EMITBATCHOVERHEAD;
+        self::$maxSpanBytes = $maxPacketSize - Constants\EMIT_BATCH_OVER_HEAD;
 
         $this->tran = new TMemoryBuffer();
         $this->thriftProtocol = new TCompactProtocol($this->tran);
@@ -122,7 +117,7 @@ class TransportUdp implements Transport{
         $ts->write($this->thriftProtocol);
         $serThriftStrlen = $this->tran->available();
         //获取后buf清空
-        $serializedThrift['wrote'] = $this->tran->read(Helper::UDP_PACKET_MAX_LENGTH);
+        $serializedThrift['wrote'] = $this->tran->read(Constants\UDP_PACKET_MAX_LENGTH);
         return $serThriftStrlen;
     }
 

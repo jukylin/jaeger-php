@@ -8,7 +8,6 @@ use OpenTracing\Formats;
 use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
 use OpenTracing\SpanOptions;
-use OpenTracing\Exceptions\UnsupportedFormat;
 
 class Jaeger implements Tracer{
 
@@ -115,7 +114,7 @@ class Jaeger implements Tracer{
      */
     public function inject(SpanContext $spanContext, $format, &$carrier){
         if($format == Formats\TEXT_MAP){
-            $carrier[Helper::TracerStateHeaderName] = $spanContext->buildString();
+            $carrier[Constants\Tracer_State_Header_Name] = $spanContext->buildString();
         }else{
             throw new \Exception("not support format");
         }
@@ -129,8 +128,8 @@ class Jaeger implements Tracer{
      */
     public function extract($format, $carrier){
         if($format == Formats\TEXT_MAP){
-            if(isset($carrier[Helper::TracerStateHeaderName]) && $carrier[Helper::TracerStateHeaderName]){
-                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[Helper::TracerStateHeaderName]);
+            if(isset($carrier[Constants\Tracer_State_Header_Name]) && $carrier[Constants\Tracer_State_Header_Name]){
+                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[Constants\Tracer_State_Header_Name]);
                 return new \Jaeger\SpanContext($traceId, $spanId, $parentId, $flags, null, 0);
             }
 

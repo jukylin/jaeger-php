@@ -18,6 +18,9 @@
   "autoload":          {
     "psr-4": {
       "Jaeger\\": "src\\Jaeger"
-    }
+    },
+    "files": [
+      "src/Jaeger/Constants.php"
+    ]
   }
 }

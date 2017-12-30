@@ -8,7 +8,7 @@
 
 namespace Jaeger\Sampler;
 
-use Jaeger\Helper;
+use Jaeger\Constants;
 
 class ProbabilisticSampler implements Sampler{
 
@@ -20,8 +20,8 @@ class ProbabilisticSampler implements Sampler{
     
     public function __construct($rate = 0.0001){
         $this->rate = $rate;
-        $this->tags[Helper::SAMPLER_TYPE_TAG_KEY] = 'probabilistic';
-        $this->tags[Helper::SAMPLER_PARAM_TAG_KEY] = $rate;
+        $this->tags[Constants\SAMPLER_TYPE_TAG_KEY] = 'probabilistic';
+        $this->tags[Constants\SAMPLER_PARAM_TAG_KEY] = $rate;
     }
 
 

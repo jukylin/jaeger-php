@@ -4,7 +4,7 @@ namespace Jaeger;
 
 class Helper{
 
-    const TracerStateHeaderName = 'Uber-Trace-Id';
+    const Tracer_State_Header_Name = 'Uber-Trace-Id';
 
     const SAMPLER_TYPE_TAG_KEY = 'sampler.type';
 
