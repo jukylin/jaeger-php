@@ -10,6 +10,8 @@ unset($_SERVER['argv']);
 
 //init server span start
 $tracerConfig = Config::getInstance();
+//$tracerConfig->gen128bit();
+
 $tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 
 $injectTarget = [];
@@ -17,7 +19,6 @@ $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
-
 $clientTrace = $tracerConfig->initTrace('HTTP');
 
 //client span1 start

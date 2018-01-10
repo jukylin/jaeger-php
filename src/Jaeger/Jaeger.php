@@ -78,21 +78,22 @@ class Jaeger implements Tracer{
         $references = $options->getReferences();
         $parentSpan = $references[0]->getContext();
 
-        if(!$parentSpan->traceId){
+        if(!$parentSpan->traceIdLow){
             $low = $this->generateId();
-            if($this->gen128bit == true){
-                $high = $this->generateId();
-                $traceId = Helper::toHex($low, $high);
-            }else{
-                $traceId = Helper::toHex($low);
-            }
-            $spanId = Helper::toHex($low);
-
+            $spanId = $low;
             $flags = $this->sampler->IsSampled();
-            $newSpan = new \Jaeger\SpanContext($traceId, $spanId, 0, $flags, null, 0);
+            $newSpan = new \Jaeger\SpanContext($spanId, 0, $flags, null, 0);
+            $newSpan->traceIdLow = $low;
+            if($this->gen128bit == true){
+                $newSpan->traceIdHigh = $this->generateId();
+            }
         }else{
-            $newSpan = new \Jaeger\SpanContext($parentSpan->traceId, Helper::toHex($this->generateId())
-                , $parentSpan->spanId, $parentSpan->flags, null, 0);
+            $newSpan = new \Jaeger\SpanContext($this->generateId(),
+                $parentSpan->spanId, $parentSpan->flags, null, 0);
+            $newSpan->traceIdLow = $parentSpan->traceIdLow;
+            if($parentSpan->traceIdHigh){
+                $newSpan->traceIdHigh = $parentSpan->traceIdHigh;
+            }
         }
 
         $span = new Span($operationName, $newSpan);
@@ -130,10 +131,12 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             if(isset($carrier[Constants\Tracer_State_Header_Name]) && $carrier[Constants\Tracer_State_Header_Name]){
                 list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[Constants\Tracer_State_Header_Name]);
-                return new \Jaeger\SpanContext($traceId, $spanId, $parentId, $flags, null, 0);
+                $spanContext = new \Jaeger\SpanContext(hexdec($spanId), hexdec($parentId), $flags, null, 0);
+                $spanContext->traceIdToString($traceId);
+                return $spanContext;
             }
 
-            return new \Jaeger\SpanContext(0, 0, 0, 0, null, 0);
+            return new \Jaeger\SpanContext(0, 0, 0, null, 0);
         }else{
             throw new \Exception("not support format");
         }
@@ -182,7 +185,7 @@ class Jaeger implements Tracer{
 
 
     private function generateId(){
-        return strrev(microtime(true) * 10000 . rand(1000, 9999));
+        return microtime(true) * 10000 . rand(1000, 9999);
     }
 }
 
