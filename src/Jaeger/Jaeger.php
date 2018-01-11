@@ -8,6 +8,7 @@ use OpenTracing\Formats;
 use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
 use OpenTracing\SpanOptions;
+use OpenTracing\Reference;
 
 class Jaeger implements Tracer{
 
@@ -76,9 +77,18 @@ class Jaeger implements Tracer{
         }
 
         $references = $options->getReferences();
-        $parentSpan = $references[0]->getContext();
 
-        if(!$parentSpan->traceIdLow){
+        $hasParent = false;
+        $parentSpan = null;
+
+        foreach ($references as $ref){
+            if($ref->isType(Reference::CHILD_OF)){
+                $hasParent = true;
+                $parentSpan = $ref->getContext();
+            }
+        }
+
+        if(!$hasParent || !$parentSpan->traceIdLow){
             $low = $this->generateId();
             $spanId = $low;
             $flags = $this->sampler->IsSampled();
@@ -96,7 +106,7 @@ class Jaeger implements Tracer{
             }
         }
 
-        $span = new Span($operationName, $newSpan);
+        $span = new Span($operationName, $newSpan, $references);
         $span->setTags($options->getTags());
 
         if($newSpan->isSampled() == 1) {

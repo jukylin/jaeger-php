@@ -5,6 +5,7 @@ require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 use Jaeger\Config;
 //use GuzzleHttp\Client;
 use OpenTracing\Formats;
+use OpenTracing\Reference;
 
 unset($_SERVER['argv']);
 
@@ -17,6 +18,7 @@ $tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
+
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 $clientTrace = $tracerConfig->initTrace('HTTP');
@@ -38,11 +40,15 @@ $clientSapn1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
 $clientSapn1->finish();
 //client span1 end
 
-
 //client span2 start
 $injectTarget2 = [];
 $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSpan2 = $clientTrace->startSpan('HTTP2', ['child_of' => $spanContext]);
+$clientSpan2 = $clientTrace->startSpan('HTTP2',
+    ['references' => [
+        Reference::create(Reference::FOLLOWS_FROM, $clientSapn1->spanContext),
+        Reference::create(Reference::CHILD_OF, $spanContext)
+    ]]);
+
 $clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
 
 $method = 'GET';

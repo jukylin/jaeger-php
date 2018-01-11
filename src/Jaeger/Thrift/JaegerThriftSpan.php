@@ -4,6 +4,7 @@ namespace Jaeger\Thrift;
 
 use Jaeger\Jaeger;
 use Jaeger\Span;
+use OpenTracing\Reference;
 
 class JaegerThriftSpan{
 
@@ -30,35 +31,24 @@ class JaegerThriftSpan{
         return $processThrift;
     }
 
-    public function buildJaegerSpanThrift(Span $Jspan){
+    public function buildJaegerSpanThrift(Span $span){
 
-        $spContext = $Jspan->spanContext;
-        $span = [
+        $spContext = $span->spanContext;
+        $thriftSpan = [
             'traceIdLow' => $spContext->traceIdLow,
             'traceIdHigh' => $spContext->traceIdHigh,
             'spanId' => $spContext->spanId,
             'parentSpanId' => $spContext->parentId,
-            'operationName' => $Jspan->getOperationName(),
+            'operationName' => $span->getOperationName(),
             'flags' => intval($spContext->flags),
-            'startTime' => $Jspan->startTime,
-            'duration' => $Jspan->duration,
-            'tags' => $this->buildTags($Jspan->tags),
-            'logs' => $this->buildLogs($Jspan->logs),
+            'startTime' => $span->startTime,
+            'duration' => $span->duration,
+            'tags' => $this->buildTags($span->tags),
+            'logs' => $this->buildLogs($span->logs),
+            'references' => $this->buildReferences($span->references)
         ];
 
-        if ($spContext->parentId != 0) {
-            $span['references'] = [
-                [
-                    'refType' => SpanRefType::CHILD_OF,
-                    'traceIdLow' => $spContext->traceIdLow,
-                    'traceIdHigh' => $spContext->traceIdHigh,
-                    'spanId' => $spContext->parentId,
-                ],
-            ];
-        }
-
-
-        return $span;
+        return $thriftSpan;
     }
 
 
@@ -85,5 +75,26 @@ class JaegerThriftSpan{
         }
 
         return $resultLogs;
+    }
+
+
+    private function buildReferences($references){
+        $spanRef = [];
+        foreach ($references as $ref){
+            if($ref->isType(Reference::CHILD_OF)){
+                $type = SpanRefType::CHILD_OF;
+            }else if($ref->isType(Reference::FOLLOWS_FROM)){
+                $type = SpanRefType::FOLLOWS_FROM;
+            }
+            $ctx = $ref->getContext();
+            $spanRef[] = [
+                'refType' => $type,
+                'traceIdLow' => $ctx->traceIdLow,
+                'traceIdHigh' => $ctx->traceIdHigh,
+                'spanId' => $ctx->spanId,
+            ];
+        }
+
+        return $spanRef;
     }
 }

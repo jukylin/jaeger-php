@@ -68,7 +68,7 @@ class TransportUdp implements Transport{
             $this->buildAndCalcSizeOfProcessThrift($jaeger);
         }
 
-        foreach($jaeger->spans as $k => $span){
+        foreach($jaeger->spans as $span){
 
             $spanThrift = (new JaegerThriftSpan())->buildJaegerSpanThrift($span);
 
@@ -77,7 +77,7 @@ class TransportUdp implements Transport{
             $spanSize = $this->getAndCalcSizeOfSerializedThrift($agentSpan, $spanThrift);
 
             if($spanSize > self::$maxSpanBytes){
-                throw new \Exception("Span is too large");
+                //throw new \Exception("Span is too large");
                 continue;
             }
 
@@ -118,6 +118,7 @@ class TransportUdp implements Transport{
         $serThriftStrlen = $this->tran->available();
         //获取后buf清空
         $serializedThrift['wrote'] = $this->tran->read(Constants\UDP_PACKET_MAX_LENGTH);
+
         return $serThriftStrlen;
     }
 

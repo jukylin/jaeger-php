@@ -3,6 +3,8 @@
 namespace Jaeger;
 
 use OpenTracing\SpanContext;
+use OpenTracing\Reference;
+use Jaeger\Thrift\SpanRefType;
 
 class Span implements \OpenTracing\Span{
 
@@ -22,11 +24,20 @@ class Span implements \OpenTracing\Span{
 
     public $tags = [];
 
+    public $references = [];
 
-    public function __construct($operationName, SpanContext $spanContext){
+    public function __construct($operationName, SpanContext $spanContext, $references){
         $this->operationName = $operationName;
         $this->startTime = $this->microtimeToInt();
         $this->spanContext = $spanContext;
+        $this->references = $references;
+//        if($type == Reference::CHILD_OF) {
+//            $this->type = SpanRefType::CHILD_OF;
+//        }elseif($type == Reference::FOLLOWS_FROM){
+//            $this->type = SpanRefType::FOLLOWS_FROM;
+//        }else{
+//            $this->type = SpanRefType::CHILD_OF;
+//        }
     }
 
     /**
