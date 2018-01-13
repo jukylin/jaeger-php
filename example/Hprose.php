@@ -9,20 +9,22 @@ use OpenTracing\Formats;
 unset($_SERVER['argv']);
 
 //init server span start
-$tracerConfig = Config::getInstance();
-$tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
+$config = Config::getInstance();
+$tracer = $config->initTrace('example', '0.0.0.0:6831');
 
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 
-$clientTrace = $tracerConfig->initTrace('Hprose');
+$clientTrace = $config->initTrace('Hprose');
 
 //client span start
 $header = [];
 $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSapn = $clientTrace->startSpan('get', ['child_of' => $spanContext]);
+$clientSapn->addBaggageItem("version", "2.0.0");
+
 $clientTrace->inject($clientSapn->spanContext, Formats\TEXT_MAP, $header);
 
 $url = 'http://0.0.0.0:8080/main';
@@ -46,7 +48,7 @@ $clientSapn->finish();
 //server span end
 $serverSpan->finish();
 //trace flush
-$tracerConfig->flush();
+$config->flush();
 
 echo "success\r\n";
 

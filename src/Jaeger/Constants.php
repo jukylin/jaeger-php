@@ -1,7 +1,6 @@
 <?php
 namespace Jaeger\Constants;
 
-
 const Tracer_State_Header_Name = 'uber-trace-id';
 
 const Jaeger_Baggage_Header = 'jaeger-baggage';
@@ -9,7 +8,6 @@ const Jaeger_Baggage_Header = 'jaeger-baggage';
 const Trace_Baggage_Header_Prefix = 'uberctx-';
 
 const Jaeger_Debug_Header = "jaeger-debug-id";
-
 
 const EMIT_BATCH_OVER_HEAD = 30;
 

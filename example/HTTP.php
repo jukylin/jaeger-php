@@ -10,10 +10,10 @@ use OpenTracing\Reference;
 unset($_SERVER['argv']);
 
 //init server span start
-$tracerConfig = Config::getInstance();
-//$tracerConfig->gen128bit();
+$config = Config::getInstance();
+$config->gen128bit();
 
-$tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTrace('example', '0.0.0.0:6831');
 
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
@@ -22,7 +22,7 @@ $serverSpan->addBaggageItem("version", "1.8.9");
 
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
-$clientTrace = $tracerConfig->initTrace('HTTP');
+$clientTrace = $config->initTrace('HTTP');
 
 //client span1 start
 $injectTarget1 = [];
@@ -66,6 +66,6 @@ $clientSpan2->finish();
 //server span end
 $serverSpan->finish();
 //trace flush
-$tracerConfig->flush();
+$config->flush();
 
 echo "success\r\n";
