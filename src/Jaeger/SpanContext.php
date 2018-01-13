@@ -40,7 +40,7 @@ class SpanContext implements \OpenTracing\SpanContext{
 
 
     public function getBaggageItem($key){
-        return $this->baggage[$key];
+        return isset($this->baggage[$key]) ? $this->baggage[$key] : false;
     }
 
 
