@@ -39,17 +39,14 @@ class SpanContext implements \OpenTracing\SpanContext{
     }
 
 
-//    public static function getInstance($traceId, $spanId, $parentId, $flags, $baggage = null, $debugId = 0){
-//        return new self($traceId, $spanId, $parentId, $flags, $baggage, $debugId);
-//    }
-
     public function getBaggageItem($key){
-
+        return $this->baggage[$key];
     }
 
 
     public function withBaggageItem($key, $value){
-
+        $this->baggage[$key] = $value;
+        return true;
     }
 
     public function getIterator()

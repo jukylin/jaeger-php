@@ -31,13 +31,6 @@ class Span implements \OpenTracing\Span{
         $this->startTime = $this->microtimeToInt();
         $this->spanContext = $spanContext;
         $this->references = $references;
-//        if($type == Reference::CHILD_OF) {
-//            $this->type = SpanRefType::CHILD_OF;
-//        }elseif($type == Reference::FOLLOWS_FROM){
-//            $this->type = SpanRefType::FOLLOWS_FROM;
-//        }else{
-//            $this->type = SpanRefType::CHILD_OF;
-//        }
     }
 
     /**
@@ -107,7 +100,7 @@ class Span implements \OpenTracing\Span{
      * @throws SpanAlreadyFinished if the span is already finished
      */
     public function addBaggageItem($key, $value){
-
+        return $this->spanContext->withBaggageItem($key, $value);
     }
 
     /**
@@ -115,7 +108,7 @@ class Span implements \OpenTracing\Span{
      * @return string
      */
     public function getBaggageItem($key){
-
+        $this->spanContext->getBaggageItem($key);
     }
 
 

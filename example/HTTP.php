@@ -18,11 +18,12 @@ $tracer = $tracerConfig->initTrace('example', '0.0.0.0:6831');
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
+$serverSpan->addBaggageItem("version", "1.8.9");
 
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 $clientTrace = $tracerConfig->initTrace('HTTP');
-
+print_r($_SERVER);exit;
 //client span1 start
 $injectTarget1 = [];
 $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
