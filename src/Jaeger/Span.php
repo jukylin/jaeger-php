@@ -100,6 +100,11 @@ class Span implements \OpenTracing\Span{
      * @throws SpanAlreadyFinished if the span is already finished
      */
     public function addBaggageItem($key, $value){
+        $this->log([
+            'event' => 'baggage',
+            'key' => $key,
+            'value' => $value,
+        ]);
         return $this->spanContext->withBaggageItem($key, $value);
     }
 

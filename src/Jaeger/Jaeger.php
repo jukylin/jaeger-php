@@ -126,8 +126,10 @@ class Jaeger implements Tracer{
     public function inject(SpanContext $spanContext, $format, &$carrier){
         if($format == Formats\TEXT_MAP){
             $carrier[strtoupper(Constants\Tracer_State_Header_Name)] = $spanContext->buildString();
-            foreach($spanContext->baggage as $k => $v){
-                $carrier[strtoupper(Constants\Trace_Baggage_Header_Prefix.$k)] = $v;
+            if($spanContext->baggage) {
+                foreach ($spanContext->baggage as $k => $v) {
+                    $carrier[strtoupper(Constants\Trace_Baggage_Header_Prefix . $k)] = $v;
+                }
             }
         }else{
             throw new \Exception("not support format");
@@ -148,7 +150,7 @@ class Jaeger implements Tracer{
                 $k = strtolower($k);
                 $v = urldecode($v);
                 if($k == Constants\Tracer_State_Header_Name){
-                    list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[Constants\Tracer_State_Header_Name]);
+                    list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[strtoupper($k)]);
 
                     $spanContext->spanId = hexdec($spanId);
                     $spanContext->parentId = hexdec($parentId);

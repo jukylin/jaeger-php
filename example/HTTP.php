@@ -23,7 +23,7 @@ $serverSpan->addBaggageItem("version", "1.8.9");
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 $clientTrace = $tracerConfig->initTrace('HTTP');
-print_r($_SERVER);exit;
+
 //client span1 start
 $injectTarget1 = [];
 $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
