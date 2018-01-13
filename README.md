@@ -25,32 +25,38 @@
 ## Init Jaeger-php
 
 ```
-$traceConfig = Config::getInstance();
-$trace = $traceConfig->initTrace('example', '0.0.0.0:6831');
+$config = Config::getInstance();
+$tracer = $config->initTrace('example', '0.0.0.0:6831');
+```
+
+## 128bit
+
+```
+$config->gen128bit();
 ```
 
 ## Extract from Superglobals
 
 ```
-$textMap = TextMap::create($_SERVER);
-$spanContext = $trace->extract(Propagator::TEXT_MAP, $textMap);
+$spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 ```
 
 ## Start Span
 
 ```
-$serverSpan = $trace->startSpan('example HTTP', SpanReference::createAsChildOf($spanContext));
+$serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 
+```
+
+## Distributed context propagation
+```
+$serverSpan->addBaggageItem("version", "2.0.0");
 ```
 
 ## Inject into Superglobals
 
 ```
-$textMap = TextMap::create($_SERVER);
-$clientTrace->inject($clientSapn1->spanContext, Propagator::TEXT_MAP, $textMap);
-$tmp = $textMap->getIterator()->getArrayCopy();
-$_SERVER[\Jaeger\Helper::TracerStateHeaderName] = $tmp[\Jaeger\Helper::TracerStateHeaderName];
-
+$clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $_SERVER);
 ```
 
 
@@ -65,17 +71,17 @@ $span->log(['error' => "HTTP request timeout"]);
 
 ```
 
-## close Trace
+## Close Trace
 
 ```
-$traceConfig->setDisabled(true);
+$config->setDisabled(true);
 ```
 
 ## finish span and flush Trace 
 
 ```
 $span->finish();
-$traceConfig->flushTrace();
+$config->flush();
 ```
 
 ##  more example

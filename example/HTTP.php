@@ -32,8 +32,8 @@ $clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1
 
 $method = 'GET';
 $url = 'https://github.com/';
-//$client = new Client();
-//$res = $client->request($method, $url,['headers' => $injectTarget1]);
+$client = new Client();
+$res = $client->request($method, $url,['headers' => $injectTarget1]);
 
 $clientSapn1->setTags(['http.status_code' => 200
     , 'http.method' => 'GET', 'http.url' => $url]);
@@ -54,8 +54,8 @@ $clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2
 
 $method = 'GET';
 $url = 'https://github.com/search?utf8=✓&q=jaeger-php';
-//$client = new Client();
-//$res = $client->request($method, $url, ['headers' => $injectTarget2]);
+$client = new Client();
+$res = $client->request($method, $url, ['headers' => $injectTarget2]);
 
 $clientSpan2->setTags(['http.status_code' => 200
     , 'http.method' => 'GET', 'http.url' => $url]);
