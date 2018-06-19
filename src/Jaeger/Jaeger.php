@@ -227,7 +227,7 @@ class Jaeger implements Tracer{
 
 
     private function generateId(){
-        return microtime(true) * 10000 . rand(1000, 9999);
+        return microtime(true) * 10000 . rand(10000, 99999);
     }
 }
 
