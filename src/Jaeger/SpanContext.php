@@ -76,13 +76,10 @@ class SpanContext implements \OpenTracing\SpanContext{
 
     public function traceIdToString($traceId){
         $len = strlen($traceId);
-        if($len > 15){
-            $this->traceIdHigh = hexdec(substr($traceId, 0, 15));
-            $this->traceIdLow = hexdec(substr($traceId, 15));
-        }else{
-            $this->traceIdLow = hexdec($traceId);
+        if($len > 16){
+            throw new \Exception("SpanID cannot be longer than 16 hex characters")
         }
+        $this->traceIdLow = hexdec($traceId); 
     }
-
 
 }
