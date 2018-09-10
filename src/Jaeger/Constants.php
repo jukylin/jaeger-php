@@ -16,3 +16,15 @@ const UDP_PACKET_MAX_LENGTH = 65000;
 const SAMPLER_TYPE_TAG_KEY = 'sampler.type';
 
 const SAMPLER_PARAM_TAG_KEY = 'sampler.param';
+
+const PROPAGATOR_JAEGER = 'jaeger';
+
+const PROPAGATOR_ZIPKIN = 'zipkin';
+
+const X_B3_TRACEID = 'x-b3-traceid';
+
+const X_B3_PARENT_SPANID = 'x-b3-parentspanid';
+
+const X_B3_SPANID = 'x-b3-spanid';
+
+const X_B3_SAMPLED = 'x-b3-sampled';
