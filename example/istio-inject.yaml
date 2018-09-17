@@ -1,0 +1,422 @@
+##################################################################################################
+# Details service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio1 
+  labels:
+    app: istio1
+spec:
+  ports:
+  - port: 8000
+    name: http
+  selector:
+    app: istio1
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: istio1
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"894cf5192713cf4a2e6318ee51e2964cf708e49a6d95a3044a35eadbc28fadb6","initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"],"imagePullSecrets":null}'
+      creationTimestamp: null
+      labels:
+        app: istio1
+        version: v1
+    spec:
+      containers:
+      - args:
+        - /jukylin/jaeger-php/example/Istio1.php
+        command:
+        - php
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        imagePullPolicy: IfNotPresent
+        name: istio1
+        ports:
+        - containerPort: 8000
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - istio1
+        - --drainDuration
+        - 45s
+        - --parentShutdownDuration
+        - 1m0s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15007
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 10s
+        - --statsdUdpAddress
+        - istio-statsd-prom-bridge.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: ISTIO_META_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ISTIO_META_INTERCEPTION_MODE
+          value: REDIRECT
+        image: anjia0532/istio-release.proxyv2:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        - -m
+        - REDIRECT
+        - -i
+        - '*'
+        - -x
+        - ""
+        - -b
+        - 8000,
+        - -d
+        - ""
+        image: anjia0532/istio-release.proxy_init:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio2
+  labels:
+    app: istio2
+spec:
+  ports:
+  - port: 8001
+    name: http
+  selector:
+    app: istio2
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: istio2
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"894cf5192713cf4a2e6318ee51e2964cf708e49a6d95a3044a35eadbc28fadb6","initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"],"imagePullSecrets":null}'
+      creationTimestamp: null
+      labels:
+        app: istio2
+        version: v1
+    spec:
+      containers:
+      - args:
+        - /jukylin/jaeger-php/example/Istio2.php
+        command:
+        - php
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        imagePullPolicy: IfNotPresent
+        name: istio2
+        ports:
+        - containerPort: 8001
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - istio2
+        - --drainDuration
+        - 45s
+        - --parentShutdownDuration
+        - 1m0s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15007
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 10s
+        - --statsdUdpAddress
+        - istio-statsd-prom-bridge.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: ISTIO_META_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ISTIO_META_INTERCEPTION_MODE
+          value: REDIRECT
+        image: anjia0532/istio-release.proxyv2:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        - -m
+        - REDIRECT
+        - -i
+        - '*'
+        - -x
+        - ""
+        - -b
+        - 8001,
+        - -d
+        - ""
+        image: anjia0532/istio-release.proxy_init:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio3
+  labels:
+    app: istio3
+spec:
+  ports:
+  - port: 8002
+    name: http
+  selector:
+    app: istio3
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: istio3
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"894cf5192713cf4a2e6318ee51e2964cf708e49a6d95a3044a35eadbc28fadb6","initContainers":["istio-init"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"],"imagePullSecrets":null}'
+      creationTimestamp: null
+      labels:
+        app: istio3
+        version: v1
+    spec:
+      containers:
+      - args:
+        - /jukylin/jaeger-php/example/Istio3.php
+        command:
+        - php
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        imagePullPolicy: IfNotPresent
+        name: istio3
+        ports:
+        - containerPort: 8002
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - istio3
+        - --drainDuration
+        - 45s
+        - --parentShutdownDuration
+        - 1m0s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15007
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 10s
+        - --statsdUdpAddress
+        - istio-statsd-prom-bridge.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: ISTIO_META_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: ISTIO_META_INTERCEPTION_MODE
+          value: REDIRECT
+        image: anjia0532/istio-release.proxyv2:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources:
+          requests:
+            cpu: 10m
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        - -m
+        - REDIRECT
+        - -i
+        - '*'
+        - -x
+        - ""
+        - -b
+        - 8002,
+        - -d
+        - ""
+        image: anjia0532/istio-release.proxy_init:1.0.0
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+          privileged: true
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+
+---

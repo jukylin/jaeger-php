@@ -3,7 +3,7 @@
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
 use Jaeger\Config;
-//use GuzzleHttp\Client;
+use GuzzleHttp\Client;
 use OpenTracing\Formats;
 use OpenTracing\Reference;
 
