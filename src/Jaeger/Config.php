@@ -4,7 +4,6 @@ namespace Jaeger;
 
 use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Reporter\Reporter;
-use Jaeger\ThriftGen\Constant;
 use Jaeger\Transport\TransportUdp;
 use OpenTracing\NoopTracer;
 use Jaeger\Sampler\Sampler;
@@ -32,7 +31,7 @@ class Config {
 
     public static $disabled = false;
 
-    public static $progagator = \Jaeger\Constants\PROPAGATOR_JAEGER;
+    public static $propagator = \Jaeger\Constants\PROPAGATOR_JAEGER;
 
 
     private function __construct(){
@@ -96,7 +95,7 @@ class Config {
             $tracer->gen128bit();
         }
 
-        if($this->propagator == \Jaeger\Constants\PROPAGATOR_ZIPKIN){
+        if(self::$propagator == \Jaeger\Constants\PROPAGATOR_ZIPKIN){
             $tracer->setPropagator(new ZipkinPropagator());
         }else{
             $tracer->setPropagator(new JaegerPropagator());

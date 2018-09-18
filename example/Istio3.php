@@ -10,7 +10,7 @@ $http->on('request', function ($request, $response) {
     unset($_SERVER['argv']);
     $config = Config::getInstance();
     $config::$propagator = \Jaeger\Constants\PROPAGATOR_ZIPKIN;
-    print_r($request->header);
+
     //init server span start
     $tracer = $config->initTrace('Istio', 'jaeger-agent.istio-system:6831');
 

@@ -10,13 +10,12 @@ $http->on('request', function ($request, $response) {
     unset($_SERVER['argv']);
     $config = Config::getInstance();
     $config::$propagator = \Jaeger\Constants\PROPAGATOR_ZIPKIN;
-    print_r($request->header);
+
     //init server span start
     $tracer = $config->initTrace('Istio', 'jaeger-agent.istio-system:6831');
     $spanContext = $tracer->extract(Formats\TEXT_MAP, $request->header);
     $serverSpan = $tracer->startSpan('Istio2', ['child_of' => $spanContext]);
     $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
-    print_r($_SERVER);
 
     //client span1 start
     $clientTrace = $config->initTrace('Istio2 HTTP');

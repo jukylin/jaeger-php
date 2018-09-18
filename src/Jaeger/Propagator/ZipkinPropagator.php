@@ -7,10 +7,10 @@ use Jaeger\Constants;
 class ZipkinPropagator implements Propagator{
 
     public function inject(SpanContext $spanContext, $format, &$carrier){
-        $carrier[strtoupper(Constants\X_B3_TRACEID)] = $spanContext->traceIdLow;
-        $carrier[strtoupper(Constants\X_B3_PARENT_SPANID)] = $spanContext->parentId;
-        $carrier[strtoupper(Constants\X_B3_SPANID)] = $spanContext->spanId;
-        $carrier[strtoupper(Constants\X_B3_SAMPLED)] = $spanContext->flags;
+        $carrier[Constants\X_B3_TRACEID] = $spanContext ->traceIdLowToString();
+        $carrier[Constants\X_B3_PARENT_SPANID] = $spanContext->parentIdToString();
+        $carrier[Constants\X_B3_SPANID] = $spanContext->spanIdToString();
+        $carrier[Constants\X_B3_SAMPLED] = $spanContext->flagsToString();
     }
 
 

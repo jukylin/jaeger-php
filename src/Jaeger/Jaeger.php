@@ -9,7 +9,7 @@ use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
 use OpenTracing\SpanOptions;
 use OpenTracing\Reference;
-use Jaeger\Propagator;
+use Jaeger\Propagator\Propagator;
 
 class Jaeger implements Tracer{
 
