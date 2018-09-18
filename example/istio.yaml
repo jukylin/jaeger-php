@@ -1,0 +1,109 @@
+##################################################################################################
+# Details service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio1 
+  labels:
+    app: istio1
+spec:
+  ports:
+  - port: 8000
+    name: http
+  selector:
+    app: istio1
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: istio1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: istio1
+        version: v1
+    spec:
+      containers:
+      - name: istio1
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10 
+        imagePullPolicy: IfNotPresent
+        command: ["php"]
+        args: ["/jukylin/jaeger-php/example/Istio1.php"]
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio2
+  labels:
+    app: istio2
+spec:
+  ports:
+  - port: 8001
+    name: http
+  selector:
+    app: istio2
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: istio2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: istio2
+        version: v1
+    spec:
+      containers:
+      - name: istio2
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
+        imagePullPolicy: IfNotPresent
+        command: ["php"]
+        args: ["/jukylin/jaeger-php/example/Istio2.php"]
+        ports:
+        - containerPort: 8001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio3
+  labels:
+    app: istio3
+spec:
+  ports:
+  - port: 8002
+    name: http
+  selector:
+    app: istio3
+#  type : NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: istio3
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: istio3
+        version: v1
+    spec:
+      containers:
+      - name: istio3
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
+        imagePullPolicy: IfNotPresent
+        command: ["php"]
+        args: ["/jukylin/jaeger-php/example/Istio3.php"]
+        ports:
+        - containerPort: 8002
+---
+

@@ -65,6 +65,26 @@ class SpanContext implements \OpenTracing\SpanContext{
     }
 
 
+    public function spanIdToString(){
+        return sprintf("%x", $this->spanId);
+    }
+
+
+    public function parentIdToString(){
+        return sprintf("%x", $this->parentId);
+    }
+
+
+    public function traceIdLowToString(){
+        return sprintf("%x", $this->traceIdLow);
+    }
+
+
+    public function flagsToString(){
+        return sprintf("%x", $this->flags);
+    }
+
+
     /**
      * 是否取样
      * @return mixed

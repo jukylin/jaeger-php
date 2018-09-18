@@ -8,6 +8,8 @@ use Jaeger\Transport\TransportUdp;
 use OpenTracing\NoopTracer;
 use Jaeger\Sampler\Sampler;
 use Jaeger\Sampler\ConstSampler;
+use Jaeger\Propagator\JaegerPropagator;
+use Jaeger\Propagator\ZipkinPropagator;
 
 class Config {
 
@@ -28,6 +30,9 @@ class Config {
     public static $instance = null;
 
     public static $disabled = false;
+
+    public static $propagator = \Jaeger\Constants\PROPAGATOR_JAEGER;
+
 
     private function __construct(){
 
@@ -83,11 +88,19 @@ class Config {
             $this->sampler = new ConstSampler(true);
         }
 
+
         $tracer = new Jaeger($serverName, $this->reporter, $this->sampler);
 
         if($this->gen128bit == true){
             $tracer->gen128bit();
         }
+
+        if(self::$propagator == \Jaeger\Constants\PROPAGATOR_ZIPKIN){
+            $tracer->setPropagator(new ZipkinPropagator());
+        }else{
+            $tracer->setPropagator(new JaegerPropagator());
+        }
+
 
         self::$tracer[$serverName] = $tracer;
 

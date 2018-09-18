@@ -9,6 +9,7 @@ use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
 use OpenTracing\SpanOptions;
 use OpenTracing\Reference;
+use Jaeger\Propagator\Propagator;
 
 class Jaeger implements Tracer{
 
@@ -35,6 +36,8 @@ class Jaeger implements Tracer{
     public $processThrift = '';
 
     public $spanThrifts = [];
+
+    public $propagator = null;
 
     public function __construct($serverName = '', Reporter $reporter, Sampler $sampler){
 
@@ -117,6 +120,11 @@ class Jaeger implements Tracer{
     }
 
 
+    public function setPropagator(Propagator $propagator){
+        $this->propagator = $propagator;
+    }
+
+
     /**
      * 注入
      * @param SpanContext $spanContext
@@ -125,12 +133,7 @@ class Jaeger implements Tracer{
      */
     public function inject(SpanContext $spanContext, $format, &$carrier){
         if($format == Formats\TEXT_MAP){
-            $carrier[strtoupper(Constants\Tracer_State_Header_Name)] = $spanContext->buildString();
-            if($spanContext->baggage) {
-                foreach ($spanContext->baggage as $k => $v) {
-                    $carrier[strtoupper(Constants\Trace_Baggage_Header_Prefix . $k)] = $v;
-                }
-            }
+            $this->propagator->inject($spanContext, $format, $carrier);
         }else{
             throw new \Exception("not support format");
         }
@@ -143,42 +146,8 @@ class Jaeger implements Tracer{
      * @param $carrier
      */
     public function extract($format, $carrier){
-        $spanContext = new \Jaeger\SpanContext(0, 0, 0, null, 0);
-
         if($format == Formats\TEXT_MAP){
-            foreach ($carrier as $k => $v){
-                $k = strtolower($k);
-                $v = urldecode($v);
-                if($k == Constants\Tracer_State_Header_Name){
-                    list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[strtoupper($k)]);
-
-                    $spanContext->spanId = hexdec($spanId);
-                    $spanContext->parentId = hexdec($parentId);
-                    $spanContext->flags = $flags;
-                    $spanContext->traceIdToString($traceId);
-
-                }elseif(stripos($k, Constants\Trace_Baggage_Header_Prefix) !== false){
-                    $safeKey = str_replace(Constants\Trace_Baggage_Header_Prefix, "", $k);
-                    $spanContext->withBaggageItem($safeKey, $v);
-                }elseif($k == Constants\Jaeger_Debug_Header){
-                    $spanContext->debugId = $v;
-                }elseif($k == Constants\Jaeger_Baggage_Header){
-                    // Converts a comma separated key value pair list into a map
-                    // e.g. key1=value1, key2=value2, key3 = value3
-                    // is converted to array { "key1" : "value1",
-                    //                                     "key2" : "value2",
-                    //                                     "key3" : "value3" }
-                    $parseVal = explode(',', $v);
-                    foreach ($parseVal as $val){
-                        $kv = explode('=', trim($val));
-                        if(count($kv)){
-                            $spanContext->withBaggageItem($kv[0], $kv[1]);
-                        }
-                    }
-                }
-            }
-
-            return $spanContext;
+            return $this->propagator->extract($format, $carrier);
         }else{
             throw new \Exception("not support format");
         }
