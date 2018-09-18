@@ -37,7 +37,7 @@ spec:
         - /jukylin/jaeger-php/example/Istio1.php
         command:
         - php
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
         imagePullPolicy: IfNotPresent
         name: istio1
         ports:
@@ -176,7 +176,7 @@ spec:
         - /jukylin/jaeger-php/example/Istio2.php
         command:
         - php
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
         imagePullPolicy: IfNotPresent
         name: istio2
         ports:
@@ -315,7 +315,7 @@ spec:
         - /jukylin/jaeger-php/example/Istio3.php
         command:
         - php
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
         imagePullPolicy: IfNotPresent
         name: istio3
         ports:

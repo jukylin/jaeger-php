@@ -29,7 +29,6 @@ $http->on('request', function ($request, $response) {
     $clientSapn->setTags(["http.url" => "Istio3:8002"]);
     $res = $client->request('GET', 'Istio3:8002', ['headers' => $injectTarget]);
     $clientSapn->setTags(["http.status_code" => $res->getStatusCode()]);
-    $clientSapn->log(['message' => $res->getBody()]);
     //client span1 end
 
     //server span end

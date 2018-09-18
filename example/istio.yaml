@@ -29,7 +29,7 @@ spec:
     spec:
       containers:
       - name: istio1
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8 
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10 
         imagePullPolicy: IfNotPresent
         command: ["php"]
         args: ["/jukylin/jaeger-php/example/Istio1.php"]
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: istio2
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
         imagePullPolicy: IfNotPresent
         command: ["php"]
         args: ["/jukylin/jaeger-php/example/Istio2.php"]
@@ -99,7 +99,7 @@ spec:
     spec:
       containers:
       - name: istio3
-        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v8
+        image: registry.cn-shenzhen.aliyuncs.com/jukylin/php_swoole:v10
         imagePullPolicy: IfNotPresent
         command: ["php"]
         args: ["/jukylin/jaeger-php/example/Istio3.php"]
