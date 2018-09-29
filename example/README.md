@@ -3,7 +3,7 @@
 
 ## Bring up the application containers
 ```
-kubectl apply -f <(istioctl kube-inject -f ./istio.yaml > istio-inject.yaml)
+kubectl apply -f <(istioctl kube-inject -f ./istio.yaml)
 ```
 
 ## Define the ingress gateway for the application
