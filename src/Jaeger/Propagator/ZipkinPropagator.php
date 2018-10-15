@@ -13,26 +13,49 @@ class ZipkinPropagator implements Propagator{
         $carrier[Constants\X_B3_SAMPLED] = $spanContext->flagsToString();
     }
 
-
     public function extract($format, $carrier){
+        $headers = array();
+        foreach($_SERVER as $key => $value) {
+            if (substr($key, 0, 5) <> 'HTTP_') {
+                continue;
+            }
+            $header = str_replace(' ', '-', str_replace('_', ' ', strtolower(substr($key, 5))));
+            $headers[$header] = $value;
+        }
+
         $spanContext = new SpanContext(0, 0, 0, null, 0);
-        if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
-            $spanContext->traceIdLow = hexdec($carrier[Constants\X_B3_TRACEID]);
+        if(isset($headers[Constants\X_B3_TRACEID]) && $headers[Constants\X_B3_TRACEID]){
+            $spanContext->traceIdLow = hexdec($headers[Constants\X_B3_TRACEID]);
         }
 
-        if(isset($carrier[Constants\X_B3_PARENT_SPANID]) && $carrier[Constants\X_B3_PARENT_SPANID]){
-            $spanContext->parentId = hexdec($carrier[Constants\X_B3_PARENT_SPANID]);
+        if(isset($_SERVER[Constants\X_B3_TRACEID]) && $_SERVER[Constants\X_B3_TRACEID]){
+            $spanContext->traceIdLow = hexdec($_SERVER[Constants\X_B3_TRACEID]);
         }
 
-        if(isset($carrier[Constants\X_B3_SPANID]) && $carrier[Constants\X_B3_SPANID]){
-            $spanContext->spanId = hexdec($carrier[Constants\X_B3_SPANID]);
+        if(isset($headers[Constants\X_B3_PARENT_SPANID]) && $headers[Constants\X_B3_PARENT_SPANID]){
+            $spanContext->parentId = hexdec($headers[Constants\X_B3_PARENT_SPANID]);
         }
 
-        if(isset($carrier[Constants\X_B3_SAMPLED]) && $carrier[Constants\X_B3_SAMPLED]){
-            $spanContext->flags = $carrier[Constants\X_B3_SAMPLED];
+        if(isset($_SERVER[Constants\X_B3_PARENT_SPANID]) && $_SERVER[Constants\X_B3_PARENT_SPANID]){
+            $spanContext->parentId = hexdec($_SERVER[Constants\X_B3_PARENT_SPANID]);
         }
 
+        if(isset($headers[Constants\X_B3_SPANID]) && $headers[Constants\X_B3_SPANID]){
+            $spanContext->spanId = hexdec($headers[Constants\X_B3_SPANID]);
+        }
 
+        if(isset($_SERVER[Constants\X_B3_SPANID]) && $_SERVER[Constants\X_B3_SPANID]){
+            $spanContext->spanId = hexdec($_SERVER[Constants\X_B3_SPANID]);
+        }
+
+        if(isset($headers[Constants\X_B3_SAMPLED]) && $headers[Constants\X_B3_SAMPLED]){
+            $spanContext->flags = $headers[Constants\X_B3_SAMPLED];
+        }
+
+        if(isset($_SERVER[Constants\X_B3_SAMPLED]) && $_SERVER[Constants\X_B3_SAMPLED]){
+            $spanContext->flags = $_SERVER[Constants\X_B3_SAMPLED];
+        }
+        
         return $spanContext;
     }
 }
