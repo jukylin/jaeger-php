@@ -17,15 +17,15 @@ class ZipkinPropagator implements Propagator{
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
         if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
-            $spanContext->traceIdLow = hexdec($carrier[Constants\X_B3_TRACEID]);
+            $spanContext->traceIdLow = $spanContext->hexToSignedInt($carrier[Constants\X_B3_TRACEID]);
         }
 
         if(isset($carrier[Constants\X_B3_PARENT_SPANID]) && $carrier[Constants\X_B3_PARENT_SPANID]){
-            $spanContext->parentId = hexdec($carrier[Constants\X_B3_PARENT_SPANID]);
+            $spanContext->parentId = $spanContext->hexToSignedInt($carrier[Constants\X_B3_PARENT_SPANID]);
         }
 
         if(isset($carrier[Constants\X_B3_SPANID]) && $carrier[Constants\X_B3_SPANID]){
-            $spanContext->spanId = hexdec($carrier[Constants\X_B3_SPANID]);
+            $spanContext->spanId = $spanContext->hexToSignedInt($carrier[Constants\X_B3_SPANID]);
         }
 
         if(isset($carrier[Constants\X_B3_SAMPLED]) && $carrier[Constants\X_B3_SAMPLED]){
