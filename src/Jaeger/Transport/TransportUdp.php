@@ -133,14 +133,16 @@ class TransportUdp implements Transport{
         }
 
         $spanNum = 0;
+        $udp = new UdpClient(self::$hostPort);
+
         foreach (self::$batchs as $batch){
             $spanNum += count($batch['thriftSpans']);
-            $udp = new UdpClient(self::$hostPort);
             $udp->emitBatch($batch);
-            $udp->close();
         }
 
+        $udp->close();
         $this->resetBuffer();
+
         return $spanNum;
     }
 }
