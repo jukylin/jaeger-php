@@ -167,6 +167,21 @@ class Jaeger implements Tracer{
     }
 
 
+    public function getScopeManager(){
+
+    }
+
+
+    public function getActiveSpan(){
+
+    }
+
+
+    public function startActiveSpan($operationName, $options = []){
+
+    }
+
+
     public function getEnvTags(){
         $tags = [];
         if(isset($_SERVER['JAEGER_TAGS']) && $_SERVER['JAEGER_TAGS'] != ''){
