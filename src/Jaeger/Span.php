@@ -78,6 +78,12 @@ class Span implements \OpenTracing\Span{
         $this->tags = array_merge($this->tags, $tags);
     }
 
+
+    public function setTag($key, $value){
+        $this->tags[$key] = $value;
+    }
+
+
     /**
      * Adds a log record to the span
      *
