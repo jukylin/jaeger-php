@@ -1,13 +1,12 @@
 <?php
 
-require_once '../../autoload.php';
+use PHPUnit\Framework\TestCase;
 
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
 
-class TestSampler extends PHPUnit_Framework_TestCase
+class TestSampler extends TestCase
 {
-
     public function testConstSampler(){
         $sample = new ConstSampler(true);
         $this->assertTrue($sample->IsSampled()  == true);
