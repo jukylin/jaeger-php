@@ -5,7 +5,7 @@ use PHPUnit\Framework\TestCase;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
 
-class TestSampler extends TestCase
+class SamplerTest extends TestCase
 {
     public function testConstSampler(){
         $sample = new ConstSampler(true);

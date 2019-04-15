@@ -6,7 +6,7 @@ use Jaeger\Config;
 use OpenTracing\NoopTracer;
 use PHPUnit\Framework\TestCase;
 
-final class TestConfig extends TestCase
+final class ConfigTest extends TestCase
 {
     public function testSetDisabled()
     {

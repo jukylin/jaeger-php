@@ -7,7 +7,7 @@ use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Transport\TransportUdp;
 
-final class TestJaeger extends TestCase
+final class JaegerTest extends TestCase
 {
     public function testGetEnvTags()
     {
