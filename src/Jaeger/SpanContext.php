@@ -76,6 +76,10 @@ class SpanContext implements \OpenTracing\SpanContext{
 
 
     public function traceIdLowToString(){
+        if ($this->traceIdHigh) {
+            return sprintf("%x%016x", $this->traceIdHigh, $this->traceIdLow);
+        }
+
         return sprintf("%x", $this->traceIdLow);
     }
 
