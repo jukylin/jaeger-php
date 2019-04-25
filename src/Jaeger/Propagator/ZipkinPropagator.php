@@ -17,7 +17,7 @@ class ZipkinPropagator implements Propagator{
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
         if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
-            $spanContext->traceIdLow = $spanContext->hexToSignedInt($carrier[Constants\X_B3_TRACEID]);
+            $spanContext->traceIdToString($carrier[Constants\X_B3_TRACEID]);
         }
 
         if(isset($carrier[Constants\X_B3_PARENT_SPANID]) && $carrier[Constants\X_B3_PARENT_SPANID]){
