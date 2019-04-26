@@ -53,7 +53,7 @@ $clientSpan2 = $clientTrace->startSpan('HTTP2',
 $clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
 
 $method = 'GET';
-$url = 'https://github.com/search?utf8=✓&q=jaeger-php';
+$url = 'https://github.com/search?q=jaeger-php';
 $client = new Client();
 $res = $client->request($method, $url, ['headers' => $injectTarget2]);
 
