@@ -88,6 +88,7 @@ class TransportUdp implements Transport{
                     , 'thriftSpans' => $jaeger->spanThrifts];
 
                 $this->flush();
+                return true;
             }else{
                 $jaeger->spanThrifts[] = $spanThrift;
             }
