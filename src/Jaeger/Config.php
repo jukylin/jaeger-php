@@ -55,13 +55,13 @@ class Config {
 
 
     /**
-     * init jaeger and set GlobalTracer, return can use flush  buffers
+     * init jaeger, return can use flush  buffers
      * @param $serviceName
      * @param string $agentHostPort
      * @return Jaeger|null
      * @throws \Exception
      */
-    public function initTrace($serverName, $agentHostPort = ''){
+    public function initTracer($serverName, $agentHostPort = ''){
 
         if(self::$disabled){
             return NoopTracer::create();
@@ -110,7 +110,7 @@ class Config {
 
 
     /**
-     * 是否开启
+     * close tracer
      * @param $disabled
      */
     public function setDisabled($disabled){

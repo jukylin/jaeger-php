@@ -12,7 +12,7 @@ $http->on('request', function ($request, $response) {
     $config::$propagator = \Jaeger\Constants\PROPAGATOR_ZIPKIN;
 
     //init server span start
-    $tracer = $config->initTrace('Istio', 'jaeger-agent.istio-system:6831');
+    $tracer = $config->initTracer('Istio', 'jaeger-agent.istio-system:6831');
 
     $spanContext = $tracer->extract(Formats\TEXT_MAP, $request->header);
 
@@ -20,7 +20,7 @@ $http->on('request', function ($request, $response) {
     $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 
     //client span1 start
-    $clientTrace = $config->initTrace('Istio3 Bus');
+    $clientTrace = $config->initTracer('Istio3 Bus');
     $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
     $clientSapn = $clientTrace->startSpan('Istio3', ['child_of' => $spanContext]);
 
