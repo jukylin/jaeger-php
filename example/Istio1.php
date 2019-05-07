@@ -20,11 +20,11 @@ $http->on('request', function ($request, $response) {
     $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
     print_r($_SERVER);
     //client span1 start
-    $clientTrace = $config->initTracer('Istio1 HTTP');
+    $clientTracer = $config->initTracer('Istio1 HTTP');
     $injectTarget = [];
-    $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-    $clientSapn = $clientTrace->startSpan('Istio1', ['child_of' => $spanContext]);
-    $clientTrace->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
+    $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+    $clientSapn = $clientTracer->startSpan('Istio1', ['child_of' => $spanContext]);
+    $clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
 
     $client = new Client();
     $clientSapn->setTags(["http.url" => "Istio2:8001"]);

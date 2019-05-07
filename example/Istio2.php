@@ -18,11 +18,11 @@ $http->on('request', function ($request, $response) {
     $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 
     //client span1 start
-    $clientTrace = $config->initTracer('Istio2 HTTP');
+    $clientTracer = $config->initTracer('Istio2 HTTP');
     $injectTarget = [];
-    $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-    $clientSapn = $clientTrace->startSpan('Istio2', ['child_of' => $spanContext]);
-    $clientTrace->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
+    $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+    $clientSapn = $clientTracer->startSpan('Istio2', ['child_of' => $spanContext]);
+    $clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
 
     $client = new \GuzzleHttp\Client();
     $clientSapn->setTags(["http.url" => "Istio3:8002"]);

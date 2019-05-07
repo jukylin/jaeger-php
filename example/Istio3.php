@@ -20,9 +20,9 @@ $http->on('request', function ($request, $response) {
     $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 
     //client span1 start
-    $clientTrace = $config->initTracer('Istio3 Bus');
-    $spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-    $clientSapn = $clientTrace->startSpan('Istio3', ['child_of' => $spanContext]);
+    $clientTracer = $config->initTracer('Istio3 Bus');
+    $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+    $clientSapn = $clientTracer->startSpan('Istio3', ['child_of' => $spanContext]);
 
     $sum = 0;
     for($i = 0; $i < 10; $i++){

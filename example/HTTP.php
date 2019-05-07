@@ -22,13 +22,13 @@ $serverSpan->addBaggageItem("version", "1.8.9");
 
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
-$clientTrace = $config->initTracer('HTTP');
+$clientTracer = $config->initTracer('HTTP');
 
 //client span1 start
 $injectTarget1 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSapn1 = $clientTrace->startSpan('HTTP1', ['child_of' => $spanContext]);
-$clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
+$spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSapn1 = $clientTracer->startSpan('HTTP1', ['child_of' => $spanContext]);
+$clientTracer->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
 
 $method = 'GET';
 $url = 'https://github.com/';
@@ -43,14 +43,14 @@ $clientSapn1->finish();
 
 //client span2 start
 $injectTarget2 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSpan2 = $clientTrace->startSpan('HTTP2',
+$spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSpan2 = $clientTracer->startSpan('HTTP2',
     ['references' => [
         Reference::create(Reference::FOLLOWS_FROM, $clientSapn1->spanContext),
         Reference::create(Reference::CHILD_OF, $spanContext)
     ]]);
 
-$clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
+$clientTracer->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
 
 $method = 'GET';
 $url = 'https://github.com/search?q=jaeger-php';
