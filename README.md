@@ -26,7 +26,7 @@
 
 ```
 $config = Config::getInstance();
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 ```
 
 ## 128bit
@@ -71,7 +71,7 @@ $span->log(['error' => "HTTP request timeout"]);
 
 ```
 
-## Close Trace
+## Close Tracer
 
 ```
 $config->setDisabled(true);
@@ -86,7 +86,7 @@ $config::$propagator = \Jaeger\Constants\PROPAGATOR_ZIPKIN;
 ```
 
 
-## finish span and flush Trace 
+## finish span and flush Tracer
 
 ```
 $span->finish();

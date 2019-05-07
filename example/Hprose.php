@@ -10,14 +10,14 @@ unset($_SERVER['argv']);
 
 //init server span start
 $config = Config::getInstance();
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 
-$clientTrace = $config->initTrace('Hprose');
+$clientTrace = $config->initTracer('Hprose');
 
 //client span start
 $header = [];

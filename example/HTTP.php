@@ -13,7 +13,7 @@ unset($_SERVER['argv']);
 $config = Config::getInstance();
 $config->gen128bit();
 
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
@@ -22,7 +22,7 @@ $serverSpan->addBaggageItem("version", "1.8.9");
 
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
-$clientTrace = $config->initTrace('HTTP');
+$clientTrace = $config->initTracer('HTTP');
 
 //client span1 start
 $injectTarget1 = [];
