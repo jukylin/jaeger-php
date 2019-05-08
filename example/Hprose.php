@@ -24,22 +24,22 @@ unset($_SERVER['argv']);
 
 //init server span start
 $config = Config::getInstance();
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
 
-$clientTrace = $config->initTrace('Hprose');
+$clientTracer = $config->initTracer('Hprose');
 
 //client span start
 $header = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSapn = $clientTrace->startSpan('get', ['child_of' => $spanContext]);
+$spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSapn = $clientTracer->startSpan('get', ['child_of' => $spanContext]);
 $clientSapn->addBaggageItem("version", "2.0.0");
 
-$clientTrace->inject($clientSapn->spanContext, Formats\TEXT_MAP, $header);
+$clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $header);
 
 $url = 'http://0.0.0.0:8080/main';
 $client = Client::create($url, false);
