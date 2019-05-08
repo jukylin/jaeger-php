@@ -1,18 +1,17 @@
 <?php
 
-namespace tests;
-
-use PHPUnit\Framework\TestCase;
+require_once '../../autoload.php';
 
 use Jaeger\Jaeger;
 use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Transport\TransportUdp;
 
-final class JaegerTest extends TestCase
+class TestJaeger extends PHPUnit_Framework_TestCase
 {
-    public function testGetEnvTags()
-    {
+
+    public function testGetEnvTags(){
+
         $tranSport = new TransportUdp();
         $reporter = new RemoteReporter($tranSport);
         $sampler = new ConstSampler();
@@ -22,4 +21,5 @@ final class JaegerTest extends TestCase
 
         $this->assertTrue(count($tags) > 0);
     }
+
 }
