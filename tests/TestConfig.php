@@ -1,27 +1,30 @@
 <?php
 
-namespace tests;
+require_once '../../autoload.php';
 
 use Jaeger\Config;
 use OpenTracing\NoopTracer;
-use PHPUnit\Framework\TestCase;
 
-final class ConfigTest extends TestCase
+class TestConfig extends PHPUnit_Framework_TestCase
 {
-    public function testSetDisabled()
-    {
+
+    public function testSetDisabled(){
         $config = Config::getInstance();
         $config->setDisabled(true);
 
         $this->assertTrue($config::$disabled == true);
     }
 
-    public function testNoopTracer()
-    {
+
+    public function testNoopTracer(){
+
         $config = Config::getInstance();
         $config->setDisabled(true);
         $trace = $config->initTrace('test');
 
         $this->assertTrue($trace instanceof NoopTracer);
     }
+
+
+
 }
