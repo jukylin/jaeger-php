@@ -1,4 +1,17 @@
 <?php
+/*
+ * Copyright (c) 2019, The Jaeger Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
 
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
 
@@ -14,7 +27,7 @@ unset($_SERVER['argv']);
 $config = Config::getInstance();
 $config->gen128bit();
 
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
@@ -23,13 +36,13 @@ $serverSpan->addBaggageItem("version", "1.8.9");
 
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 //init server span end
-$clientTrace = $config->initTrace('HTTP');
+$clientTracer = $config->initTracer('HTTP');
 
 //client span1 start
 $injectTarget1 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSapn1 = $clientTrace->startSpan('HTTP1', ['child_of' => $spanContext]);
-$clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
+$spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSapn1 = $clientTracer->startSpan('HTTP1', ['child_of' => $spanContext]);
+$clientTracer->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
 
 $method = 'GET';
 $url = 'https://github.com/';
@@ -44,17 +57,17 @@ $clientSapn1->finish();
 
 //client span2 start
 $injectTarget2 = [];
-$spanContext = $clientTrace->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSpan2 = $clientTrace->startSpan('HTTP2',
+$spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
+$clientSpan2 = $clientTracer->startSpan('HTTP2',
     ['references' => [
         Reference::create(Reference::FOLLOWS_FROM, $clientSapn1->spanContext),
         Reference::create(Reference::CHILD_OF, $spanContext)
     ]]);
 
-$clientTrace->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
+$clientTracer->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
 
 $method = 'GET';
-$url = 'https://github.com/search?utf8=✓&q=jaeger-php';
+$url = 'https://github.com/search?q=jaeger-php';
 $client = new Client();
 $res = $client->request($method, $url, ['headers' => $injectTarget2]);
 

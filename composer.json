@@ -2,7 +2,7 @@
   "name":              "jukylin/jaeger-php",
   "description":       "php client for jaeger",
   "keywords":          ["jaeger","trace","opentracing"],
-  "license":           "MIT",
+  "license":           "Apache License 2.0",
   "minimum-stability": "dev",
   "require":           {
     "php": ">=5.6.0",
