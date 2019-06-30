@@ -7,7 +7,7 @@ use OpenTracing\SpanContext;
 use OpenTracing\Formats;
 use OpenTracing\Tracer;
 use Jaeger\Reporter\Reporter;
-use OpenTracing\SpanOptions;
+use OpenTracing\StartSpanOptions;
 use OpenTracing\Reference;
 use Jaeger\Propagator\Propagator;
 
@@ -18,6 +18,8 @@ class Jaeger implements Tracer{
     private $sampler = null;
 
     private $gen128bit = false;
+
+    private $scopeManager;
 
     public static $handleProto = null;
 
@@ -39,11 +41,15 @@ class Jaeger implements Tracer{
 
     public $propagator = null;
 
-    public function __construct($serverName = '', Reporter $reporter, Sampler $sampler){
+    public function __construct($serverName = '', Reporter $reporter, Sampler $sampler,
+                                ScopeManager $scopeManager){
 
         $this->reporter = $reporter;
 
         $this->sampler = $sampler;
+
+        $this->scopeManager = $scopeManager;
+
         $this->setTags($this->sampler->getTags());
         $this->setTags($this->getEnvTags());
 
@@ -73,25 +79,12 @@ class Jaeger implements Tracer{
      */
     public function startSpan($operationName, $options = []){
 
-        if (is_array($options)) {
-            $options = SpanOptions::create($options);
-        }else{
-            throw new \Exception("options is not array");
+        if (!($options instanceof StartSpanOptions)) {
+            $options = StartSpanOptions::create($options);
         }
 
-        $references = $options->getReferences();
-
-        $hasParent = false;
-        $parentSpan = null;
-
-        foreach ($references as $ref){
-            if($ref->isType(Reference::CHILD_OF)){
-                $hasParent = true;
-                $parentSpan = $ref->getContext();
-            }
-        }
-
-        if(!$hasParent || !$parentSpan->traceIdLow){
+        $parentSpan = $this->getParentSpanContext($options);
+        if($parentSpan == null || !$parentSpan->traceIdLow){
             $low = $this->generateId();
             $spanId = $low;
             $flags = $this->sampler->IsSampled();
@@ -109,7 +102,7 @@ class Jaeger implements Tracer{
             }
         }
 
-        $span = new Span($operationName, $newSpan, $references);
+        $span = new Span($operationName, $newSpan, $options->getReferences());
         $span->setTags($options->getTags());
 
         if($newSpan->isSampled() == 1) {
@@ -168,17 +161,46 @@ class Jaeger implements Tracer{
 
 
     public function getScopeManager(){
-
+        return $this->scopeManager;
     }
 
 
     public function getActiveSpan(){
+        $activeScope = $this->getScopeManager()->getActive();
+        if ($activeScope === null) {
+            return null;
+        }
 
+        return $activeScope->getSpan();
     }
 
 
     public function startActiveSpan($operationName, $options = []){
+        if (!$options instanceof StartSpanOptions) {
+            $options = StartSpanOptions::create($options);
+        }
 
+        $parentSpan = $this->getParentSpanContext($options);
+        if ($parentSpan === null && $this->getActiveSpan() !== null) {
+            $parentContext = $this->getActiveSpan()->getContext();
+            $options = $options->withParent($parentContext);
+        }
+
+        $span = $this->startSpan($operationName, $options);
+        return $this->getScopeManager()->activate($span, $options->shouldFinishSpanOnClose());
+    }
+
+
+    private function getParentSpanContext(StartSpanOptions $options)
+    {
+        $references = $options->getReferences();
+        foreach ($references as $ref) {
+            if ($ref->isType(Reference::CHILD_OF)) {
+                return $ref->getContext();
+            }
+        }
+
+        return null;
     }
 
 

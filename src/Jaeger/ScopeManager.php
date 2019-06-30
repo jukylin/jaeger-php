@@ -5,22 +5,47 @@ namespace Jaeger;
 
 class ScopeManager implements \OpenTracing\ScopeManager{
 
-    private $active;
+    private $scopes = [];
 
 
+    /**
+     * append scope
+     * @param \OpenTracing\Span $span
+     * @param bool $finishSpanOnClose
+     * @return Scope
+     */
     public function activate(\OpenTracing\Span $span, $finishSpanOnClose){
-        $this->active = new Scope($this, $span, $finishSpanOnClose);
-
-        return $this->active;
+        $scope = new Scope($this, $span, $finishSpanOnClose);
+        $this->scopes[] = $scope;
+        return $scope;
     }
 
 
+    /**
+     * get last scope
+     * @return mixed|null
+     */
     public function getActive(){
-        return $this->active;
+        if (empty($this->scopes)) {
+            return null;
+        }
+
+        return $this->scopes[count($this->scopes) - 1];
     }
 
 
-    public function setActive(\OpenTracing\Scope $scope = null){
-        $this->active = $scope;
+    /**
+     * del scope
+     * @param Scope $scope
+     */
+    public function delactivate(Scope $scope){
+        $scopeLength = count($this->scopes);
+
+        for ($i = 0; $i < $scopeLength; $i++) {
+            if ($scope === $this->scopes[$i]) {
+                unset($this->scopes[$i]);
+            }
+        }
+        sort($this->scopes);
     }
 }

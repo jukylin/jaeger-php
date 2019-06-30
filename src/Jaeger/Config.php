@@ -19,6 +19,8 @@ class Config {
 
     private $sampler = null;
 
+    private $scopeManager = null;
+
     private $tags = [];
 
     private $gen128bit = false;
@@ -88,8 +90,11 @@ class Config {
             $this->sampler = new ConstSampler(true);
         }
 
+        if($this->scopeManager == null){
+            $this->scopeManager = new ScopeManager();
+        }
 
-        $tracer = new Jaeger($serverName, $this->reporter, $this->sampler);
+        $tracer = new Jaeger($serverName, $this->reporter, $this->sampler, $this->scopeManager);
 
         if($this->gen128bit == true){
             $tracer->gen128bit();

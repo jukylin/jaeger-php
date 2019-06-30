@@ -9,6 +9,7 @@ use OpenTracing\Reference;
 
 unset($_SERVER['argv']);
 
+
 //init server span start
 $config = Config::getInstance();
 $config->gen128bit();
