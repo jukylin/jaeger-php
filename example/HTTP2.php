@@ -31,7 +31,7 @@ $num = 0;
 for ($i = 0; $i < 10; $i++){
     $num += 2;
 }
-$third->getSpan()->setTag("num", $num);
+$second->getSpan()->setTag("num", $num);
 sleep(1);
 $second->close();
 
