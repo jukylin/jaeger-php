@@ -13,23 +13,28 @@
  * the License.
  */
 
-require_once '../../autoload.php';
+namespace tests;
 
 use Jaeger\Jaeger;
 use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Sampler\ConstSampler;
+use Jaeger\ScopeManager;
 use Jaeger\Transport\TransportUdp;
+use PHPUnit\Framework\TestCase;
 
-class TestJaeger extends PHPUnit_Framework_TestCase
+class JaegerTest extends TestCase
 {
 
     public function testGetEnvTags(){
 
+        $_SERVER['JAEGER_TAGS'] = 'a=b,c=d';
+
         $tranSport = new TransportUdp();
         $reporter = new RemoteReporter($tranSport);
         $sampler = new ConstSampler();
+        $scopeManager = new ScopeManager();
 
-        $Jaeger = new Jaeger('getEnvTags', $reporter, $sampler);
+        $Jaeger = new Jaeger('getEnvTags', $reporter, $sampler, $scopeManager);
         $tags = $Jaeger->getEnvTags();
 
         $this->assertTrue(count($tags) > 0);

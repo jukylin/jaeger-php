@@ -12,13 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+namespace tests;
 
-require_once '../../autoload.php';
-
+use PHPUnit\Framework\TestCase;
 use Jaeger\Config;
 use OpenTracing\NoopTracer;
 
-class TestConfig extends PHPUnit_Framework_TestCase
+class ConfigTest extends TestCase
 {
 
     public function testSetDisabled(){
@@ -33,7 +33,7 @@ class TestConfig extends PHPUnit_Framework_TestCase
 
         $config = Config::getInstance();
         $config->setDisabled(true);
-        $trace = $config->initTrace('test');
+        $trace = $config->initTracer('test');
 
         $this->assertTrue($trace instanceof NoopTracer);
     }

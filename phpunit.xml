@@ -1,0 +1,36 @@
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.2/phpunit.xsd"
+        backupGlobals="true"
+        backupStaticAttributes="false"
+        bootstrap="./vendor/autoload.php"
+        cacheResult="false"
+        cacheTokens="false"
+        colors="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+        forceCoversAnnotation="false"
+        printerClass="PHPUnit\TextUI\ResultPrinter"
+        processIsolation="false"
+        stopOnError="false"
+        stopOnFailure="false"
+        stopOnIncomplete="false"
+        stopOnSkipped="false"
+        stopOnRisky="false"
+        testSuiteLoaderClass="PHPUnit\Runner\StandardTestSuiteLoader"
+        timeoutForSmallTests="1"
+        timeoutForMediumTests="10"
+        timeoutForLargeTests="60"
+        verbose="false">
+        <testsuites>
+            <testsuite name="jaeger-php">
+                <directory>./tests/</directory>
+            </testsuite>
+        </testsuites>
+        <filter>
+            <whitelist>
+                <directory>./src</directory>
+            </whitelist>
+        </filter>
+</phpunit>

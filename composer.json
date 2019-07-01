@@ -22,5 +22,11 @@
     "files": [
       "src/Jaeger/Constants.php"
     ]
+  },
+  "scripts": {
+    "test": "./vendor/bin/phpunit"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7"
   }
 }

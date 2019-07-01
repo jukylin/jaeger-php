@@ -13,12 +13,13 @@
  * the License.
  */
 
-require_once '../../autoload.php';
+namespace tests;
 
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
+use PHPUnit\Framework\TestCase;
 
-class TestSampler extends PHPUnit_Framework_TestCase
+class SamplerTest extends TestCase
 {
 
     public function testConstSampler(){
