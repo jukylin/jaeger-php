@@ -20,42 +20,26 @@ use Jaeger\Span;
 use PHPUnit\Framework\TestCase;
 use Jaeger\ScopeManager;
 
-class ScopeMangerTest extends TestCase
+class ScopeTest extends TestCase
 {
 
-    public function testActivate(){
+    public function testClose(){
         $span1 = new Span('test', new NoopSpanContext(), []);
 
         $scopeManager = new ScopeManager();
         $scope = $scopeManager->activate($span1, true);
-        $span2 = $scope->getSpan();
+        $scope->close();
 
-        $this->assertTrue($span1 === $span2);
-    }
-
-    public function testGetActive(){
-
-        $span = new Span('test', new NoopSpanContext(), []);
-
-        $scopeManager = new ScopeManager();
-        $scope1 = $scopeManager->activate($span, true);
-
-        $scope2 = $scopeManager->getActive();
-        $this->assertTrue($scope1 === $scope2);
+        $this->assertTrue($scopeManager->getActive() === null);
     }
 
 
-    public function testDelactivate(){
-
-        $span = new Span('test', new NoopSpanContext(), []);
+    public function testGetSpan(){
+        $span1 = new Span('test', new NoopSpanContext(), []);
 
         $scopeManager = new ScopeManager();
-        $scope = $scopeManager->activate($span, true);
+        $scope = $scopeManager->activate($span1, true);
 
-        $res = $scopeManager->delactivate($scope);
-        $this->assertTrue($res == true);
-
-        $getRes = $scopeManager->getActive();
-        $this->assertTrue($getRes === null);
+        $this->assertTrue($scope->getSpan() !== null);
     }
 }

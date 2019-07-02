@@ -34,8 +34,6 @@ class Config {
 
     private $scopeManager = null;
 
-    private $tags = [];
-
     private $gen128bit = false;
 
     public static $tracer = null;

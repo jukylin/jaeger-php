@@ -128,6 +128,7 @@ class SpanContext implements \OpenTracing\SpanContext{
         return intval($bigAdd);
     }
 
+
     public function traceIdToString($traceId)
     {
         $len = strlen($traceId);
