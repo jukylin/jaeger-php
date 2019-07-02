@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/jukylin/jaeger-php.svg?branch=master)](https://travis-ci.com/jukylin/jaeger-php)
+
 # jaeger-php
 
 ## principle of Distributed Tracing
