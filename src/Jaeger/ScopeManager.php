@@ -37,9 +37,14 @@ class ScopeManager implements \OpenTracing\ScopeManager{
     /**
      * del scope
      * @param Scope $scope
+     * @return bool
      */
     public function delactivate(Scope $scope){
         $scopeLength = count($this->scopes);
+
+        if($scopeLength <= 0){
+            return false;
+        }
 
         for ($i = 0; $i < $scopeLength; $i++) {
             if ($scope === $this->scopes[$i]) {
@@ -47,5 +52,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
             }
         }
         sort($this->scopes);
+
+        return true;
     }
 }
