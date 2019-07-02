@@ -23,23 +23,42 @@ class SpanTest extends TestCase
 {
 
     public function testOverwriteOperationName(){
-        $span = new Span('test1', new NoopSpanContext(), []);
+        $span = new Span('test', new NoopSpanContext(), []);
         $span->overwriteOperationName('test2');
         $this->assertTrue($span->getOperationName() == 'test2');
     }
 
 
     public function testAddTags(){
-        $span = new Span('test1', new NoopSpanContext(), []);
+        $span = new Span('test', new NoopSpanContext(), []);
         $span->setTags(['test' => 'test']);
         $this->assertTrue((isset($span->tags['test']) && $span->tags['test'] == 'test'));
     }
 
 
     public function testFinish(){
-        $span = new Span('test1', new NoopSpanContext(), []);
+        $span = new Span('test', new NoopSpanContext(), []);
         $span->setTags(['test' => 'test']);
         $span->finish();
         $this->assertTrue(!empty($span->finishTime) && !empty($span->duration));
+    }
+
+
+    public function testGetContext(){
+        $span = new Span('test', new NoopSpanContext(), []);
+        $spanContext = $span->getContext();
+        $this->assertInstanceOf(NoopSpanContext::class, $spanContext);
+    }
+
+
+
+    public function testLog(){
+        $span = new Span('test', new NoopSpanContext(), []);
+        $logs = [
+            'msg' => 'is test',
+            'msg2' => 'is msg 2'
+        ];
+        $span->log($logs);
+        $this->assertTrue(count($span->logs) == 1);
     }
 }
