@@ -15,21 +15,21 @@
 
 namespace tests;
 
-use Jaeger\Sampler\ConstSampler;
 use Jaeger\Sampler\ProbabilisticSampler;
 use PHPUnit\Framework\TestCase;
+use Jaeger\Constants;
 
-class SamplerTest extends TestCase
+class ProbabilisticSamplerTest extends TestCase
 {
-
-    public function testConstSampler(){
-        $sample = new ConstSampler(true);
-        $this->assertTrue($sample->IsSampled()  == true);
-    }
-
 
     public function testProbabilisticSampler(){
         $sample = new ProbabilisticSampler(0.0001);
         $this->assertTrue($sample->IsSampled() !== null);
+    }
+
+    public function testConstSamplerGetTag(){
+        $sample = new ProbabilisticSampler(0.0001);
+        $tags = $sample->getTags();
+        $this->assertTrue($tags[Constants\SAMPLER_TYPE_TAG_KEY] == 'probabilistic');
     }
 }

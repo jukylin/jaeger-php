@@ -83,7 +83,7 @@ $config->setDisabled(true);
 
 ## Zipkin B3 Propagation
 
-> not support ```128bit``` and  ```Distributed context propagation ```
+> not support ```Distributed context propagation ```
 
 ```
 $config::$propagator = \Jaeger\Constants\PROPAGATOR_ZIPKIN;
