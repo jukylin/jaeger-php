@@ -78,8 +78,43 @@ class JaegerPropagatorTest extends TestCase{
         $carrier[Constants\Jaeger_Debug_Header] = 1;
         $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
         $this->assertTrue($context->debugId == 1);
+    }
 
 
+    public function testExtractUberctx(){
+        $jaeger = new JaegerPropagator();
+
+        $carrier[Constants\Trace_Baggage_Header_Prefix] = '2.0.0';
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertTrue($context->baggage == null);
+
+        $carrier = [];
+
+        $carrier[Constants\Trace_Baggage_Header_Prefix.'version'] = '2.0.0';
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertTrue($context->getBaggageItem('version') == '2.0.0');
+    }
+
+
+    public function testExtractBaggageHeader(){
+        $jaeger = new JaegerPropagator();
+        $carrier = [];
+
+        $carrier[Constants\Jaeger_Baggage_Header] = 'version=2.0.0,os=1';
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertTrue($context->getBaggageItem('version') == '2.0.0');
+        $this->assertTrue($context->getBaggageItem('os') == '1');
+    }
+
+
+    public function testExtractBadBaggageHeader(){
+        $jaeger = new JaegerPropagator();
+
+        $carrier = [];
+
+        $carrier[Constants\Jaeger_Baggage_Header] = 'version';
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertTrue($context->baggage == null);
     }
 
 

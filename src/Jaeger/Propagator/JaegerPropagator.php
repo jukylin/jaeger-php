@@ -38,6 +38,7 @@ class JaegerPropagator implements Propagator{
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
         foreach ($carrier as $k => $v){
+
             $k = strtolower($k);
             $v = urldecode($v);
             if($k == Constants\Tracer_State_Header_Name){
@@ -50,7 +51,9 @@ class JaegerPropagator implements Propagator{
 
             }elseif(stripos($k, Constants\Trace_Baggage_Header_Prefix) !== false){
                 $safeKey = str_replace(Constants\Trace_Baggage_Header_Prefix, "", $k);
-                $spanContext->withBaggageItem($safeKey, $v);
+                if($safeKey != "") {
+                    $spanContext->withBaggageItem($safeKey, $v);
+                }
             }elseif($k == Constants\Jaeger_Debug_Header){
                 $spanContext->debugId = $v;
             }elseif($k == Constants\Jaeger_Baggage_Header){
@@ -60,12 +63,15 @@ class JaegerPropagator implements Propagator{
                 //                                     "key2" : "value2",
                 //                                     "key3" : "value3" }
                 $parseVal = explode(',', $v);
-                foreach ($parseVal as $val){
-                    $kv = explode('=', trim($val));
-                    if(count($kv)){
-                        $spanContext->withBaggageItem($kv[0], $kv[1]);
+                foreach ($parseVal as $val) {
+                    if(stripos($v, '=') !== false) {
+                        $kv = explode('=', trim($val));
+                        if (count($kv) == 2) {
+                            $spanContext->withBaggageItem($kv[0], $kv[1]);
+                        }
                     }
                 }
+
             }
         }
 
