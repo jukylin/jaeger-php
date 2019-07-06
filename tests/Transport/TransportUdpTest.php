@@ -35,7 +35,7 @@ class TransportUdpTest extends TestCase
 
     public function testResetBuffer(){
         $this->tran->resetBuffer();
-        $this->assertCount($this->tran->getBatchs(), 0);
+        $this->assertCount(0, $this->tran->getBatchs());
 
     }
 
