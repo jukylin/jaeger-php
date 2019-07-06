@@ -28,9 +28,14 @@ class TransportUdpTest extends TestCase
     }
 
 
+//    public function testFlush(){
+//        $this->tran->append();
+//    }
+
+
     public function testResetBuffer(){
         $this->tran->resetBuffer();
-        $this->assertTrue(count($this->tran::$batchs) == 0);
+        $this->assertCount($this->tran->getBatchs(), 0);
 
     }
 

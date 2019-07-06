@@ -27,6 +27,7 @@
     "test": "./vendor/bin/phpunit"
   },
   "require-dev": {
-    "phpunit/phpunit": "^5"
+    "phpunit/phpunit": "^5",
+    "php-coveralls/php-coveralls": "^1.0"
   }
 }

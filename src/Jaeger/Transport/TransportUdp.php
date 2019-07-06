@@ -160,4 +160,9 @@ class TransportUdp implements Transport{
 
         return $spanNum;
     }
+
+
+    public function getBatchs(){
+        return self::$batchs;
+    }
 }
