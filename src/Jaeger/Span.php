@@ -97,7 +97,7 @@ class Span implements \OpenTracing\Span{
     /**
      * Adds a log record to the span
      *
-     * @param array $fields
+     * @param array $fields [key => val]
      * @param int|float|\DateTimeInterface $timestamp
      * @throws SpanAlreadyFinished if the span is already finished
      */

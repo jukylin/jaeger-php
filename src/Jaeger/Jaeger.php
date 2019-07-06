@@ -141,7 +141,7 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             $this->propagator->inject($spanContext, $format, $carrier);
         }else{
-            throw new \Exception("not support format");
+            throw new \Exception("not support format $format");
         }
     }
 
@@ -155,7 +155,7 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             return $this->propagator->extract($format, $carrier);
         }else{
-            throw new \Exception("not support format");
+            throw new \Exception("not support format $format");
         }
     }
 

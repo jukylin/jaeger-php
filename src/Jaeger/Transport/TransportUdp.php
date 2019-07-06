@@ -16,6 +16,7 @@
 namespace Jaeger\Transport;
 
 use Jaeger\Jaeger;
+use Jaeger\Thrift\AgentClient;
 use Jaeger\Thrift\JaegerThriftSpan;
 use Jaeger\Thrift\Process;
 use Jaeger\Thrift\Span;
@@ -147,7 +148,7 @@ class TransportUdp implements Transport{
         }
 
         $spanNum = 0;
-        $udp = new UdpClient(self::$hostPort);
+        $udp = new UdpClient(self::$hostPort, new AgentClient());
 
         foreach (self::$batchs as $batch){
             $spanNum += count($batch['thriftSpans']);
@@ -158,5 +159,10 @@ class TransportUdp implements Transport{
         $this->resetBuffer();
 
         return $spanNum;
+    }
+
+
+    public function getBatchs(){
+        return self::$batchs;
     }
 }

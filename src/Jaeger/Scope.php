@@ -9,12 +9,12 @@ class Scope implements \OpenTracing\Scope{
     /**
      * @var MockScopeManager
      */
-    private $scopeManager;
+    private $scopeManager = null;
 
     /**
      * @var span
      */
-    private $span;
+    private $span = null;
 
     /**
      * @var bool

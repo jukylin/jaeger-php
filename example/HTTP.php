@@ -27,14 +27,17 @@ unset($_SERVER['argv']);
 $config = Config::getInstance();
 $config->gen128bit();
 
+$config::$propagator = Jaeger\Constants\PROPAGATOR_ZIPKIN;
+
 $tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $serverSpan->addBaggageItem("version", "1.8.9");
-
+print_r($serverSpan->getContext());
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
+print_r($_SERVER);exit;
 //init server span end
 $clientTracer = $config->initTracer('HTTP');
 

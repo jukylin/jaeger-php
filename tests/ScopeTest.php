@@ -15,21 +15,31 @@
 
 namespace tests;
 
-use Jaeger\Sampler\ConstSampler;
-use Jaeger\Sampler\ProbabilisticSampler;
+use OpenTracing\NoopSpanContext;
+use Jaeger\Span;
 use PHPUnit\Framework\TestCase;
+use Jaeger\ScopeManager;
 
-class SamplerTest extends TestCase
+class ScopeTest extends TestCase
 {
 
-    public function testConstSampler(){
-        $sample = new ConstSampler(true);
-        $this->assertTrue($sample->IsSampled()  == true);
+    public function testClose(){
+        $span1 = new Span('test', new NoopSpanContext(), []);
+
+        $scopeManager = new ScopeManager();
+        $scope = $scopeManager->activate($span1, true);
+        $scope->close();
+
+        $this->assertTrue($scopeManager->getActive() === null);
     }
 
 
-    public function testProbabilisticSampler(){
-        $sample = new ProbabilisticSampler(0.0001);
-        $this->assertTrue($sample->IsSampled() !== null);
+    public function testGetSpan(){
+        $span1 = new Span('test', new NoopSpanContext(), []);
+
+        $scopeManager = new ScopeManager();
+        $scope = $scopeManager->activate($span1, true);
+
+        $this->assertTrue($scope->getSpan() !== null);
     }
 }

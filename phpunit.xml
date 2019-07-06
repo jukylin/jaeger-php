@@ -11,14 +11,12 @@
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
         forceCoversAnnotation="false"
-        printerClass="PHPUnit\TextUI\ResultPrinter"
         processIsolation="false"
         stopOnError="false"
         stopOnFailure="false"
         stopOnIncomplete="false"
         stopOnSkipped="false"
         stopOnRisky="false"
-        testSuiteLoaderClass="PHPUnit\Runner\StandardTestSuiteLoader"
         timeoutForSmallTests="1"
         timeoutForMediumTests="10"
         timeoutForLargeTests="60"
@@ -29,8 +27,18 @@
             </testsuite>
         </testsuites>
         <filter>
+            <blacklist>
+                <file>./src/Jaeger/Reporter/Reporter.php</file>
+                <file>./src/Jaeger/Sampler/Sampler.php</file>
+                <file>./src/Jaeger/Transport/Transport.php</file>
+                <file>./src/Jaeger/Thrift</file>
+            </blacklist>
             <whitelist>
                 <directory>./src</directory>
             </whitelist>
         </filter>
+        <logging>
+            <log type="coverage-text" target="php://stdout" showUncoveredFiles="true" showOnlySummary="true"/>
+            <log type="coverage-clover" target="build/logs/clover.xml"/>
+        </logging>
 </phpunit>

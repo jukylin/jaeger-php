@@ -36,6 +36,7 @@ class SpanContext implements \OpenTracing\SpanContext{
     public $flags;
 
     // Distributed Context baggage. The is a snapshot in time.
+    // key => val
     public $baggage;
 
     // debugID can be set to some correlation ID when the context is being
@@ -127,6 +128,7 @@ class SpanContext implements \OpenTracing\SpanContext{
         $bigAdd = bcadd($bigsub, PHP_INT_MIN . '');
         return intval($bigAdd);
     }
+
 
     public function traceIdToString($traceId)
     {

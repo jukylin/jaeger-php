@@ -18,7 +18,7 @@ namespace Jaeger;
 use Jaeger\Thrift\AgentClient;
 
 /**
- * 把数据发射到 jaeger-agent
+ * send thrift to jaeger-agent
  * Class UdpClient
  * @package Jaeger
  */
@@ -31,8 +31,11 @@ class UdpClient{
 
     private $socket = '';
 
-    public function __construct($hostPost){
+    private $agentClient = null;
+
+    public function __construct($hostPost, AgentClient $agentClient){
         list($this->host, $this->post) = explode(":", $hostPost);
+        $this->agentClient = $agentClient;
         $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
     }
 
@@ -46,12 +49,12 @@ class UdpClient{
 
 
     /**
-     * 发送数据
+     * send thrift
      * @param $batch
      * @return bool
      */
     public function emitBatch($batch){
-        $buildThrift = (new AgentClient())->buildThrift($batch);
+        $buildThrift = $this->agentClient->buildThrift($batch);
         if(isset($buildThrift['len']) && $buildThrift['len'] && $this->isOpen()) {
             $len = $buildThrift['len'];
             $enitThrift = $buildThrift['thriftStr'];

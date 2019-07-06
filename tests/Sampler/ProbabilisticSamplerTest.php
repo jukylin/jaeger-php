@@ -13,27 +13,23 @@
  * the License.
  */
 
-namespace Jaeger;
+namespace tests;
 
-class Helper{
+use Jaeger\Sampler\ProbabilisticSampler;
+use PHPUnit\Framework\TestCase;
+use Jaeger\Constants;
 
-    const Tracer_State_Header_Name = 'Uber-Trace-Id';
+class ProbabilisticSamplerTest extends TestCase
+{
 
-    const SAMPLER_TYPE_TAG_KEY = 'sampler.type';
+    public function testProbabilisticSampler(){
+        $sample = new ProbabilisticSampler(0.0001);
+        $this->assertTrue($sample->IsSampled() !== null);
+    }
 
-    const SAMPLER_PARAM_TAG_KEY = 'sampler.param';
-
-
-    /**
-     * 转为16进制
-     * @param $string
-     * @return string
-     */
-    public static function toHex($string1, $string2 = ""){
-        if($string2 == "") {
-            return sprintf("%x", $string1);
-        }else{
-            return sprintf("%x%016x", $string1, $string2);
-        }
+    public function testConstSamplerGetTag(){
+        $sample = new ProbabilisticSampler(0.0001);
+        $tags = $sample->getTags();
+        $this->assertTrue($tags[Constants\SAMPLER_TYPE_TAG_KEY] == 'probabilistic');
     }
 }

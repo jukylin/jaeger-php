@@ -24,7 +24,7 @@ class ScopeMangerTest extends TestCase
 {
 
     public function testActivate(){
-        $span1 = new Span('test1', new NoopSpanContext(), []);
+        $span1 = new Span('test', new NoopSpanContext(), []);
 
         $scopeManager = new ScopeManager();
         $scope = $scopeManager->activate($span1, true);
@@ -35,7 +35,7 @@ class ScopeMangerTest extends TestCase
 
     public function testGetActive(){
 
-        $span = new Span('test1', new NoopSpanContext(), []);
+        $span = new Span('test', new NoopSpanContext(), []);
 
         $scopeManager = new ScopeManager();
         $scope1 = $scopeManager->activate($span, true);
@@ -47,7 +47,7 @@ class ScopeMangerTest extends TestCase
 
     public function testDelactivate(){
 
-        $span = new Span('test1', new NoopSpanContext(), []);
+        $span = new Span('test', new NoopSpanContext(), []);
 
         $scopeManager = new ScopeManager();
         $scope = $scopeManager->activate($span, true);
