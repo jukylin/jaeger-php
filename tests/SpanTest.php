@@ -31,14 +31,14 @@ class SpanTest extends TestCase
 
     public function testAddTags(){
         $span = new Span('test', new NoopSpanContext(), []);
-        $span->setTags(['test' => 'test']);
+        $span->setTag('test', 'test');
         $this->assertTrue((isset($span->tags['test']) && $span->tags['test'] == 'test'));
     }
 
 
     public function testFinish(){
         $span = new Span('test', new NoopSpanContext(), []);
-        $span->setTags(['test' => 'test']);
+        $span->setTag('test', 'test');
         $span->finish();
         $this->assertTrue(!empty($span->finishTime) && !empty($span->duration));
     }

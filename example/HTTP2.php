@@ -13,7 +13,7 @@ unset($_SERVER['argv']);
 //init server span start
 $config = Config::getInstance();
 
-$tracer = $config->initTrace('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', '0.0.0.0:6831');
 
 $top = $tracer->startActiveSpan('level top');
 $second = $tracer->startActiveSpan('level second');

@@ -75,19 +75,6 @@ class Span implements \OpenTracing\Span{
         $this->operationName = $newOperationName;
     }
 
-    /**
-     * Adds tags to the Span in key:value format, key must be a string and tag must be either
-     * a string, a boolean value, or a numeric type.
-     *
-     * As an implementor, consider using "standard tags" listed in {@see \OpenTracing\Ext\Tags}
-     *
-     * @param array $tags
-     * @throws SpanAlreadyFinished if the span is already finished
-     */
-    public function setTags(array $tags){
-        $this->tags = array_merge($this->tags, $tags);
-    }
-
 
     public function setTag($key, $value){
         $this->tags[$key] = $value;

@@ -38,9 +38,9 @@ $http->on('request', function ($request, $response) {
     $clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
 
     $client = new \GuzzleHttp\Client();
-    $clientSapn->setTags(["http.url" => "Istio3:8002"]);
+    $clientSapn->setTag("http.url", "Istio3:8002");
     $res = $client->request('GET', 'Istio3:8002', ['headers' => $injectTarget]);
-    $clientSapn->setTags(["http.status_code" => $res->getStatusCode()]);
+    $clientSapn->setTag("http.status_code", $res->getStatusCode());
     //client span1 end
 
     //server span end
