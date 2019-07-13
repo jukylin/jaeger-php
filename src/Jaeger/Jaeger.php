@@ -116,8 +116,11 @@ class Jaeger implements Tracer{
         }
 
         $span = new Span($operationName, $newSpan, $options->getReferences());
-        $span->setTags($options->getTags());
-
+        if(!empty($options->getTags())) {
+            foreach ($options->getTags() as $k => $tag) {
+                $span->setTag($k, $tag);
+            }
+        }
         if($newSpan->isSampled() == 1) {
             $this->spans[] = $span;
         }
