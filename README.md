@@ -2,6 +2,8 @@
 [![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.6-8892BF.svg)](https://php.net/)
 [![License](https://img.shields.io/github/license/jukylin/jaeger-php.svg)](https://github.com/jukylin/jaeger-php/blob/master/LICENSE)
 [![Coverage Status](https://coveralls.io/repos/github/jukylin/jaeger-php/badge.svg?branch=master)](https://coveralls.io/github/jukylin/jaeger-php?branch=master)
+[![Latest Stable Version](https://img.shields.io/packagist/v/jukylin/jaeger-php.svg)](https://packagist.org/packages/jukylin/jaeger-php)
+
 # jaeger-php
 
 ## principle of Distributed Tracing
@@ -68,7 +70,7 @@ $clientTrace->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $_SERVER);
 
 ```
 //can search in Jaeger UI
-$span->addTags(['http.status' => "200"]);
+$span->setTag('http.status', "200");
 
 //log record
 $span->log(['error' => "HTTP request timeout"]);

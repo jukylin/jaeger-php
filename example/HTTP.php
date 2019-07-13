@@ -37,7 +37,7 @@ $serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
 $serverSpan->addBaggageItem("version", "1.8.9");
 print_r($serverSpan->getContext());
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
-print_r($_SERVER);exit;
+
 //init server span end
 $clientTracer = $config->initTracer('HTTP');
 
@@ -52,8 +52,10 @@ $url = 'https://github.com/';
 $client = new Client();
 $res = $client->request($method, $url,['headers' => $injectTarget1]);
 
-$clientSapn1->setTags(['http.status_code' => 200
-    , 'http.method' => 'GET', 'http.url' => $url]);
+$clientSapn1->setTag('http.status_code', 200);
+$clientSapn1->setTag('http.method', 'GET');
+$clientSapn1->setTag('http.url', $url);
+
 $clientSapn1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
 $clientSapn1->finish();
 //client span1 end
@@ -74,8 +76,10 @@ $url = 'https://github.com/search?q=jaeger-php';
 $client = new Client();
 $res = $client->request($method, $url, ['headers' => $injectTarget2]);
 
-$clientSpan2->setTags(['http.status_code' => 200
-    , 'http.method' => 'GET', 'http.url' => $url]);
+$clientSpan2->setTag('http.status_code', 200);
+$clientSpan2->setTag('http.method', 'GET');
+$clientSpan2->setTag('http.url', $url);
+
 $clientSpan2->log(['message' => "HTTP2 ". $method .' '. $url .' end !']);
 $clientSpan2->finish();
 //client span2 end

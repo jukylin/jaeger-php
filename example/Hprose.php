@@ -49,8 +49,8 @@ if($header){
         $client->setHeader($key, $val);
     }
 }
-$clientSapn->setTags(['http.url' => $url]);
-$clientSapn->setTags(['http.method' => 'POST']);
+$clientSapn->setTag('http.url', $url);
+$clientSapn->setTag('http.method' , 'POST');
 
 $result =  $client->get("Hprose");
 
