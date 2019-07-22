@@ -52,7 +52,7 @@ class ScopeMangerTest extends TestCase
         $scopeManager = new ScopeManager();
         $scope = $scopeManager->activate($span, true);
 
-        $res = $scopeManager->delactivate($scope);
+        $res = $scopeManager->delActive($scope);
         $this->assertTrue($res == true);
 
         $getRes = $scopeManager->getActive();
