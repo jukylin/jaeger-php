@@ -40,7 +40,7 @@ class Scope implements \OpenTracing\Scope{
             $this->span->finish();
         }
 
-        $this->scopeManager->delactivate($this);
+        $this->scopeManager->delActive($this);
     }
 
 
