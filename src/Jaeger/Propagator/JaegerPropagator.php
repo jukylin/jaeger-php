@@ -42,7 +42,6 @@ class JaegerPropagator implements Propagator{
 
         foreach ($carrier as $k => $v){
 
-            $k = strtolower($k);
             $v = urldecode($v);
             if($k == Constants\Tracer_State_Header_Name){
                 list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[$k]);
