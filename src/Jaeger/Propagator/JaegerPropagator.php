@@ -37,12 +37,14 @@ class JaegerPropagator implements Propagator{
      */
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
+
+        $carrier = array_change_key_case($carrier, CASE_LOWER);
+
         foreach ($carrier as $k => $v){
 
-            $k = strtolower($k);
             $v = urldecode($v);
             if($k == Constants\Tracer_State_Header_Name){
-                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[strtoupper($k)]);
+                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[$k]);
 
                 $spanContext->spanId = $spanContext->hexToSignedInt($spanId);
                 $spanContext->parentId = $spanContext->hexToSignedInt($parentId);
