@@ -112,22 +112,19 @@ class SpanContext implements \OpenTracing\SpanContext{
     }
 
 
-    public function hexToSignedInt($hex)
-    {
-        $hexToDecNum = hexdec($hex);
-        if (gettype($hexToDecNum) === "integer"){
-            return $hexToDecNum;
+public function hexToSignedInt($hex)
+{
+    $hexStrLen = strlen($hex);
+    $dec = 0;
+    for ($i = 0; $i < $hexStrLen; $i++) {
+        $hexByteStr = $hex[$i];
+        if (ctype_xdigit($hexByteStr)) { 
+            $decByte = hexdec($hex[$i]);
+            $dec = ($dec << 4) | $decByte;
         }
-        $dec = 0;
-        $len = strlen($hex);
-        for ($i = 1; $i <= $len; $i++) {
-            $dec = bcadd($dec, bcmul(strval(hexdec($hex[$i - 1])), bcpow('16', strval($len - $i))));
-        }
-        $bigUnsignedNumStr = $dec;
-        $bigsub = bcsub($bigUnsignedNumStr, bcadd(PHP_INT_MAX . '', 1));
-        $bigAdd = bcadd($bigsub, PHP_INT_MIN . '');
-        return intval($bigAdd);
     }
+    return $dec;
+}
 
 
     public function traceIdToString($traceId)
