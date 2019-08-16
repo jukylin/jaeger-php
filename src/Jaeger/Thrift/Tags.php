@@ -169,6 +169,7 @@ class Tags implements TStruct{
                         'vType' => 'STRING',
                         'vStr' => json_encode($v, JSON_UNESCAPED_UNICODE),
                     ];
+                    break;
                 default:
                     $thriftTags[] = [
                         'key' => $k,
