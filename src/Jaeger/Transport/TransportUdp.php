@@ -53,7 +53,7 @@ class TransportUdp implements Transport{
         self::$hostPort = $hostport;
 
         if($maxPacketSize == 0){
-            $maxPacketSize = Constants\UDP_PACKET_MAX_LENGTH;
+            $maxPacketSize = stristr(PHP_OS, 'DAR') ? 9216 : Constants\UDP_PACKET_MAX_LENGTH;
         }
 
         self::$maxSpanBytes = $maxPacketSize - Constants\EMIT_BATCH_OVER_HEAD;
@@ -82,6 +82,8 @@ class TransportUdp implements Transport{
             $this->buildAndCalcSizeOfProcessThrift($jaeger);
         }
 
+        $thriftSpansBuffer = [];  // 用来暂存分片的未提交的 span
+
         foreach($jaeger->spans as $span){
 
             $spanThrift = (new JaegerThriftSpan())->buildJaegerSpanThrift($span);
@@ -95,21 +97,30 @@ class TransportUdp implements Transport{
                 continue;
             }
 
-            $this->bufferSize += $spanSize;
-            if($this->bufferSize > self::$maxSpanBytes){
-                $jaeger->spanThrifts[] = $spanThrift;
-                self::$batchs[] = ['thriftProcess' => $jaeger->processThrift
-                    , 'thriftSpans' => $jaeger->spanThrifts];
+            $jaeger->spanThrifts[] = $spanThrift;
 
+            if ($this->bufferSize + $spanSize >= self::$maxSpanBytes) {
+                self::$batchs[] = [
+                    'thriftProcess' => $jaeger->processThrift,
+                    'thriftSpans' => $thriftSpansBuffer,
+                ];
                 $this->flush();
-                return true;
-            }else{
-                $jaeger->spanThrifts[] = $spanThrift;
+                $thriftSpansBuffer = [];  // Empty the temp buffer
+
+                continue;
             }
+
+            $thriftSpansBuffer[] = $spanThrift;
+            $this->bufferSize += $spanSize;
         }
 
-        self::$batchs[] = ['thriftProcess' => $jaeger->processThrift
-            , 'thriftSpans' => $jaeger->spanThrifts];
+        if ($thriftSpansBuffer) {
+            self::$batchs[] = [
+                'thriftProcess' => $jaeger->processThrift,
+                'thriftSpans' => $thriftSpansBuffer,
+            ];
+            $this->flush();
+        }
 
         return true;
     }
