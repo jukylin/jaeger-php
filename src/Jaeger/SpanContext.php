@@ -145,4 +145,20 @@ class SpanContext implements \OpenTracing\SpanContext{
     }
 
 
+    /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        return $this->isTraceIdValid() && $this->spanId;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function isTraceIdValid()
+    {
+        return $this->traceIdLow || $this->traceIdHigh;
+    }
 }

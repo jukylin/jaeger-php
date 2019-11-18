@@ -210,9 +210,22 @@ class Jaeger implements Tracer{
     private function getParentSpanContext(StartSpanOptions $options)
     {
         $references = $options->getReferences();
+
+        $parentSpan = null;
+
         foreach ($references as $ref) {
+            $parentSpan = $ref->getContext();
             if ($ref->isType(Reference::CHILD_OF)) {
-                return $ref->getContext();
+                return $parentSpan;
+            }
+        }
+
+        if ($parentSpan) {
+            if (($parentSpan->isValid()
+                || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
+                || count($parentSpan->baggage) > 0)
+            ) {
+                return $parentSpan;
             }
         }
 
