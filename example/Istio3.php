@@ -54,5 +54,3 @@ $http->on('request', function ($request, $response) {
     $response->end("Hello Istio3");
 });
 $http->start();
-
-?>
