@@ -21,6 +21,7 @@ use Jaeger\Sampler\ConstSampler;
 use Jaeger\ScopeManager;
 use Jaeger\Span;
 use Jaeger\Transport\TransportUdp;
+use OpenTracing\Reference;
 use PHPUnit\Framework\TestCase;
 use OpenTracing\Formats;
 use Jaeger\SpanContext;
@@ -115,6 +116,61 @@ class JaegerTest extends TestCase
         $Jaeger = $this->getJaeger();
         $Jaeger->startSpan('test');
         $this->assertNotEmpty($Jaeger->getSpans());
+    }
+
+
+    public function testStartSpanWithFollowsFromTypeRef()
+    {
+        $jaeger = $this->getJaeger();
+        $rootSpan = $jaeger->startSpan('root-a');
+        $childSpan = $jaeger->startSpan('span-a', [
+            'references' => Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
+        ]);
+
+        $this->assertSame($childSpan->spanContext->traceIdLow, $rootSpan->spanContext->traceIdLow);
+        $this->assertSame(current($childSpan->references)->getContext(), $rootSpan->spanContext);
+
+        $otherRootSpan = $jaeger->startSpan('root-a');
+        $childSpan = $jaeger->startSpan('span-b', [
+            'references' => [
+                Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
+                Reference::create(Reference::FOLLOWS_FROM, $otherRootSpan),
+            ],
+        ]);
+
+        $this->assertSame($childSpan->spanContext->traceIdLow, $otherRootSpan->spanContext->traceIdLow);
+    }
+
+
+    public function testStartSpanWithChildOfTypeRef()
+    {
+        $jaeger = $this->getJaeger();
+        $rootSpan = $jaeger->startSpan('root-a');
+        $otherRootSpan = $jaeger->startSpan('root-b');
+        $childSpan = $jaeger->startSpan('span-a', [
+            'references' => [
+                Reference::create(Reference::CHILD_OF, $rootSpan),
+                Reference::create(Reference::CHILD_OF, $otherRootSpan),
+            ],
+        ]);
+
+        $this->assertSame($childSpan->spanContext->traceIdLow, $rootSpan->spanContext->traceIdLow);
+    }
+
+
+    public function testStartSpanWithAllRefType()
+    {
+        $jaeger = $this->getJaeger();
+        $rootSpan = $jaeger->startSpan('root-a');
+        $otherRootSpan = $jaeger->startSpan('root-b');
+        $childSpan = $jaeger->startSpan('span-a', [
+            'references' => [
+                Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
+                Reference::create(Reference::CHILD_OF, $otherRootSpan),
+            ],
+        ]);
+
+        $this->assertSame($childSpan->spanContext->traceIdLow, $otherRootSpan->spanContext->traceIdLow);
     }
 
 
