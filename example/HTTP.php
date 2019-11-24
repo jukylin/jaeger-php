@@ -44,20 +44,20 @@ $clientTracer = $config->initTracer('HTTP');
 //client span1 start
 $injectTarget1 = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSapn1 = $clientTracer->startSpan('HTTP1', ['child_of' => $spanContext]);
-$clientTracer->inject($clientSapn1->spanContext, Formats\TEXT_MAP, $injectTarget1);
+$clientSpan1 = $clientTracer->startSpan('HTTP1', ['child_of' => $spanContext]);
+$clientTracer->inject($clientSpan1->spanContext, Formats\TEXT_MAP, $injectTarget1);
 
 $method = 'GET';
 $url = 'https://github.com/';
 $client = new Client();
 $res = $client->request($method, $url,['headers' => $injectTarget1]);
 
-$clientSapn1->setTag('http.status_code', 200);
-$clientSapn1->setTag('http.method', 'GET');
-$clientSapn1->setTag('http.url', $url);
+$clientSpan1->setTag('http.status_code', 200);
+$clientSpan1->setTag('http.method', 'GET');
+$clientSpan1->setTag('http.url', $url);
 
-$clientSapn1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
-$clientSapn1->finish();
+$clientSpan1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
+$clientSpan1->finish();
 //client span1 end
 
 //client span2 start
@@ -65,7 +65,7 @@ $injectTarget2 = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSpan2 = $clientTracer->startSpan('HTTP2',
     ['references' => [
-        Reference::create(Reference::FOLLOWS_FROM, $clientSapn1->spanContext),
+        Reference::create(Reference::FOLLOWS_FROM, $clientSpan1->spanContext),
         Reference::create(Reference::CHILD_OF, $spanContext)
     ]]);
 

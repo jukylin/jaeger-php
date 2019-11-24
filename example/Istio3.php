@@ -35,14 +35,14 @@ $http->on('request', function ($request, $response) {
     //client span1 start
     $clientTracer = $config->initTracer('Istio3 Bus');
     $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
-    $clientSapn = $clientTracer->startSpan('Istio3', ['child_of' => $spanContext]);
+    $clientSpan = $clientTracer->startSpan('Istio3', ['child_of' => $spanContext]);
 
     $sum = 0;
     for($i = 0; $i < 10; $i++){
         $sum += $i;
     }
-    $clientSapn->log(['message' => 'result:'.$sum]);
-    $clientSapn->finish();
+    $clientSpan->log(['message' => 'result:'.$sum]);
+    $clientSpan->finish();
 
     //client span1 end
 

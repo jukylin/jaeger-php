@@ -36,10 +36,10 @@ $clientTracer = $config->initTracer('Hprose');
 //client span start
 $header = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
-$clientSapn = $clientTracer->startSpan('get', ['child_of' => $spanContext]);
-$clientSapn->addBaggageItem("version", "2.0.0");
+$clientSpan = $clientTracer->startSpan('get', ['child_of' => $spanContext]);
+$clientSpan->addBaggageItem("version", "2.0.0");
 
-$clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $header);
+$clientTracer->inject($clientSpan->spanContext, Formats\TEXT_MAP, $header);
 
 $url = 'http://0.0.0.0:8080/main';
 $client = Client::create($url, false);
@@ -49,13 +49,13 @@ if($header){
         $client->setHeader($key, $val);
     }
 }
-$clientSapn->setTag('http.url', $url);
-$clientSapn->setTag('http.method' , 'POST');
+$clientSpan->setTag('http.url', $url);
+$clientSpan->setTag('http.method' , 'POST');
 
 $result =  $client->get("Hprose");
 
-$clientSapn->log(['http.result' => $result]);
-$clientSapn->finish();
+$clientSpan->log(['http.result' => $result]);
+$clientSpan->finish();
 //client span end
 
 
