@@ -34,13 +34,13 @@ $http->on('request', function ($request, $response) {
     $clientTracer = $config->initTracer('Istio2 HTTP');
     $injectTarget = [];
     $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
-    $clientSapn = $clientTracer->startSpan('Istio2', ['child_of' => $spanContext]);
-    $clientTracer->inject($clientSapn->spanContext, Formats\TEXT_MAP, $injectTarget);
+    $clientSpan = $clientTracer->startSpan('Istio2', ['child_of' => $spanContext]);
+    $clientTracer->inject($clientSpan->spanContext, Formats\TEXT_MAP, $injectTarget);
 
     $client = new \GuzzleHttp\Client();
-    $clientSapn->setTag("http.url", "Istio3:8002");
+    $clientSpan->setTag("http.url", "Istio3:8002");
     $res = $client->request('GET', 'Istio3:8002', ['headers' => $injectTarget]);
-    $clientSapn->setTag("http.status_code", $res->getStatusCode());
+    $clientSpan->setTag("http.status_code", $res->getStatusCode());
     //client span1 end
 
     //server span end
