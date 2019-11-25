@@ -265,6 +265,3 @@ class Jaeger implements Tracer{
         return microtime(true) * 10000 . rand(10000, 99999);
     }
 }
-
-
-?>
