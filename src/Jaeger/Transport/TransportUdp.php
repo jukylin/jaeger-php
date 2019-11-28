@@ -111,8 +111,6 @@ class TransportUdp implements Transport
                 ];
                 $this->flush();
                 $thriftSpansBuffer = [];  // Empty the temp buffer
-
-                continue;
             }
 
             $thriftSpansBuffer[] = $spanThrift;
