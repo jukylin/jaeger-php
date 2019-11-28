@@ -41,10 +41,13 @@ class JaegerPropagator implements Propagator{
         $carrier = array_change_key_case($carrier, CASE_LOWER);
 
         foreach ($carrier as $k => $v){
-
-            $v = urldecode($v);
+            if(is_array($v)){
+                $v = urldecode($v[0]);
+            }else {
+                $v = urldecode($v);
+            }
             if($k == Constants\Tracer_State_Header_Name){
-                list($traceId, $spanId, $parentId,$flags) = explode(':', $carrier[$k]);
+                list($traceId, $spanId, $parentId,$flags) = explode(':', $v);
 
                 $spanContext->spanId = $spanContext->hexToSignedInt($spanId);
                 $spanContext->parentId = $spanContext->hexToSignedInt($parentId);
