@@ -42,15 +42,9 @@ class Jaeger implements Tracer{
 
     public $process = null;
 
-    public $procesSize = 0;
-
     public $serverName = '';
 
-    public $bufferSize = '';
-
     public $processThrift = '';
-
-    public $spanThrifts = [];
 
     public $propagator = null;
 
