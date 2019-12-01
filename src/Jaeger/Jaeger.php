@@ -34,23 +34,15 @@ class Jaeger implements Tracer{
 
     private $scopeManager;
 
-    public static $handleProto = null;
-
     public $spans = [];
 
     public $tags = [];
 
     public $process = null;
 
-    public $procesSize = 0;
-
     public $serverName = '';
 
-    public $bufferSize = '';
-
     public $processThrift = '';
-
-    public $spanThrifts = [];
 
     public $propagator = null;
 
