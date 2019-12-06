@@ -88,33 +88,41 @@ class Jaeger implements Tracer{
             $options = StartSpanOptions::create($options);
         }
 
+        $hasParent = false;
         $parentSpan = $this->getParentSpanContext($options);
         if($parentSpan == null || !$parentSpan->traceIdLow){
             $low = $this->generateId();
             $spanId = $low;
             $flags = $this->sampler->IsSampled();
-            $newSpan = new \Jaeger\SpanContext($spanId, 0, $flags, null, 0);
-            $newSpan->traceIdLow = $low;
+            $spanContext = new \Jaeger\SpanContext($spanId, 0, $flags, null, 0);
+            $spanContext->traceIdLow = $low;
             if($this->gen128bit == true){
-                $newSpan->traceIdHigh = $this->generateId();
+                $spanContext->traceIdHigh = $this->generateId();
             }
         }else{
-            $newSpan = new \Jaeger\SpanContext($this->generateId(),
+            $hasParent = true;
+            $spanContext = new \Jaeger\SpanContext($this->generateId(),
                 $parentSpan->spanId, $parentSpan->flags, null, 0);
-            $newSpan->traceIdLow = $parentSpan->traceIdLow;
+            $spanContext->traceIdLow = $parentSpan->traceIdLow;
             if($parentSpan->traceIdHigh){
-                $newSpan->traceIdHigh = $parentSpan->traceIdHigh;
+                $spanContext->traceIdHigh = $parentSpan->traceIdHigh;
             }
         }
 
-        $span = new Span($operationName, $newSpan, $options->getReferences());
+        $span = new Span($operationName, $spanContext, $options->getReferences());
         if(!empty($options->getTags())) {
             foreach ($options->getTags() as $k => $tag) {
                 $span->setTag($k, $tag);
             }
         }
-        if($newSpan->isSampled() == 1) {
+        if($spanContext->isSampled() == 1) {
             $this->spans[] = $span;
+        }
+
+        if($hasParent && $spanContext->baggage){
+            foreach ($spanContext->baggage as $key => $val) {
+                $span->addBaggageItem($key, $val);
+            }
         }
 
         return $span;
