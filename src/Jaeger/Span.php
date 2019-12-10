@@ -113,10 +113,10 @@ class Span implements \OpenTracing\Span{
 
     /**
      * @param string $key
-     * @return string
+     * @return string|null
      */
     public function getBaggageItem($key){
-        $this->spanContext->getBaggageItem($key);
+        return $this->spanContext->getBaggageItem($key);
     }
 
 

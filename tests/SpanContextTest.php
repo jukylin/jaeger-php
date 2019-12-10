@@ -48,7 +48,7 @@ class SpanContextTest extends TestCase
         $this->assertTrue($res == $version);
 
         $service = $spanContext->getBaggageItem('service');
-        $this->assertTrue($service == false);
+        $this->assertNull($service);
     }
 
 

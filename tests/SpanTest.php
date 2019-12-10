@@ -15,6 +15,7 @@
 
 namespace tests;
 
+use Jaeger\SpanContext;
 use OpenTracing\NoopSpanContext;
 use Jaeger\Span;
 use PHPUnit\Framework\TestCase;
@@ -60,5 +61,17 @@ class SpanTest extends TestCase
         ];
         $span->log($logs);
         $this->assertTrue(count($span->logs) == 1);
+    }
+
+
+    public function testGetBaggageItem(){
+        $span = new Span('test', new SpanContext(0, 0, 0), []);
+        $span->addBaggageItem('version', '2.0.0');
+
+        $version =  $span->getBaggageItem('version');
+        $this->assertEquals('2.0.0', $version);
+
+        $service = $span->getBaggageItem('service');
+        $this->assertNull($service);
     }
 }
