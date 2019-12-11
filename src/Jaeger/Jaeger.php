@@ -88,7 +88,6 @@ class Jaeger implements Tracer{
             $options = StartSpanOptions::create($options);
         }
 
-        $hasParent = false;
         $parentSpan = $this->getParentSpanContext($options);
         if($parentSpan == null || !$parentSpan->traceIdLow){
             $low = $this->generateId();
@@ -100,9 +99,8 @@ class Jaeger implements Tracer{
                 $spanContext->traceIdHigh = $this->generateId();
             }
         }else{
-            $hasParent = true;
             $spanContext = new \Jaeger\SpanContext($this->generateId(),
-                $parentSpan->spanId, $parentSpan->flags, null, 0);
+                $parentSpan->spanId, $parentSpan->flags, $parentSpan->baggage, 0);
             $spanContext->traceIdLow = $parentSpan->traceIdLow;
             if($parentSpan->traceIdHigh){
                 $spanContext->traceIdHigh = $parentSpan->traceIdHigh;
@@ -117,12 +115,6 @@ class Jaeger implements Tracer{
         }
         if($spanContext->isSampled() == 1) {
             $this->spans[] = $span;
-        }
-
-        if($hasParent && $spanContext->baggage){
-            foreach ($spanContext->baggage as $key => $val) {
-                $span->addBaggageItem($key, $val);
-            }
         }
 
         return $span;
