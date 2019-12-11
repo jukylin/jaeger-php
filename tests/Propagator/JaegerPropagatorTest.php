@@ -138,7 +138,7 @@ class JaegerPropagatorTest extends TestCase{
 
         $jaeger = new JaegerPropagator();
         $carrier = [];
-        $carrier[strtoupper(Constants\Tracer_State_Header_Name)] = ['15ae2e5c8e2ecc85:15ae2e5c8e2ecc85:0:1'];
+        $carrier[] = [strtoupper(Constants\Tracer_State_Header_Name) => '15ae2e5c8e2ecc85:15ae2e5c8e2ecc85:0:1'];
 
         $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
         $this->assertTrue($context->traceIdLow == 1562237095801441413);

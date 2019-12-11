@@ -42,7 +42,7 @@ class JaegerPropagator implements Propagator{
 
         foreach ($carrier as $k => $v){
             if(is_array($v)){
-                $v = urldecode($v[0]);
+                $v = urldecode(current($v));
             }else {
                 $v = urldecode($v);
             }
