@@ -205,4 +205,16 @@ class JaegerTest extends TestCase
         $Jaeger->flush();
         $this->assertEmpty($Jaeger->getSpans());
     }
+
+
+    public function testNestedSpanBaggage(){
+        $tracer = $this->getJaeger();
+
+        $parent = $tracer->startSpan('parent');
+        $parent->addBaggageItem('key', 'value');
+
+        $child = $tracer->startSpan('child', [Reference::CHILD_OF => $parent]);
+
+        $this->assertEquals($parent->getBaggageItem('key'), $child->getBaggageItem('key'));
+    }
 }
