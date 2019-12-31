@@ -30,13 +30,9 @@ class JaegerPropagator implements Propagator{
     }
 
 
-    /**
-     * 提取
-     * @param string $format
-     * @param $carrier
-     */
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
+        $emptyContextHash = $spanContext->getMD5();
 
         $carrier = array_change_key_case($carrier, CASE_LOWER);
 
@@ -81,7 +77,7 @@ class JaegerPropagator implements Propagator{
         }
 
 
-        return $spanContext;
+        return $emptyContextHash === $spanContext->getMD5() ? null : $spanContext;
     }
 
 }

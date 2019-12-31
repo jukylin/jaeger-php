@@ -30,6 +30,7 @@ class ZipkinPropagator implements Propagator{
 
     public function extract($format, $carrier){
         $spanContext = new SpanContext(0, 0, 0, null, 0);
+        $emptyContextHash = $spanContext->getMD5();
         if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
             $spanContext->traceIdToString($carrier[Constants\X_B3_TRACEID]);
         }
@@ -47,6 +48,6 @@ class ZipkinPropagator implements Propagator{
         }
 
 
-        return $spanContext;
+        return $emptyContextHash === $spanContext->getMD5() ? null : $spanContext;
     }
 }

@@ -70,7 +70,7 @@ class JaegerPropagatorTest extends TestCase{
     public function testExtractDebugId(){
 
         $jaeger = new JaegerPropagator();
-        $carrier = [];
+        $carrier[Constants\Trace_Baggage_Header_Prefix . 'baggage'] = 2;
 
         $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
         $this->assertTrue($context->debugId == 0);
@@ -85,6 +85,7 @@ class JaegerPropagatorTest extends TestCase{
         $jaeger = new JaegerPropagator();
 
         $carrier[Constants\Trace_Baggage_Header_Prefix] = '2.0.0';
+        $carrier[Constants\Jaeger_Debug_Header] = true;
         $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
         $this->assertTrue($context->baggage == null);
 
@@ -113,6 +114,7 @@ class JaegerPropagatorTest extends TestCase{
         $carrier = [];
 
         $carrier[Constants\Jaeger_Baggage_Header] = 'version';
+        $carrier[Constants\Jaeger_Debug_Header] = true;
         $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
         $this->assertTrue($context->baggage == null);
     }
