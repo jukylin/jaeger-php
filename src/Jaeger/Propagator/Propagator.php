@@ -32,6 +32,7 @@ interface Propagator{
      * 提取
      * @param string $format
      * @param $carrier
+     * @return SpanContext|null
      */
     public function extract($format, $carrier);
 
