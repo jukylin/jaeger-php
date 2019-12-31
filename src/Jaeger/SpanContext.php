@@ -161,4 +161,12 @@ class SpanContext implements \OpenTracing\SpanContext{
     {
         return $this->traceIdLow || $this->traceIdHigh;
     }
+
+    /**
+     * @return string
+     */
+    public function getMD5()
+    {
+        return md5(serialize($this));
+    }
 }
