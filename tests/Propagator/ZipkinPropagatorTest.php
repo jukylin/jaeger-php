@@ -92,4 +92,13 @@ class ZipkinPropagatorTest extends TestCase{
         $this->assertTrue($context->spanId == 1562289663898779811);
         $this->assertTrue($context->flags == 1);
     }
+
+
+    public function testExtractReturnsNull(){
+        $jaeger = new ZipkinPropagator();
+        $carrier = [];
+
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertNull($context);
+    }
 }
