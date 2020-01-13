@@ -14,7 +14,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
      * @param bool $finishSpanOnClose
      * @return Scope
      */
-    public function activate(\OpenTracing\Span $span, $finishSpanOnClose){
+    public function activate(\OpenTracing\Span $span, $finishSpanOnClose = self::DEFAULT_FINISH_SPAN_ON_CLOSE){
         $scope = new Scope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
         return $scope;
