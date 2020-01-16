@@ -5,10 +5,6 @@
 
 # jaeger-php
 
-## principle of Distributed Tracing
-
-<img src="https://upload.cc/i/OhsjA0.jpg" width="700px" height="650px" />
-
 ## Install
 
 Install via composer.
