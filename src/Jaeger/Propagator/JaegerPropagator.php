@@ -31,12 +31,22 @@ class JaegerPropagator implements Propagator{
 
 
     public function extract($format, $carrier){
-        $spanContext = new SpanContext(0, 0, 0, null, 0);
-        $emptyContextHash = $spanContext->getMD5();
-
+        $spanContext = null;
+        
         $carrier = array_change_key_case($carrier, CASE_LOWER);
 
         foreach ($carrier as $k => $v){
+            
+            if(!in_array($k, [Constants\Tracer_State_Header_Name,
+                Constants\Jaeger_Debug_Header, Constants\Jaeger_Baggage_Header]) &&
+                stripos($k, Constants\Trace_Baggage_Header_Prefix) === false){
+                continue;
+            }
+
+            if($spanContext === null){
+                $spanContext = new SpanContext(0, 0, 0, null, 0);
+            }
+            
             if(is_array($v)){
                 $v = urldecode(current($v));
             }else {
@@ -77,7 +87,7 @@ class JaegerPropagator implements Propagator{
         }
 
 
-        return $emptyContextHash === $spanContext->getMD5() ? null : $spanContext;
+        return $spanContext;
     }
 
 }
