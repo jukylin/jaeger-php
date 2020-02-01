@@ -29,7 +29,19 @@ class ZipkinPropagator implements Propagator{
 
 
     public function extract($format, $carrier){
-        $spanContext = new SpanContext(0, 0, 0, null, 0);
+        $spanContext = null;
+
+        foreach ($carrier as $k => $val) {
+            if (in_array($k, [Constants\X_B3_TRACEID,
+                Constants\X_B3_PARENT_SPANID, Constants\X_B3_SPANID, Constants\X_B3_SAMPLED])
+            ) {
+                if($spanContext === null){
+                    $spanContext = new SpanContext(0, 0, 0, null, 0);
+                }
+                continue;
+            }
+        }
+        
         if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
             $spanContext->traceIdToString($carrier[Constants\X_B3_TRACEID]);
         }

@@ -16,6 +16,7 @@
 namespace Jaeger;
 
 use Jaeger\Sampler\Sampler;
+use OpenTracing\Exceptions\UnsupportedFormat;
 use OpenTracing\SpanContext;
 use OpenTracing\Formats;
 use OpenTracing\Tracer;
@@ -44,6 +45,7 @@ class Jaeger implements Tracer{
 
     public $processThrift = '';
 
+    /** @var Propagator|null */
     public $propagator = null;
 
     public function __construct($serverName = '', Reporter $reporter, Sampler $sampler,
@@ -136,7 +138,7 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             $this->propagator->inject($spanContext, $format, $carrier);
         }else{
-            throw new \Exception("not support format $format");
+            throw UnsupportedFormat::forFormat($format);
         }
     }
 
@@ -150,7 +152,7 @@ class Jaeger implements Tracer{
         if($format == Formats\TEXT_MAP){
             return $this->propagator->extract($format, $carrier);
         }else{
-            throw new \Exception("not support format $format");
+            throw UnsupportedFormat::forFormat($format);
         }
     }
 

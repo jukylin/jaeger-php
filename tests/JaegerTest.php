@@ -82,7 +82,7 @@ class JaegerTest extends TestCase
         $Jaeger->setPropagator(new JaegerPropagator());
 
         $context = new SpanContext(1, 1, 1, null, 1);
-        $this->expectExceptionMessage('not support format http_headers');
+        $this->expectExceptionMessage('The format \'http_headers\' is not supported.');
 
         $Jaeger->inject($context, Formats\HTTP_HEADERS, $_SERVER);
     }
@@ -106,7 +106,7 @@ class JaegerTest extends TestCase
         $Jaeger->setPropagator(new JaegerPropagator());
 
         $_SERVER[strtoupper(Constants\Tracer_State_Header_Name)] = '1:1:1:1';
-        $this->expectExceptionMessage('not support format http_headers');
+        $this->expectExceptionMessage('The format \'http_headers\' is not supported.');
 
         $Jaeger->extract(Formats\HTTP_HEADERS, $_SERVER);
     }
