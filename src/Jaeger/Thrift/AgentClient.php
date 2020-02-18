@@ -15,6 +15,7 @@
 
 namespace Jaeger\Thrift;
 
+use Exception;
 use Thrift\Transport\TMemoryBuffer;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Type\TMessageType;
@@ -26,6 +27,9 @@ class AgentClient
 
     public static $tptl = null;
 
+    /**
+     * @throws Exception
+     */
     public function buildThrift($batch)
     {
         $tran = new TMemoryBuffer();
@@ -41,6 +45,16 @@ class AgentClient
 
         $batchLen = $tran->available();
         $batchThriftStr = $tran->read(Constants\UDP_PACKET_MAX_LENGTH);
+
+        if ($batchLen !== strlen($batchThriftStr)) {
+            throw new Exception(
+                sprintf(
+                    'thrift string was longer than maximum allowed length: %d > %d',
+                    $batchLen,
+                    strlen($batchThriftStr)
+                )
+            );
+        }
 
         return ['len' => $batchLen, 'thriftStr' => $batchThriftStr];
     }
