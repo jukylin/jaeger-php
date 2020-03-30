@@ -149,7 +149,7 @@ class JaegerPropagatorTest extends TestCase{
         $this->assertTrue($context->flags == 1);
     }
     
-    public function testExtractReturnsNull(){
+    public function testExtractReturnsSpanContext(){
         $jaeger = new JaegerPropagator();
         $carrier = [];
 
