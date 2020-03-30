@@ -148,4 +148,12 @@ class JaegerPropagatorTest extends TestCase{
         $this->assertTrue($context->spanId == 1562237095801441413);
         $this->assertTrue($context->flags == 1);
     }
+    
+    public function testExtractReturnsNull(){
+        $jaeger = new JaegerPropagator();
+        $carrier = [];
+
+        $context = $jaeger->extract(Formats\TEXT_MAP, $carrier);
+        $this->assertInstanceOf(\Jaeger\SpanContext::class, $context);
+    }
 }
