@@ -109,7 +109,8 @@ class Jaeger implements Tracer{
             }
         }
 
-        $span = new Span($operationName, $spanContext, $options->getReferences());
+        $startTime = $options->getStartTime() ? intval($options->getStartTime() * 1000000) : null;
+        $span = new Span($operationName, $spanContext, $options->getReferences(), $startTime);
         if(!empty($options->getTags())) {
             foreach ($options->getTags() as $k => $tag) {
                 $span->setTag($k, $tag);

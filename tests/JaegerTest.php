@@ -114,7 +114,8 @@ class JaegerTest extends TestCase
 
     public function testStartSpan(){
         $Jaeger = $this->getJaeger();
-        $Jaeger->startSpan('test');
+        $span = $Jaeger->startSpan('test');
+        $this->assertNotEmpty($span->startTime);
         $this->assertNotEmpty($Jaeger->getSpans());
     }
 
@@ -155,6 +156,15 @@ class JaegerTest extends TestCase
         ]);
 
         $this->assertSame($childSpan->spanContext->traceIdLow, $rootSpan->spanContext->traceIdLow);
+    }
+
+
+    public function testStartSpanWithCustomStartTime()
+    {
+        $jaeger = $this->getJaeger();
+        $span = $jaeger->startSpan('test', ['start_time' => 1499355363.123456]);
+
+        $this->assertSame(1499355363123456, $span->startTime);
     }
 
 
