@@ -13,7 +13,7 @@ Install via composer.
 
 ```json
 {
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "require": {
     "jukylin/jaeger-php" : "^2.0",
     "opentracing/opentracing":"1.0.0-beta5"
