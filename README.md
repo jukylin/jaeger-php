@@ -9,19 +9,10 @@
 
 Install via composer.
 
-`vim composer.json`
-
-```json
-{
-  "minimum-stability": "stable",
-  "require": {
-    "jukylin/jaeger-php" : "^2.0",
-    "opentracing/opentracing":"1.0.0-beta5"
-  }
-}
 ```
-
-`composer update`
+composer config minimum-stability dev
+composer require jukylin/jaeger-php
+```
 
 ## Init Jaeger-php
 
