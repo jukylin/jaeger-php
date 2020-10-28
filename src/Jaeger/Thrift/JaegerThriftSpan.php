@@ -30,6 +30,13 @@ class JaegerThriftSpan{
         $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '80';
         $tags['peer.port'] = $port;
 
+        /**
+         * 兼容阿里UI显示对于IP
+         */
+        $internaIp = $this->getInternalIp();
+        $tags['hostname'] = $internaIp;
+        $tags['ip'] = $internaIp;
+
         $tags = array_merge($tags, $jaeger->tags);
         $tagsObj = Tags::getInstance();
         $tagsObj->setTags($tags);
@@ -109,5 +116,16 @@ class JaegerThriftSpan{
         }
 
         return $spanRef;
+    }
+
+    protected function getInternalIp(): string
+    {
+        if (function_exists('swoole_get_local_ip')) {
+            $ips = (array)swoole_get_local_ip();
+            $ip = (string) current($ips);
+        } else {
+            $ip = (string) gethostbyname(gethostname());
+        }
+        return $ip;
     }
 }
