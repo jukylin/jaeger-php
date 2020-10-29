@@ -118,7 +118,7 @@ class JaegerThriftSpan{
         return $spanRef;
     }
 
-    protected function getInternalIp(): string
+    protected function getInternalIp()
     {
         if (function_exists('swoole_get_local_ip')) {
             $ips = (array)swoole_get_local_ip();
