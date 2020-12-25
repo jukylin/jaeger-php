@@ -7,14 +7,10 @@ class ScopeManager implements \OpenTracing\ScopeManager{
 
     private $scopes = [];
 
-
     /**
-     * append scope
-     * @param \OpenTracing\Span $span
-     * @param bool $finishSpanOnClose
-     * @return Scope
+     * @inheritDoc
      */
-    public function activate(\OpenTracing\Span $span, $finishSpanOnClose){
+    public function activate(\OpenTracing\Span $span, bool $finishSpanOnClose = self::DEFAULT_FINISH_SPAN_ON_CLOSE): \OpenTracing\Scope{
         $scope = new Scope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
         return $scope;
@@ -22,10 +18,9 @@ class ScopeManager implements \OpenTracing\ScopeManager{
 
 
     /**
-     * get last scope
-     * @return mixed|null
+     * @inheritDoc
      */
-    public function getActive(){
+    public function getActive(): ?Scope{
         if (empty($this->scopes)) {
             return null;
         }
@@ -35,9 +30,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
 
 
     /**
-     * del scope
-     * @param Scope $scope
-     * @return bool
+     * @inheritDoc
      */
     public function delActive(Scope $scope){
         $scopeLength = count($this->scopes);

@@ -17,6 +17,7 @@ namespace Jaeger;
 
 use Jaeger\Sampler\Sampler;
 use OpenTracing\Exceptions\UnsupportedFormat;
+use OpenTracing\ScopeManager;
 use OpenTracing\SpanContext;
 use OpenTracing\Formats;
 use OpenTracing\Tracer;
@@ -24,6 +25,7 @@ use Jaeger\Reporter\Reporter;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\Reference;
 use Jaeger\Propagator\Propagator;
+use OpenTracing\UnsupportedFormatException;
 
 class Jaeger implements Tracer{
 
@@ -84,7 +86,7 @@ class Jaeger implements Tracer{
      * @param array $options
      * @return Span
      */
-    public function startSpan($operationName, $options = []){
+    public function startSpan(string $operationName, $options = []): \OpenTracing\Span {
 
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
@@ -135,11 +137,11 @@ class Jaeger implements Tracer{
      * @param string $format
      * @param $carrier
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier){
+    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
         if($format == Formats\TEXT_MAP){
             $this->propagator->inject($spanContext, $format, $carrier);
         }else{
-            throw UnsupportedFormat::forFormat($format);
+            throw UnsupportedFormatException::forFormat($format);
         }
     }
 
@@ -149,11 +151,11 @@ class Jaeger implements Tracer{
      * @param string $format
      * @param $carrier
      */
-    public function extract($format, $carrier){
+    public function extract(string $format, $carrier): ?SpanContext{
         if($format == Formats\TEXT_MAP){
             return $this->propagator->extract($format, $carrier);
         }else{
-            throw UnsupportedFormat::forFormat($format);
+            throw UnsupportedFormatException::forFormat($format);
         }
     }
 
@@ -171,12 +173,12 @@ class Jaeger implements Tracer{
     }
 
 
-    public function getScopeManager(){
+    public function getScopeManager(): ScopeManager{
         return $this->scopeManager;
     }
 
 
-    public function getActiveSpan(){
+    public function getActiveSpan(): ?\OpenTracing\Span {
         $activeScope = $this->getScopeManager()->getActive();
         if ($activeScope === null) {
             return null;
@@ -186,7 +188,7 @@ class Jaeger implements Tracer{
     }
 
 
-    public function startActiveSpan($operationName, $options = []){
+    public function startActiveSpan(string $operationName, $options = []): \OpenTracing\Scope {
         if (!$options instanceof StartSpanOptions) {
             $options = StartSpanOptions::create($options);
         }
@@ -209,7 +211,7 @@ class Jaeger implements Tracer{
         $parentSpan = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getContext();
+            $parentSpan = $ref->getSpanContext();
             if ($ref->isType(Reference::CHILD_OF)) {
                 return $parentSpan;
             }
@@ -250,7 +252,7 @@ class Jaeger implements Tracer{
     /**
      * 结束,发送信息到jaeger
      */
-    public function flush(){
+    public function flush(): void{
         $this->reportSpan();
         $this->reporter->close();
     }

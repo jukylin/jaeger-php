@@ -65,8 +65,8 @@ $injectTarget2 = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSpan2 = $clientTracer->startSpan('HTTP2',
     ['references' => [
-        Reference::create(Reference::FOLLOWS_FROM, $clientSpan1->spanContext),
-        Reference::create(Reference::CHILD_OF, $spanContext)
+        Reference::createForSpan(Reference::FOLLOWS_FROM, $clientSpan1->spanContext),
+        Reference::createForSpan(Reference::CHILD_OF, $spanContext)
     ]]);
 
 $clientTracer->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);

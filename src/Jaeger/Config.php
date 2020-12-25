@@ -23,6 +23,7 @@ use Jaeger\Sampler\Sampler;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\Propagator\JaegerPropagator;
 use Jaeger\Propagator\ZipkinPropagator;
+use OpenTracing\Tracer;
 
 class Config {
 
@@ -74,10 +75,10 @@ class Config {
      * @return Jaeger|null
      * @throws \Exception
      */
-    public function initTracer($serverName, $agentHostPort = ''){
+    public function initTracer($serverName, $agentHostPort = ''): Tracer{
 
         if(self::$disabled){
-            return NoopTracer::create();
+            return new NoopTracer();
         }
 
         if($serverName == ''){
