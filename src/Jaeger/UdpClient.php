@@ -50,8 +50,9 @@ class UdpClient{
 
     /**
      * send thrift
-     * @param $batch
+     * @param mixed $batch
      * @return bool
+     * @throws \Exception
      */
     public function emitBatch($batch){
         $buildThrift = $this->agentClient->buildThrift($batch);

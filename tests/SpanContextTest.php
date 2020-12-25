@@ -93,7 +93,7 @@ class SpanContextTest extends TestCase
         $spanContext->traceIdHigh = null;
         $spanContext->traceIdToString('1b207');
         $this->assertTrue($spanContext->traceIdLow == '111111');
-        $this->assertTrue(!$spanContext->traceIdHigh);
+        $this->assertTrue($spanContext->traceIdHigh === null);
     }
 
 

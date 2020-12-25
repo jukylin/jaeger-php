@@ -98,6 +98,8 @@ class JaegerThriftSpan{
                 $type = SpanRefType::CHILD_OF;
             }else if($ref->isType(Reference::FOLLOWS_FROM)){
                 $type = SpanRefType::FOLLOWS_FROM;
+            } else {
+                throw new \LogicException("Unsupported reference type");
             }
             $ctx = $ref->getContext();
             $spanRef[] = [

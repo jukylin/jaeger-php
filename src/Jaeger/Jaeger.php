@@ -81,10 +81,7 @@ class Jaeger implements Tracer{
 
 
     /**
-     * init span info
-     * @param string $operationName
-     * @param array $options
-     * @return Span
+     * @inheritDoc
      */
     public function startSpan(string $operationName, $options = []): \OpenTracing\Span {
 
@@ -135,7 +132,7 @@ class Jaeger implements Tracer{
      * 注入
      * @param SpanContext $spanContext
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      */
     public function inject(SpanContext $spanContext, string $format, &$carrier): void {
         if($format == Formats\TEXT_MAP){
@@ -149,7 +146,7 @@ class Jaeger implements Tracer{
     /**
      * 提取
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      */
     public function extract(string $format, $carrier): ?SpanContext{
         if($format == Formats\TEXT_MAP){
@@ -208,21 +205,23 @@ class Jaeger implements Tracer{
     {
         $references = $options->getReferences();
 
-        $parentSpan = null;
+        $parentSpanContext = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getSpanContext();
+            $parentSpanContext = $ref->getSpanContext();
             if ($ref->isType(Reference::CHILD_OF)) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 
-        if ($parentSpan) {
-            if (($parentSpan->isValid()
-                || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
-                || count($parentSpan->baggage) > 0)
+        if ($parentSpanContext) {
+            assert($parentSpanContext instanceof \Jaeger\SpanContext);
+
+            if (($parentSpanContext->isValid()
+                || (!$parentSpanContext->isTraceIdValid() && $parentSpanContext->debugId)
+                || count($parentSpanContext->baggage) > 0)
             ) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 

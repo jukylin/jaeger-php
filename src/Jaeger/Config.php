@@ -70,19 +70,19 @@ class Config {
 
     /**
      * init jaeger, return can use flush  buffers
-     * @param $serviceName
+     * @param string $serverName
      * @param string $agentHostPort
-     * @return Jaeger|null
-     * @throws \Exception
+     * @return Tracer
+     * @throws \RuntimeException
      */
-    public function initTracer($serverName, $agentHostPort = ''): Tracer{
+    public function initTracer(string $serverName, $agentHostPort = ''): Tracer{
 
         if(self::$disabled){
             return new NoopTracer();
         }
 
         if($serverName == ''){
-            throw new \Exception("serverName require");
+            throw new \RuntimeException("serverName require");
         }
 
         if(isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])){
@@ -126,11 +126,7 @@ class Config {
     }
 
 
-    /**
-     * close tracer
-     * @param $disabled
-     */
-    public function setDisabled($disabled){
+    public function setDisabled(bool $disabled){
         self::$disabled = $disabled;
 
         return $this;

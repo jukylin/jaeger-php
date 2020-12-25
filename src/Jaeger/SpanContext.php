@@ -68,6 +68,7 @@ class SpanContext implements \OpenTracing\SpanContext{
 
     public function getIterator()
     {
+        // @phpstan-ignore-next-line
         // TODO: Implement getIterator() method.
     }
 

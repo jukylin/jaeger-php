@@ -85,7 +85,6 @@ class Span implements \OpenTracing\Span{
      *
      * @param array $fields [key => val]
      * @param int|float|\DateTimeInterface $timestamp
-     * @throws SpanAlreadyFinished if the span is already finished
      */
     public function log(array $fields = [], $timestamp = null): void {
         $log['timestamp'] = $timestamp ? $timestamp : $this->microtimeToInt();
@@ -99,7 +98,6 @@ class Span implements \OpenTracing\Span{
      *
      * @param string $key
      * @param string $value
-     * @throws SpanAlreadyFinished if the span is already finished
      */
     public function addBaggageItem(string $key, string $value): void{
         $this->log([
