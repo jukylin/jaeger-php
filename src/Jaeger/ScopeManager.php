@@ -20,7 +20,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
     /**
      * @inheritDoc
      */
-    public function getActive(): ?Scope{
+    public function getActive(): ?\OpenTracing\Scope{
         if (empty($this->scopes)) {
             return null;
         }
