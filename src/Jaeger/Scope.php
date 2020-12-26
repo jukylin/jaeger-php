@@ -31,6 +31,9 @@ class Scope implements \OpenTracing\Scope
         $this->finishSpanOnClose = $finishSpanOnClose;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function close(): void
     {
         if ($this->finishSpanOnClose) {
@@ -40,6 +43,9 @@ class Scope implements \OpenTracing\Scope
         $this->scopeManager->deactivate($this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getSpan(): \OpenTracing\Span
     {
         return $this->span;

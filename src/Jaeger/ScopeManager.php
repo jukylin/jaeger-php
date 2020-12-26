@@ -8,6 +8,8 @@ class ScopeManager implements \OpenTracing\ScopeManager
 
     /**
      * {@inheritDoc}
+     *
+     * @return Scope
      */
     public function activate(\OpenTracing\Span $span, bool $finishSpanOnClose = self::DEFAULT_FINISH_SPAN_ON_CLOSE): \OpenTracing\Scope
     {
@@ -19,6 +21,8 @@ class ScopeManager implements \OpenTracing\ScopeManager
 
     /**
      * {@inheritDoc}
+     *
+     * @return Scope
      */
     public function getActive(): ?\OpenTracing\Scope
     {

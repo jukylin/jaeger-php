@@ -45,11 +45,17 @@ class Span implements \OpenTracing\Span
         $this->references = $references;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getOperationName(): string
     {
         return $this->operationName;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getContext(): SpanContext
     {
         return $this->spanContext;
@@ -64,21 +70,24 @@ class Span implements \OpenTracing\Span
         $this->duration = $this->finishTime - $this->startTime;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function overwriteOperationName(string $newOperationName): void
     {
         $this->operationName = $newOperationName;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function setTag(string $key, $value): void
     {
         $this->tags[$key] = $value;
     }
 
     /**
-     * Adds a log record to the span.
-     *
-     * @param array                        $fields    [key => val]
-     * @param int|float|\DateTimeInterface $timestamp
+     * {@inheritDoc}
      */
     public function log(array $fields = [], $timestamp = null): void
     {
@@ -88,8 +97,7 @@ class Span implements \OpenTracing\Span
     }
 
     /**
-     * Adds a baggage item to the SpanContext which is immutable so it is required to use SpanContext::withBaggageItem
-     * to get a new one.
+     * {@inheritDoc}
      */
     public function addBaggageItem(string $key, string $value): void
     {
@@ -102,6 +110,9 @@ class Span implements \OpenTracing\Span
         $this->spanContext->withBaggageItem($key, $value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getBaggageItem(string $key): ?string
     {
         return $this->spanContext->getBaggageItem($key);

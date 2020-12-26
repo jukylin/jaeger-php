@@ -20,6 +20,9 @@ use Jaeger\SpanContext;
 
 class JaegerPropagator implements Propagator
 {
+    /**
+     * {@inheritDoc}
+     */
     public function inject(SpanContext $spanContext, $format, &$carrier)
     {
         $carrier[strtoupper(Constants\Tracer_State_Header_Name)] = $spanContext->buildString();
@@ -30,6 +33,9 @@ class JaegerPropagator implements Propagator
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function extract($format, $carrier)
     {
         $spanContext = null;

@@ -20,6 +20,9 @@ use Jaeger\SpanContext;
 
 class ZipkinPropagator implements Propagator
 {
+    /**
+     * {@inheritDoc}
+     */
     public function inject(SpanContext $spanContext, $format, &$carrier)
     {
         $carrier[Constants\X_B3_TRACEID] = $spanContext->traceIdLowToString();
@@ -28,6 +31,9 @@ class ZipkinPropagator implements Propagator
         $carrier[Constants\X_B3_SAMPLED] = $spanContext->flagsToString();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function extract($format, $carrier)
     {
         $spanContext = null;

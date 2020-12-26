@@ -51,11 +51,17 @@ class SpanContext implements \OpenTracing\SpanContext
         $this->debugId = $debugId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getBaggageItem(string $key): ?string
     {
         return $this->baggage[$key] ?? null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function withBaggageItem(string $key, string $value): ?\OpenTracing\SpanContext
     {
         $this->baggage[$key] = $value;
@@ -64,6 +70,9 @@ class SpanContext implements \OpenTracing\SpanContext
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getIterator()
     {
         // @phpstan-ignore-next-line

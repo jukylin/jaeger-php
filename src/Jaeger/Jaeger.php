@@ -18,15 +18,8 @@ namespace Jaeger;
 use Jaeger\Propagator\Propagator;
 use Jaeger\Reporter\Reporter;
 use Jaeger\Sampler\Sampler;
-use OpenTracing\Formats;
-use OpenTracing\Reference;
-use OpenTracing\ScopeManager;
-use OpenTracing\SpanContext;
-use OpenTracing\StartSpanOptions;
-use OpenTracing\Tracer;
-use OpenTracing\UnsupportedFormatException;
 
-class Jaeger implements Tracer
+class Jaeger implements \OpenTracing\Tracer
 {
     private $reporter = null;
 
@@ -34,6 +27,9 @@ class Jaeger implements Tracer
 
     private $gen128bit = false;
 
+    /**
+     * @var \Jaeger\ScopeManager
+     */
     private $scopeManager;
 
     public $spans = [];
@@ -49,7 +45,7 @@ class Jaeger implements Tracer
     /** @var Propagator|null */
     public $propagator = null;
 
-    public function __construct($serverName = '', Reporter $reporter, Sampler $sampler,
+    public function __construct(string $serverName, Reporter $reporter, Sampler $sampler,
                                 ScopeManager $scopeManager)
     {
         $this->reporter = $reporter;
@@ -83,8 +79,8 @@ class Jaeger implements Tracer
      */
     public function startSpan(string $operationName, $options = []): \OpenTracing\Span
     {
-        if (!($options instanceof StartSpanOptions)) {
-            $options = StartSpanOptions::create($options);
+        if (!($options instanceof \OpenTracing\StartSpanOptions)) {
+            $options = \OpenTracing\StartSpanOptions::create($options);
         }
 
         $parentSpan = $this->getParentSpanContext($options);
@@ -126,30 +122,26 @@ class Jaeger implements Tracer
     }
 
     /**
-     * 注入.
-     *
-     * @param mixed $carrier
+     * {@inheritDoc}
      */
-    public function inject(SpanContext $spanContext, string $format, &$carrier): void
+    public function inject(\OpenTracing\SpanContext $spanContext, string $format, &$carrier): void
     {
-        if (Formats\TEXT_MAP == $format) {
+        if (\OpenTracing\Formats\TEXT_MAP == $format) {
             $this->propagator->inject($spanContext, $format, $carrier);
         } else {
-            throw UnsupportedFormatException::forFormat($format);
+            throw \OpenTracing\UnsupportedFormatException::forFormat($format);
         }
     }
 
     /**
-     * 提取.
-     *
-     * @param mixed $carrier
+     * {@inheritDoc}
      */
-    public function extract(string $format, $carrier): ?SpanContext
+    public function extract(string $format, $carrier): ?\OpenTracing\SpanContext
     {
-        if (Formats\TEXT_MAP == $format) {
+        if (\OpenTracing\Formats\TEXT_MAP == $format) {
             return $this->propagator->extract($format, $carrier);
         } else {
-            throw UnsupportedFormatException::forFormat($format);
+            throw \OpenTracing\UnsupportedFormatException::forFormat($format);
         }
     }
 
@@ -166,11 +158,19 @@ class Jaeger implements Tracer
         }
     }
 
-    public function getScopeManager(): ScopeManager
+    /**
+     * {@inheritDoc}
+     *
+     * @return \Jaeger\ScopeManager
+     */
+    public function getScopeManager(): \OpenTracing\ScopeManager
     {
         return $this->scopeManager;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function getActiveSpan(): ?\OpenTracing\Span
     {
         $activeScope = $this->getScopeManager()->getActive();
@@ -181,10 +181,15 @@ class Jaeger implements Tracer
         return $activeScope->getSpan();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return Scope
+     */
     public function startActiveSpan(string $operationName, $options = []): \OpenTracing\Scope
     {
-        if (!$options instanceof StartSpanOptions) {
-            $options = StartSpanOptions::create($options);
+        if (!$options instanceof \OpenTracing\StartSpanOptions) {
+            $options = \OpenTracing\StartSpanOptions::create($options);
         }
 
         $parentSpan = $this->getParentSpanContext($options);
@@ -198,7 +203,7 @@ class Jaeger implements Tracer
         return $this->getScopeManager()->activate($span, $options->shouldFinishSpanOnClose());
     }
 
-    private function getParentSpanContext(StartSpanOptions $options)
+    private function getParentSpanContext(\OpenTracing\StartSpanOptions $options)
     {
         $references = $options->getReferences();
 
@@ -206,7 +211,7 @@ class Jaeger implements Tracer
 
         foreach ($references as $ref) {
             $parentSpanContext = $ref->getSpanContext();
-            if ($ref->isType(Reference::CHILD_OF)) {
+            if ($ref->isType(\OpenTracing\Reference::CHILD_OF)) {
                 return $parentSpanContext;
             }
         }
@@ -245,7 +250,7 @@ class Jaeger implements Tracer
     }
 
     /**
-     * 结束,发送信息到jaeger.
+     * {@inheritDoc}
      */
     public function flush(): void
     {
