@@ -17,6 +17,7 @@ namespace Jaeger;
 
 use Jaeger\Sampler\Sampler;
 use OpenTracing\Exceptions\UnsupportedFormat;
+use OpenTracing\ScopeManager;
 use OpenTracing\SpanContext;
 use OpenTracing\Formats;
 use OpenTracing\Tracer;
@@ -24,6 +25,7 @@ use Jaeger\Reporter\Reporter;
 use OpenTracing\StartSpanOptions;
 use OpenTracing\Reference;
 use Jaeger\Propagator\Propagator;
+use OpenTracing\UnsupportedFormatException;
 
 class Jaeger implements Tracer{
 
@@ -79,12 +81,9 @@ class Jaeger implements Tracer{
 
 
     /**
-     * init span info
-     * @param string $operationName
-     * @param array $options
-     * @return Span
+     * @inheritDoc
      */
-    public function startSpan($operationName, $options = []){
+    public function startSpan(string $operationName, $options = []): \OpenTracing\Span {
 
         if (!($options instanceof StartSpanOptions)) {
             $options = StartSpanOptions::create($options);
@@ -133,13 +132,13 @@ class Jaeger implements Tracer{
      * 注入
      * @param SpanContext $spanContext
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier){
+    public function inject(SpanContext $spanContext, string $format, &$carrier): void {
         if($format == Formats\TEXT_MAP){
             $this->propagator->inject($spanContext, $format, $carrier);
         }else{
-            throw UnsupportedFormat::forFormat($format);
+            throw UnsupportedFormatException::forFormat($format);
         }
     }
 
@@ -147,13 +146,13 @@ class Jaeger implements Tracer{
     /**
      * 提取
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      */
-    public function extract($format, $carrier){
+    public function extract(string $format, $carrier): ?SpanContext{
         if($format == Formats\TEXT_MAP){
             return $this->propagator->extract($format, $carrier);
         }else{
-            throw UnsupportedFormat::forFormat($format);
+            throw UnsupportedFormatException::forFormat($format);
         }
     }
 
@@ -171,12 +170,12 @@ class Jaeger implements Tracer{
     }
 
 
-    public function getScopeManager(){
+    public function getScopeManager(): ScopeManager{
         return $this->scopeManager;
     }
 
 
-    public function getActiveSpan(){
+    public function getActiveSpan(): ?\OpenTracing\Span {
         $activeScope = $this->getScopeManager()->getActive();
         if ($activeScope === null) {
             return null;
@@ -186,7 +185,7 @@ class Jaeger implements Tracer{
     }
 
 
-    public function startActiveSpan($operationName, $options = []){
+    public function startActiveSpan(string $operationName, $options = []): \OpenTracing\Scope {
         if (!$options instanceof StartSpanOptions) {
             $options = StartSpanOptions::create($options);
         }
@@ -206,21 +205,23 @@ class Jaeger implements Tracer{
     {
         $references = $options->getReferences();
 
-        $parentSpan = null;
+        $parentSpanContext = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getContext();
+            $parentSpanContext = $ref->getSpanContext();
             if ($ref->isType(Reference::CHILD_OF)) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 
-        if ($parentSpan) {
-            if (($parentSpan->isValid()
-                || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
-                || count($parentSpan->baggage) > 0)
+        if ($parentSpanContext) {
+            assert($parentSpanContext instanceof \Jaeger\SpanContext);
+
+            if (($parentSpanContext->isValid()
+                || (!$parentSpanContext->isTraceIdValid() && $parentSpanContext->debugId)
+                || count($parentSpanContext->baggage) > 0)
             ) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 
@@ -250,7 +251,7 @@ class Jaeger implements Tracer{
     /**
      * 结束,发送信息到jaeger
      */
-    public function flush(){
+    public function flush(): void{
         $this->reportSpan();
         $this->reporter->close();
     }

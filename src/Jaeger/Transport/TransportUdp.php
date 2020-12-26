@@ -137,7 +137,7 @@ class TransportUdp implements Transport
     /**
      * 获取序列化后的thrift和计算序列化后的thrift字符长度
      * @param TStruct $ts
-     * @param $serializedThrift
+     * @param mixed $serializedThrift
      * @return mixed
      */
     private function getAndCalcSizeOfSerializedThrift(TStruct $ts, &$serializedThrift)

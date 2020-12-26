@@ -23,7 +23,7 @@ interface Propagator{
      * 注入
      * @param SpanContext $spanContext
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      */
     public function inject(SpanContext $spanContext, $format, &$carrier);
 
@@ -31,7 +31,7 @@ interface Propagator{
     /**
      * 提取
      * @param string $format
-     * @param $carrier
+     * @param mixed $carrier
      * @return SpanContext|null
      */
     public function extract($format, $carrier);

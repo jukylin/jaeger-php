@@ -52,7 +52,7 @@ class ScopeMangerTest extends TestCase
         $scopeManager = new ScopeManager();
         $scope = $scopeManager->activate($span, true);
 
-        $res = $scopeManager->delActive($scope);
+        $res = $scopeManager->deactivate($scope);
         $this->assertTrue($res == true);
 
         $getRes = $scopeManager->getActive();
@@ -71,17 +71,17 @@ class ScopeMangerTest extends TestCase
         $active = $scopeManager->getActive();
         $this->assertTrue($active === $scope3);
 
-        $res = $scopeManager->delActive($scope3);
+        $res = $scopeManager->deactivate($scope3);
         $this->assertTrue($res == true);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === $scope2);
 
-        $res = $scopeManager->delActive($scope2);
+        $res = $scopeManager->deactivate($scope2);
         $this->assertTrue($res == true);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === $scope1);
 
-        $res = $scopeManager->delActive($scope1);
+        $res = $scopeManager->deactivate($scope1);
         $this->assertTrue($res == true);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === null);
@@ -98,7 +98,7 @@ class ScopeMangerTest extends TestCase
         $this->assertTrue($active === $scope2);
 
         // Remove scope2 so that scope1 is active
-        $scopeManager->delActive($scope2);
+        $scopeManager->deactivate($scope2);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === $scope1);
 
@@ -109,11 +109,11 @@ class ScopeMangerTest extends TestCase
         $this->assertTrue($active === $scope3);
 
         // Delete active scope3
-        $scopeManager->delActive($scope3);
+        $scopeManager->deactivate($scope3);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === $scope1);
 
-        $scopeManager->delActive($scope1);
+        $scopeManager->deactivate($scope1);
         $active = $scopeManager->getActive();
         $this->assertTrue($active === null);
     }
