@@ -86,6 +86,9 @@ class JaegerPropagator implements Propagator{
             }
         }
 
+        if ($spanContext === null) {
+            return new SpanContext(0, 0, 0, null, 0);
+        }
 
         return $spanContext;
     }
