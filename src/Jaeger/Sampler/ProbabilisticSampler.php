@@ -33,7 +33,7 @@ class ProbabilisticSampler implements Sampler
 
     public function IsSampled()
     {
-        if (1 == mt_rand(1, 1 / $this->rate)) {
+        if (1 == random_int(1, 1 / $this->rate)) {
             return true;
         } else {
             return false;

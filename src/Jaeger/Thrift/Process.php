@@ -30,9 +30,9 @@ class Process implements TStruct
 
     public function __construct($processThrift)
     {
-        self::$serverName = isset($processThrift['serverName']) ? $processThrift['serverName'] : '';
-        self::$thriftTags = isset($processThrift['tags']) ? $processThrift['tags'] : '';
-        self::$wrote = isset($processThrift['wrote']) ? $processThrift['wrote'] : '';
+        self::$serverName = $processThrift['serverName'] ?? '';
+        self::$thriftTags = $processThrift['tags'] ?? '';
+        self::$wrote = $processThrift['wrote'] ?? '';
     }
 
     public function write(TProtocol $t)

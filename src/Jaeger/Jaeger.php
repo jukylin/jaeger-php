@@ -62,7 +62,7 @@ class Jaeger implements Tracer
         $this->setTags($this->getEnvTags());
 
         if ('' == $serverName) {
-            $this->serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'unknow server';
+            $this->serverName = $_SERVER['SERVER_NAME'] ?? 'unknow server';
         } else {
             $this->serverName = $serverName;
         }
@@ -231,7 +231,7 @@ class Jaeger implements Tracer
         if (isset($_SERVER['JAEGER_TAGS']) && '' != $_SERVER['JAEGER_TAGS']) {
             $envTags = explode(',', $_SERVER['JAEGER_TAGS']);
             foreach ($envTags as $envK => $envTag) {
-                list($key, $value) = explode('=', $envTag);
+                [$key, $value] = explode('=', $envTag);
                 $tags[$key] = $value;
             }
         }
@@ -255,6 +255,6 @@ class Jaeger implements Tracer
 
     private function generateId()
     {
-        return microtime(true) * 10000 .rand(10000, 99999);
+        return microtime(true) * 10000 .random_int(10000, 99999);
     }
 }

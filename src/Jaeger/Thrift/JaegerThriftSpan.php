@@ -24,10 +24,10 @@ class JaegerThriftSpan
     public function buildJaegerProcessThrift(Jaeger $jaeger)
     {
         $tags = [];
-        $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
+        $ip = $_SERVER['SERVER_ADDR'] ?? '0.0.0.0';
         $tags['peer.ipv4'] = $ip;
 
-        $port = isset($_SERVER['SERVER_PORT']) ? $_SERVER['SERVER_PORT'] : '80';
+        $port = $_SERVER['SERVER_PORT'] ?? '80';
         $tags['peer.port'] = $port;
 
         $tags = array_merge($tags, $jaeger->tags);

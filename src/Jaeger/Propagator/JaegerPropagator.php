@@ -53,7 +53,7 @@ class JaegerPropagator implements Propagator
                 $v = urldecode($v);
             }
             if (Constants\Tracer_State_Header_Name == $k) {
-                list($traceId, $spanId, $parentId, $flags) = explode(':', $v);
+                [$traceId, $spanId, $parentId, $flags] = explode(':', $v);
 
                 $spanContext->spanId = $spanContext->hexToSignedInt($spanId);
                 $spanContext->parentId = $spanContext->hexToSignedInt($parentId);
