@@ -6,6 +6,7 @@
   "minimum-stability": "stable",
   "require":           {
     "php": ">=7.1",
+    "ext-json": "*",
     "packaged/thrift" : "~0.13.0",
     "opentracing/opentracing" : "^1.0.0"
   },
