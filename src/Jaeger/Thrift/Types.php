@@ -15,45 +15,47 @@
 
 namespace Jaeger\Thrift;
 
-class Types {
-
+class Types
+{
     const TAG_TYPE_STRING = 0;
     const TAG_TYPE_DOUBLE = 1;
-	const TAG_TYPE_BOOL = 2;
-	const TAG_TYPE_LONG = 3;
-	const TAG_TYPE_BINARY = 4;
+    const TAG_TYPE_BOOL = 2;
+    const TAG_TYPE_LONG = 3;
+    const TAG_TYPE_BINARY = 4;
 
-
-    public static function stringToTagType($string){
-        switch($string){
-            case "STRING":
+    public static function stringToTagType($string)
+    {
+        switch ($string) {
+            case 'STRING':
                 return self::TAG_TYPE_STRING;
-            case "DOUBLE":
+            case 'DOUBLE':
                 return self::TAG_TYPE_DOUBLE;
-            case "BOOL":
+            case 'BOOL':
                 return self::TAG_TYPE_BOOL;
-            case "LONG":
+            case 'LONG':
                 return self::TAG_TYPE_LONG;
-            case "BINARY":
+            case 'BINARY':
                 return self::TAG_TYPE_BINARY;
         }
-        return "not a valid TagType string";
+
+        return 'not a valid TagType string';
     }
 
-
-    public static function tagTypeToString($tagType){
-        switch($tagType){
+    public static function tagTypeToString($tagType)
+    {
+        switch ($tagType) {
             case self::TAG_TYPE_STRING:
-                return "STRING";
+                return 'STRING';
             case self::TAG_TYPE_DOUBLE:
-                return "DOUBLE";
+                return 'DOUBLE';
             case self::TAG_TYPE_BOOL:
-                return "BOOL";
+                return 'BOOL';
             case self::TAG_TYPE_LONG:
-                return "LONG";
+                return 'LONG';
             case self::TAG_TYPE_BINARY:
-                return "BINARY";
+                return 'BINARY';
         }
-        return "UNSET";
+
+        return 'UNSET';
     }
 }

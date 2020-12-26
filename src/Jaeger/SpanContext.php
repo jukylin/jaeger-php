@@ -15,14 +15,13 @@
 
 namespace Jaeger;
 
-
-class SpanContext implements \OpenTracing\SpanContext{
+class SpanContext implements \OpenTracing\SpanContext
+{
     // traceID represents globally unique ID of the trace.
     // Usually generated as a random number.
     public $traceIdLow;
 
     public $traceIdHigh;
-
 
     // spanID represents span ID that must be unique within its trace,
     // but does not have to be globally unique.
@@ -43,8 +42,8 @@ class SpanContext implements \OpenTracing\SpanContext{
     // extracted from a TextMap carrier.
     public $debugId;
 
-
-    public function __construct($spanId, $parentId, $flags, $baggage = null, $debugId = 0){
+    public function __construct($spanId, $parentId, $flags, $baggage = null, $debugId = 0)
+    {
         $this->spanId = $spanId;
         $this->parentId = $parentId;
         $this->flags = $flags;
@@ -52,11 +51,10 @@ class SpanContext implements \OpenTracing\SpanContext{
         $this->debugId = $debugId;
     }
 
-
-    public function getBaggageItem(string $key): ?string {
+    public function getBaggageItem(string $key): ?string
+    {
         return isset($this->baggage[$key]) ? $this->baggage[$key] : null;
     }
-
 
     public function withBaggageItem(string $key, string $value): ?\OpenTracing\SpanContext
     {
@@ -72,60 +70,60 @@ class SpanContext implements \OpenTracing\SpanContext{
         // TODO: Implement getIterator() method.
     }
 
-
-    public function buildString(){
-        if($this->traceIdHigh){
-            return sprintf("%x%016x:%x:%x:%x", $this->traceIdHigh, $this->traceIdLow,
+    public function buildString()
+    {
+        if ($this->traceIdHigh) {
+            return sprintf('%x%016x:%x:%x:%x', $this->traceIdHigh, $this->traceIdLow,
                 $this->spanId, $this->parentId, $this->flags);
         }
 
-        return sprintf("%x:%x:%x:%x", $this->traceIdLow, $this->spanId, $this->parentId, $this->flags);
+        return sprintf('%x:%x:%x:%x', $this->traceIdLow, $this->spanId, $this->parentId, $this->flags);
     }
 
-
-    public function spanIdToString(){
-        return sprintf("%x", $this->spanId);
+    public function spanIdToString()
+    {
+        return sprintf('%x', $this->spanId);
     }
 
-
-    public function parentIdToString(){
-        return sprintf("%x", $this->parentId);
+    public function parentIdToString()
+    {
+        return sprintf('%x', $this->parentId);
     }
 
-
-    public function traceIdLowToString(){
+    public function traceIdLowToString()
+    {
         if ($this->traceIdHigh) {
-            return sprintf("%x%016x", $this->traceIdHigh, $this->traceIdLow);
+            return sprintf('%x%016x', $this->traceIdHigh, $this->traceIdLow);
         }
 
-        return sprintf("%x", $this->traceIdLow);
+        return sprintf('%x', $this->traceIdLow);
     }
 
-
-    public function flagsToString(){
-        return sprintf("%x", $this->flags);
+    public function flagsToString()
+    {
+        return sprintf('%x', $this->flags);
     }
-
 
     /**
-     * 是否取样
+     * 是否取样.
+     *
      * @return mixed
      */
-    public function isSampled(){
+    public function isSampled()
+    {
         return $this->flags;
     }
-
 
     public function hexToSignedInt($hex)
     {
         //Avoid pure Arabic numerals eg:1
-        if (gettype($hex) != "string") {
+        if ('string' != gettype($hex)) {
             $hex .= '';
         }
 
         $hexStrLen = strlen($hex);
         $dec = 0;
-        for ($i = 0; $i < $hexStrLen; $i++) {
+        for ($i = 0; $i < $hexStrLen; ++$i) {
             $hexByteStr = $hex[$i];
             if (ctype_xdigit($hexByteStr)) {
                 $decByte = hexdec($hex[$i]);
@@ -135,7 +133,6 @@ class SpanContext implements \OpenTracing\SpanContext{
 
         return $dec;
     }
-
 
     public function traceIdToString($traceId)
     {
@@ -148,7 +145,6 @@ class SpanContext implements \OpenTracing\SpanContext{
         }
     }
 
-
     /**
      * @return bool
      */
@@ -156,7 +152,6 @@ class SpanContext implements \OpenTracing\SpanContext{
     {
         return $this->isTraceIdValid() && $this->spanId;
     }
-
 
     /**
      * @return bool

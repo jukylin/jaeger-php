@@ -2,10 +2,8 @@
 
 namespace Jaeger;
 
-
-
-class Scope implements \OpenTracing\Scope{
-
+class Scope implements \OpenTracing\Scope
+{
     /**
      * @var ScopeManager
      */
@@ -21,21 +19,20 @@ class Scope implements \OpenTracing\Scope{
      */
     private $finishSpanOnClose;
 
-
     /**
      * Scope constructor.
-     * @param ScopeManager $scopeManager
-     * @param Span $span
+     *
      * @param bool $finishSpanOnClose
      */
-    public function __construct(ScopeManager $scopeManager, Span $span, $finishSpanOnClose){
+    public function __construct(ScopeManager $scopeManager, Span $span, $finishSpanOnClose)
+    {
         $this->scopeManager = $scopeManager;
         $this->span = $span;
         $this->finishSpanOnClose = $finishSpanOnClose;
     }
 
-
-    public function close(): void{
+    public function close(): void
+    {
         if ($this->finishSpanOnClose) {
             $this->span->finish();
         }
@@ -43,8 +40,8 @@ class Scope implements \OpenTracing\Scope{
         $this->scopeManager->deactivate($this);
     }
 
-
-    public function getSpan(): \OpenTracing\Span {
+    public function getSpan(): \OpenTracing\Span
+    {
         return $this->span;
     }
 }

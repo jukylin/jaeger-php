@@ -15,49 +15,49 @@
 
 namespace Jaeger\Propagator;
 
-use Jaeger\SpanContext;
 use Jaeger\Constants;
+use Jaeger\SpanContext;
 
-class ZipkinPropagator implements Propagator{
-
-    public function inject(SpanContext $spanContext, $format, &$carrier){
-        $carrier[Constants\X_B3_TRACEID] = $spanContext ->traceIdLowToString();
+class ZipkinPropagator implements Propagator
+{
+    public function inject(SpanContext $spanContext, $format, &$carrier)
+    {
+        $carrier[Constants\X_B3_TRACEID] = $spanContext->traceIdLowToString();
         $carrier[Constants\X_B3_PARENT_SPANID] = $spanContext->parentIdToString();
         $carrier[Constants\X_B3_SPANID] = $spanContext->spanIdToString();
         $carrier[Constants\X_B3_SAMPLED] = $spanContext->flagsToString();
     }
 
-
-    public function extract($format, $carrier){
+    public function extract($format, $carrier)
+    {
         $spanContext = null;
 
         foreach ($carrier as $k => $val) {
             if (in_array($k, [Constants\X_B3_TRACEID,
-                Constants\X_B3_PARENT_SPANID, Constants\X_B3_SPANID, Constants\X_B3_SAMPLED])
+                Constants\X_B3_PARENT_SPANID, Constants\X_B3_SPANID, Constants\X_B3_SAMPLED, ])
             ) {
-                if($spanContext === null){
+                if (null === $spanContext) {
                     $spanContext = new SpanContext(0, 0, 0, null, 0);
                 }
                 continue;
             }
         }
-        
-        if(isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]){
+
+        if (isset($carrier[Constants\X_B3_TRACEID]) && $carrier[Constants\X_B3_TRACEID]) {
             $spanContext->traceIdToString($carrier[Constants\X_B3_TRACEID]);
         }
 
-        if(isset($carrier[Constants\X_B3_PARENT_SPANID]) && $carrier[Constants\X_B3_PARENT_SPANID]){
+        if (isset($carrier[Constants\X_B3_PARENT_SPANID]) && $carrier[Constants\X_B3_PARENT_SPANID]) {
             $spanContext->parentId = $spanContext->hexToSignedInt($carrier[Constants\X_B3_PARENT_SPANID]);
         }
 
-        if(isset($carrier[Constants\X_B3_SPANID]) && $carrier[Constants\X_B3_SPANID]){
+        if (isset($carrier[Constants\X_B3_SPANID]) && $carrier[Constants\X_B3_SPANID]) {
             $spanContext->spanId = $spanContext->hexToSignedInt($carrier[Constants\X_B3_SPANID]);
         }
 
-        if(isset($carrier[Constants\X_B3_SAMPLED]) && $carrier[Constants\X_B3_SAMPLED]){
+        if (isset($carrier[Constants\X_B3_SAMPLED]) && $carrier[Constants\X_B3_SAMPLED]) {
             $spanContext->flags = $carrier[Constants\X_B3_SAMPLED];
         }
-
 
         return $spanContext;
     }

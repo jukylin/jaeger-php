@@ -15,18 +15,18 @@
 
 namespace Jaeger;
 
-use Jaeger\Reporter\RemoteReporter;
-use Jaeger\Reporter\Reporter;
-use Jaeger\Transport\TransportUdp;
-use OpenTracing\NoopTracer;
-use Jaeger\Sampler\Sampler;
-use Jaeger\Sampler\ConstSampler;
 use Jaeger\Propagator\JaegerPropagator;
 use Jaeger\Propagator\ZipkinPropagator;
+use Jaeger\Reporter\RemoteReporter;
+use Jaeger\Reporter\Reporter;
+use Jaeger\Sampler\ConstSampler;
+use Jaeger\Sampler\Sampler;
+use Jaeger\Transport\TransportUdp;
+use OpenTracing\NoopTracer;
 use OpenTracing\Tracer;
 
-class Config {
-
+class Config
+{
     private $transport = null;
 
     private $reporter = null;
@@ -47,123 +47,116 @@ class Config {
 
     public static $propagator = \Jaeger\Constants\PROPAGATOR_JAEGER;
 
-
-    private function __construct(){
-
+    private function __construct()
+    {
     }
 
-
-    private function __clone(){
-
+    private function __clone()
+    {
     }
-
 
     public static function getInstance()
     {
-        if(! (self::$instance instanceof self) )
-        {
+        if (!(self::$instance instanceof self)) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
 
-
     /**
-     * init jaeger, return can use flush  buffers
-     * @param string $serverName
+     * init jaeger, return can use flush  buffers.
+     *
      * @param string $agentHostPort
-     * @return Tracer
+     *
      * @throws \RuntimeException
      */
-    public function initTracer(string $serverName, $agentHostPort = ''): Tracer{
-
-        if(self::$disabled){
+    public function initTracer(string $serverName, $agentHostPort = ''): Tracer
+    {
+        if (self::$disabled) {
             return new NoopTracer();
         }
 
-        if($serverName == ''){
-            throw new \RuntimeException("serverName require");
+        if ('' == $serverName) {
+            throw new \RuntimeException('serverName require');
         }
 
-        if(isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])){
+        if (isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])) {
             return self::$tracer[$serverName];
         }
 
-
-        if($this->transport == null){
+        if (null == $this->transport) {
             $this->transport = new TransportUdp($agentHostPort);
         }
 
-        if($this->reporter == null) {
+        if (null == $this->reporter) {
             $this->reporter = new RemoteReporter($this->transport);
         }
 
-        if($this->sampler == null){
+        if (null == $this->sampler) {
             $this->sampler = new ConstSampler(true);
         }
 
-        if($this->scopeManager == null){
+        if (null == $this->scopeManager) {
             $this->scopeManager = new ScopeManager();
         }
 
         $tracer = new Jaeger($serverName, $this->reporter, $this->sampler, $this->scopeManager);
 
-        if($this->gen128bit == true){
+        if (true == $this->gen128bit) {
             $tracer->gen128bit();
         }
 
-        if(self::$propagator == \Jaeger\Constants\PROPAGATOR_ZIPKIN){
+        if (\Jaeger\Constants\PROPAGATOR_ZIPKIN == self::$propagator) {
             $tracer->setPropagator(new ZipkinPropagator());
-        }else{
+        } else {
             $tracer->setPropagator(new JaegerPropagator());
         }
 
-
         self::$tracer[$serverName] = $tracer;
-
 
         return $tracer;
     }
 
-
-    public function setDisabled(bool $disabled){
+    public function setDisabled(bool $disabled)
+    {
         self::$disabled = $disabled;
 
         return $this;
     }
 
-
-    public function setTransport(Transport\Transport $transport){
+    public function setTransport(Transport\Transport $transport)
+    {
         $this->transport = $transport;
 
         return $this;
     }
 
-
-    public function setReporter(Reporter $reporter){
+    public function setReporter(Reporter $reporter)
+    {
         $this->reporter = $reporter;
 
         return $this;
     }
 
-
-    public function setSampler(Sampler $sampler){
+    public function setSampler(Sampler $sampler)
+    {
         $this->sampler = $sampler;
 
         return $this;
     }
 
-
-    public function gen128bit(){
+    public function gen128bit()
+    {
         $this->gen128bit = true;
 
         return $this;
     }
 
-
-    public function flush(){
-        if(count(self::$tracer) > 0) {
-            foreach(self::$tracer as $tracer){
+    public function flush()
+    {
+        if (count(self::$tracer) > 0) {
+            foreach (self::$tracer as $tracer) {
                 $tracer->reportSpan();
             }
             $this->reporter->close();

@@ -15,11 +15,10 @@
 
 namespace Jaeger;
 
-
 use OpenTracing\SpanContext;
 
-class Span implements \OpenTracing\Span{
-
+class Span implements \OpenTracing\Span
+{
     private $operationName = '';
 
     public $startTime = '';
@@ -38,55 +37,51 @@ class Span implements \OpenTracing\Span{
 
     public $references = [];
 
-    public function __construct($operationName, \OpenTracing\SpanContext $spanContext, $references, $startTime = null){
+    public function __construct($operationName, SpanContext $spanContext, $references, $startTime = null)
+    {
         $this->operationName = $operationName;
-        $this->startTime = $startTime == null ? $this->microtimeToInt() : $startTime;
+        $this->startTime = null == $startTime ? $this->microtimeToInt() : $startTime;
         $this->spanContext = $spanContext;
         $this->references = $references;
     }
 
-    /**
-     * @return string
-     */
-    public function getOperationName(): string {
+    public function getOperationName(): string
+    {
         return $this->operationName;
     }
 
-    /**
-     * @return SpanContext
-     */
-    public function getContext(): SpanContext{
+    public function getContext(): SpanContext
+    {
         return $this->spanContext;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function finish($finishTime = null): void{
-        $this->finishTime = $finishTime == null ? $this->microtimeToInt() : $finishTime;
+    public function finish($finishTime = null): void
+    {
+        $this->finishTime = null == $finishTime ? $this->microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
     }
 
-    /**
-     * @param string $newOperationName
-     */
-    public function overwriteOperationName(string $newOperationName): void {
+    public function overwriteOperationName(string $newOperationName): void
+    {
         $this->operationName = $newOperationName;
     }
 
-
-    public function setTag(string $key, $value): void{
+    public function setTag(string $key, $value): void
+    {
         $this->tags[$key] = $value;
     }
 
-
     /**
-     * Adds a log record to the span
+     * Adds a log record to the span.
      *
-     * @param array $fields [key => val]
+     * @param array                        $fields    [key => val]
      * @param int|float|\DateTimeInterface $timestamp
      */
-    public function log(array $fields = [], $timestamp = null): void {
+    public function log(array $fields = [], $timestamp = null): void
+    {
         $log['timestamp'] = $timestamp ? $timestamp : $this->microtimeToInt();
         $log['fields'] = $fields;
         $this->logs[] = $log;
@@ -95,11 +90,9 @@ class Span implements \OpenTracing\Span{
     /**
      * Adds a baggage item to the SpanContext which is immutable so it is required to use SpanContext::withBaggageItem
      * to get a new one.
-     *
-     * @param string $key
-     * @param string $value
      */
-    public function addBaggageItem(string $key, string $value): void{
+    public function addBaggageItem(string $key, string $value): void
+    {
         $this->log([
             'event' => 'baggage',
             'key' => $key,
@@ -109,16 +102,13 @@ class Span implements \OpenTracing\Span{
         $this->spanContext->withBaggageItem($key, $value);
     }
 
-    /**
-     * @param string $key
-     * @return string|null
-     */
-    public function getBaggageItem(string $key): ?string{
+    public function getBaggageItem(string $key): ?string
+    {
         return $this->spanContext->getBaggageItem($key);
     }
 
-
-    private function microtimeToInt(){
+    private function microtimeToInt()
+    {
         return intval(microtime(true) * 1000000);
     }
 }

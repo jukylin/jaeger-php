@@ -15,7 +15,6 @@
 
 namespace Jaeger\Sampler;
 
-
 interface Sampler
 {
     public function IsSampled();

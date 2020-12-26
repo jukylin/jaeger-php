@@ -18,8 +18,8 @@ namespace Jaeger\Thrift;
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;
 
-class Span implements TStruct{
-
+class Span implements TStruct
+{
     public static $thriftSpan = null;
 
     public static $tptl = null;
@@ -30,35 +30,33 @@ class Span implements TStruct{
     {
     }
 
-
     private function __clone()
     {
     }
 
-
-    public static function getInstance(){
-        if(! (self::$instance instanceof self) )
-        {
+    public static function getInstance()
+    {
+        if (!(self::$instance instanceof self)) {
             self::$instance = new self();
         }
+
         return self::$instance;
     }
 
-
-    public function setThriftSpan($thriftSpan = []){
+    public function setThriftSpan($thriftSpan = [])
+    {
         self::$thriftSpan = $thriftSpan;
     }
 
-
-    public function getThriftSpan(){
+    public function getThriftSpan()
+    {
         return self::$thriftSpan;
     }
-
 
     public function write(TProtocol $t)
     {
         self::$tptl = $t;
-        if(isset(self::$thriftSpan['wrote']) && self::$thriftSpan['wrote']){
+        if (isset(self::$thriftSpan['wrote']) && self::$thriftSpan['wrote']) {
             $tran = self::$tptl->getTransport();
             $tran->write(self::$thriftSpan['wrote']);
         } else {
@@ -66,16 +64,14 @@ class Span implements TStruct{
         }
     }
 
-
     public function read(TProtocol $t)
     {
         // TODO: Implement read() method.
     }
 
-
     private function handleSpan($span)
     {
-        self::$tptl->writeStructBegin("Span");
+        self::$tptl->writeStructBegin('Span');
 
         self::$tptl->writeFieldBegin('traceIdLow', TType::I64, 1);
         self::$tptl->writeI64($span['traceIdLow']);
@@ -125,7 +121,6 @@ class Span implements TStruct{
         self::$tptl->writeStructEnd();
     }
 
-
     private function handleSpanLogs($logs)
     {
         self::$tptl->writeFieldBegin('logs', TType::LST, 11);
@@ -139,10 +134,9 @@ class Span implements TStruct{
         self::$tptl->writeFieldEnd();
     }
 
-
     private function handleLog($log)
     {
-        self::$tptl->writeStructBegin("Log");
+        self::$tptl->writeStructBegin('Log');
 
         self::$tptl->writeFieldBegin('timestamp', TType::I64, 1);
         self::$tptl->writeI64($log['timestamp']);
@@ -153,7 +147,6 @@ class Span implements TStruct{
         self::$tptl->writeFieldStop();
         self::$tptl->writeStructEnd();
     }
-
 
     private function handleLogFields($fields)
     {
@@ -168,7 +161,6 @@ class Span implements TStruct{
         self::$tptl->writeFieldEnd();
     }
 
-
     private function handleSpanTags($tags)
     {
         self::$tptl->writeFieldBegin('tags', TType::LST, 10);
@@ -181,7 +173,6 @@ class Span implements TStruct{
         self::$tptl->writeListEnd();
         self::$tptl->writeFieldEnd();
     }
-
 
     private function handleSpanRefes($references)
     {
@@ -196,24 +187,23 @@ class Span implements TStruct{
         self::$tptl->writeFieldEnd();
     }
 
-
     private function handleSpanRefe($refe)
     {
-        self::$tptl->writeStructBegin("SpanRef");
+        self::$tptl->writeStructBegin('SpanRef');
 
-        self::$tptl->writeFieldBegin("refType", TType::I32, 1);
+        self::$tptl->writeFieldBegin('refType', TType::I32, 1);
         self::$tptl->writeI32($refe['refType']);
         self::$tptl->writeFieldEnd();
 
-        self::$tptl->writeFieldBegin("traceIdLow", TType::I64, 2);
+        self::$tptl->writeFieldBegin('traceIdLow', TType::I64, 2);
         self::$tptl->writeI64($refe['traceIdLow']);
         self::$tptl->writeFieldEnd();
 
-        self::$tptl->writeFieldBegin("traceIdHigh", TType::I64, 3);
+        self::$tptl->writeFieldBegin('traceIdHigh', TType::I64, 3);
         self::$tptl->writeI64($refe['traceIdHigh']);
         self::$tptl->writeFieldEnd();
 
-        self::$tptl->writeFieldBegin("spanId", TType::I64, 4);
+        self::$tptl->writeFieldBegin('spanId', TType::I64, 4);
         self::$tptl->writeI64($refe['spanId']);
         self::$tptl->writeFieldEnd();
 

@@ -15,28 +15,25 @@
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
 use Jaeger\Transport\TransportUdp;
+use PHPUnit\Framework\TestCase;
 
 class TransportUdpTest extends TestCase
 {
-
     public $tran = null;
 
-    public function setUp(){
+    public function setUp()
+    {
         $this->tran = new TransportUdp('localhost:6831');
     }
-
 
 //    public function testFlush(){
 //        $this->tran->append();
 //    }
 
-
-    public function testResetBuffer(){
+    public function testResetBuffer()
+    {
         $this->tran->resetBuffer();
         $this->assertCount(0, $this->tran->getBatchs());
-
     }
-
 }

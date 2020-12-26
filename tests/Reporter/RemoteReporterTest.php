@@ -15,18 +15,18 @@
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
 use Jaeger\SpanContext;
+use PHPUnit\Framework\TestCase;
 
-class RemoteReporterTest extends TestCase{
-
-    public function getSpanContext(){
+class RemoteReporterTest extends TestCase
+{
+    public function getSpanContext()
+    {
         return new SpanContext(1562237095801441413, 0, 1, null, 1);
     }
 
-
-    public function testClose(){
+    public function testClose()
+    {
         $this->assertTrue(true);
     }
-
 }

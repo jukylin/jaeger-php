@@ -15,9 +15,9 @@
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
-use Jaeger\UdpClient;
 use Jaeger\Thrift\AgentClient;
+use Jaeger\UdpClient;
+use PHPUnit\Framework\TestCase;
 
 class UdpClientTest extends TestCase
 {
@@ -25,31 +25,29 @@ class UdpClientTest extends TestCase
 
     public $agentClient = null;
 
-    public function setUp(){
+    public function setUp()
+    {
         $this->agentClient = $this->createMock(AgentClient::class);
         $this->udpClient = new UdpClient('localhost:6831', $this->agentClient);
     }
 
-
-    public function testIsOpen(){
+    public function testIsOpen()
+    {
         $this->assertTrue($this->udpClient->isOpen());
     }
 
-
-    public function testEmitBatch(){
-
+    public function testEmitBatch()
+    {
         $this->agentClient->expects($this->once())->method('buildThrift')
-            ->willReturn(['len'=> 3 , 'thriftStr' => 123]);
-        $batch = ['thriftProcess' => ''
-            , 'thriftSpans' => ''];
+            ->willReturn(['len' => 3, 'thriftStr' => 123]);
+        $batch = ['thriftProcess' => '', 'thriftSpans' => ''];
 
         $this->assertTrue($this->udpClient->emitBatch($batch));
     }
 
-
-    public function testEmitBatchFalse(){
-        $batch = ['thriftProcess' => ''
-            , 'thriftSpans' => ''];
+    public function testEmitBatchFalse()
+    {
+        $batch = ['thriftProcess' => '', 'thriftSpans' => ''];
 
         $this->agentClient->expects($this->any())->method('buildThrift')
             ->willReturn(['thriftStr' => 123]);
@@ -58,13 +56,13 @@ class UdpClientTest extends TestCase
 
         $this->udpClient->close();
         $this->agentClient->expects($this->any())->method('buildThrift')
-            ->willReturn(['len'=> 3 , 'thriftStr' => 123]);
-
+            ->willReturn(['len' => 3, 'thriftStr' => 123]);
 
         $this->assertFalse($this->udpClient->emitBatch($batch));
     }
 
-    public function testClose(){
+    public function testClose()
+    {
         $this->udpClient->close();
         $this->assertFalse($this->udpClient->isOpen());
     }

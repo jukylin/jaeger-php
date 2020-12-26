@@ -19,12 +19,10 @@ use Jaeger\Thrift\AgentClient;
 
 /**
  * send thrift to jaeger-agent
- * Class UdpClient
- * @package Jaeger
+ * Class UdpClient.
  */
-
-class UdpClient{
-
+class UdpClient
+{
     private $host = '';
 
     private $post = '';
@@ -33,45 +31,49 @@ class UdpClient{
 
     private $agentClient = null;
 
-    public function __construct($hostPost, AgentClient $agentClient){
-        list($this->host, $this->post) = explode(":", $hostPost);
+    public function __construct($hostPost, AgentClient $agentClient)
+    {
+        list($this->host, $this->post) = explode(':', $hostPost);
         $this->agentClient = $agentClient;
         $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
     }
 
-
     /**
      * @return bool
      */
-    public function isOpen(){
-        return $this->socket !== null;
+    public function isOpen()
+    {
+        return null !== $this->socket;
     }
 
-
     /**
-     * send thrift
+     * send thrift.
+     *
      * @param mixed $batch
+     *
      * @return bool
+     *
      * @throws \Exception
      */
-    public function emitBatch($batch){
+    public function emitBatch($batch)
+    {
         $buildThrift = $this->agentClient->buildThrift($batch);
-        if(isset($buildThrift['len']) && $buildThrift['len'] && $this->isOpen()) {
+        if (isset($buildThrift['len']) && $buildThrift['len'] && $this->isOpen()) {
             $len = $buildThrift['len'];
             $enitThrift = $buildThrift['thriftStr'];
             $res = socket_sendto($this->socket, $enitThrift, $len, 0, $this->host, $this->post);
-            if($res === false) {
-                throw new \Exception("emit failse");
+            if (false === $res) {
+                throw new \Exception('emit failse');
             }
 
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-
-    public function close(){
+    public function close()
+    {
         socket_close($this->socket);
         $this->socket = null;
     }

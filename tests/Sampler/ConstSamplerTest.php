@@ -15,21 +15,22 @@
 
 namespace tests;
 
+use Jaeger\Constants;
 use Jaeger\Sampler\ConstSampler;
 use PHPUnit\Framework\TestCase;
-use Jaeger\Constants;
 
 class ConstSamplerTest extends TestCase
 {
-
-    public function testConstSampler(){
+    public function testConstSampler()
+    {
         $sample = new ConstSampler(true);
-        $this->assertTrue($sample->IsSampled()  == true);
+        $this->assertTrue(true == $sample->IsSampled());
     }
 
-    public function testConstSamplerGetTag(){
+    public function testConstSamplerGetTag()
+    {
         $sample = new ConstSampler(true);
         $tags = $sample->getTags();
-        $this->assertTrue($tags[Constants\SAMPLER_TYPE_TAG_KEY] == 'const');
+        $this->assertTrue('const' == $tags[Constants\SAMPLER_TYPE_TAG_KEY]);
     }
 }

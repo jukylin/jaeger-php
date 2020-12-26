@@ -19,10 +19,10 @@ use Jaeger\Jaeger;
 use Jaeger\Span;
 use OpenTracing\Reference;
 
-class JaegerThriftSpan{
-
-
-    public function buildJaegerProcessThrift(Jaeger $jaeger){
+class JaegerThriftSpan
+{
+    public function buildJaegerProcessThrift(Jaeger $jaeger)
+    {
         $tags = [];
         $ip = isset($_SERVER['SERVER_ADDR']) ? $_SERVER['SERVER_ADDR'] : '0.0.0.0';
         $tags['peer.ipv4'] = $ip;
@@ -40,12 +40,11 @@ class JaegerThriftSpan{
             'tags' => $thriftTags,
         ];
 
-
         return $processThrift;
     }
 
-    public function buildJaegerSpanThrift(Span $span){
-
+    public function buildJaegerSpanThrift(Span $span)
+    {
         $spContext = $span->spanContext;
         $thriftSpan = [
             'traceIdLow' => $spContext->traceIdLow,
@@ -58,15 +57,14 @@ class JaegerThriftSpan{
             'duration' => $span->duration,
             'tags' => $this->buildTags($span->tags),
             'logs' => $this->buildLogs($span->logs),
-            'references' => $this->buildReferences($span->references)
+            'references' => $this->buildReferences($span->references),
         ];
 
         return $thriftSpan;
     }
 
-
-
-    private function buildTags($tags){
+    private function buildTags($tags)
+    {
         $tagsObj = Tags::getInstance();
         $tagsObj->setTags($tags);
         $resultTags = $tagsObj->buildTags();
@@ -74,32 +72,32 @@ class JaegerThriftSpan{
         return $resultTags;
     }
 
-
-    private function buildLogs($logs){
+    private function buildLogs($logs)
+    {
         $resultLogs = [];
         $tagsObj = Tags::getInstance();
-        foreach($logs as $log){
+        foreach ($logs as $log) {
             $tagsObj->setTags($log['fields']);
             $fields = $tagsObj->buildTags();
             $resultLogs[] = [
-                "timestamp" => $log['timestamp'],
-                "fields" => $fields,
+                'timestamp' => $log['timestamp'],
+                'fields' => $fields,
             ];
         }
 
         return $resultLogs;
     }
 
-
-    private function buildReferences($references){
+    private function buildReferences($references)
+    {
         $spanRef = [];
-        foreach ($references as $ref){
-            if($ref->isType(Reference::CHILD_OF)){
+        foreach ($references as $ref) {
+            if ($ref->isType(Reference::CHILD_OF)) {
                 $type = SpanRefType::CHILD_OF;
-            }else if($ref->isType(Reference::FOLLOWS_FROM)){
+            } elseif ($ref->isType(Reference::FOLLOWS_FROM)) {
                 $type = SpanRefType::FOLLOWS_FROM;
             } else {
-                throw new \LogicException("Unsupported reference type");
+                throw new \LogicException('Unsupported reference type');
             }
             $ctx = $ref->getContext();
             $spanRef[] = [

@@ -12,32 +12,29 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
 use Jaeger\Config;
 use OpenTracing\NoopTracer;
+use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
-
-    public function testSetDisabled(){
+    public function testSetDisabled()
+    {
         $config = Config::getInstance();
         $config->setDisabled(true);
 
-        $this->assertTrue($config::$disabled == true);
+        $this->assertTrue(true == $config::$disabled);
     }
 
-
-    public function testNoopTracer(){
-
+    public function testNoopTracer()
+    {
         $config = Config::getInstance();
         $config->setDisabled(true);
         $trace = $config->initTracer('test');
 
         $this->assertTrue($trace instanceof NoopTracer);
     }
-
-
-
 }

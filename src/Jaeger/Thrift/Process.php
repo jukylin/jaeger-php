@@ -18,8 +18,8 @@ namespace Jaeger\Thrift;
 use Thrift\Protocol\TProtocol;
 use Thrift\Type\TType;
 
-class Process implements TStruct{
-
+class Process implements TStruct
+{
     public static $tptl = null;
 
     public static $serverName = '';
@@ -35,42 +35,37 @@ class Process implements TStruct{
         self::$wrote = isset($processThrift['wrote']) ? $processThrift['wrote'] : '';
     }
 
-
-    public function write(TProtocol $t){
+    public function write(TProtocol $t)
+    {
         self::$tptl = $t;
 
-        if(self::$wrote){
+        if (self::$wrote) {
             $tran = self::$tptl->getTransport();
             $tran->write(self::$wrote);
         } else {
-
-            self::$tptl->writeStructBegin("Process");
+            self::$tptl->writeStructBegin('Process');
 
             $this->handleProcessSName();
             $this->handleProcessTags();
-            
+
             self::$tptl->writeFieldStop();
             self::$tptl->writeStructEnd();
         }
-
-
     }
-
 
     private function handleProcessSName()
     {
-        self::$tptl->writeFieldBegin("serverName", TType::STRING, 1);
+        self::$tptl->writeFieldBegin('serverName', TType::STRING, 1);
 
         self::$tptl->writeString(self::$serverName);
 
         self::$tptl->writeFieldEnd();
     }
 
-
     private function handleProcessTags()
     {
-        if(count(self::$thriftTags) > 0) {
-            self::$tptl->writeFieldBegin("tags", TType::LST, 2);
+        if (count(self::$thriftTags) > 0) {
+            self::$tptl->writeFieldBegin('tags', TType::LST, 2);
             self::$tptl->writeListBegin(TType::STRUCT, count(self::$thriftTags));
 
             $tagsObj = Tags::getInstance();
@@ -82,6 +77,7 @@ class Process implements TStruct{
         }
     }
 
-
-    public function read(TProtocol $t){}
+    public function read(TProtocol $t)
+    {
+    }
 }
