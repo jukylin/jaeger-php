@@ -1,9 +1,9 @@
-name: Tests
+name: Lint
 
 on: [push, pull_request]
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -13,7 +13,7 @@ jobs:
           - '7.2'
           - '7.3'
           - '7.4'
-#          - '8.0'
+        #          - '8.0'
         dependency-version: [prefer-stable]
     name: ${{ matrix.php }} - ${{ matrix.dependency-version }}
 
@@ -37,5 +37,8 @@ jobs:
         run: |
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
-      - name: Execute tests
-        run: ./vendor/bin/phpunit
+      - name: Execute PHPStan
+        run: vendor/bin/phpstan analyse src tests
+
+      - name: PHP CS Fixer Check
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff 1>&2
