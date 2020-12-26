@@ -69,9 +69,8 @@ class JaegerThriftSpan
     {
         $tagsObj = Tags::getInstance();
         $tagsObj->setTags($tags);
-        $resultTags = $tagsObj->buildTags();
 
-        return $resultTags;
+        return $tagsObj->buildTags();
     }
 
     private function buildLogs($logs)

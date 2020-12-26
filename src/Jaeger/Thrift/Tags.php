@@ -142,14 +142,8 @@ class Tags implements TStruct
                         'vBool' => $v,
                     ];
                     break;
-                case 'double':
-                    $thriftTags[] = [
-                        'key' => $k,
-                        'vType' => 'DOUBLE',
-                        'vDouble' => $v,
-                    ];
-                    break;
                 case 'integer':
+                case 'double':
                     $thriftTags[] = [
                         'key' => $k,
                         'vType' => 'DOUBLE',

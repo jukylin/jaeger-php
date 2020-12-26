@@ -20,12 +20,24 @@ use Thrift\Type\TType;
 
 class Process implements TStruct
 {
+    /**
+     * @var TProtocol
+     */
     public static $tptl = null;
 
+    /**
+     * @var string
+     */
     public static $serverName = '';
 
+    /**
+     * @var array
+     */
     public static $thriftTags = [];
 
+    /**
+     * @var string
+     */
     public static $wrote = '';
 
     public function __construct($processThrift)
