@@ -46,6 +46,8 @@ class JaegerThriftSpan
     public function buildJaegerSpanThrift(Span $span)
     {
         $spContext = $span->spanContext;
+        assert($spContext instanceof \Jaeger\SpanContext);
+
         $thriftSpan = [
             'traceIdLow' => $spContext->traceIdLow,
             'traceIdHigh' => $spContext->traceIdHigh,

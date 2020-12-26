@@ -15,29 +15,54 @@
 
 namespace Jaeger;
 
-use OpenTracing\SpanContext;
-
 class Span implements \OpenTracing\Span
 {
+    /**
+     * @var string
+     */
     private $operationName = '';
 
-    public $startTime = '';
+    /**
+     * @var int|null
+     */
+    public $startTime = null;
 
-    public $finishTime = '';
+    /**
+     * @var int|null
+     */
+    public $finishTime = null;
 
+    /**
+     * @var string
+     */
     public $spanKind = '';
 
+    /**
+     * @var \OpenTracing\SpanContext|null
+     */
     public $spanContext = null;
 
+    /**
+     * @var int
+     */
     public $duration = 0;
 
+    /**
+     * @var array
+     */
     public $logs = [];
 
+    /**
+     * @var array
+     */
     public $tags = [];
 
+    /**
+     * @var array
+     */
     public $references = [];
 
-    public function __construct($operationName, SpanContext $spanContext, $references, $startTime = null)
+    public function __construct($operationName, \OpenTracing\SpanContext $spanContext, $references, $startTime = null)
     {
         $this->operationName = $operationName;
         $this->startTime = null == $startTime ? $this->microtimeToInt() : $startTime;
@@ -56,7 +81,7 @@ class Span implements \OpenTracing\Span
     /**
      * {@inheritDoc}
      */
-    public function getContext(): SpanContext
+    public function getContext(): \OpenTracing\SpanContext
     {
         return $this->spanContext;
     }

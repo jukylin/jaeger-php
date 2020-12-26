@@ -41,7 +41,7 @@ class SpanTest extends TestCase
         $span = new Span('test', new NoopSpanContext(), []);
         $span->setTag('test', 'test');
         $span->finish();
-        $this->assertTrue(!empty($span->finishTime) && !empty($span->duration));
+        $this->assertTrue(null !== $span->finishTime && null !== $span->duration);
     }
 
     public function testGetContext()

@@ -113,7 +113,7 @@ class JaegerTest extends TestCase
     {
         $Jaeger = $this->getJaeger();
         $span = $Jaeger->startSpan('test');
-        $this->assertNotEmpty($span->startTime);
+        $this->assertNotNull($span->startTime);
         $this->assertNotEmpty($Jaeger->getSpans());
     }
 
