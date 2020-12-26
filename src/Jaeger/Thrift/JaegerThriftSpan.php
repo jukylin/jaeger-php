@@ -90,6 +90,11 @@ class JaegerThriftSpan
         return $resultLogs;
     }
 
+    /**
+     * @param array<Reference> $references
+     *
+     * @return array
+     */
     private function buildReferences($references)
     {
         $spanRef = [];
@@ -101,7 +106,10 @@ class JaegerThriftSpan
             } else {
                 throw new \LogicException('Unsupported reference type');
             }
-            $ctx = $ref->getContext();
+
+            $ctx = $ref->getSpanContext();
+            assert($ctx instanceof \Jaeger\SpanContext);
+
             $spanRef[] = [
                 'refType' => $type,
                 'traceIdLow' => $ctx->traceIdLow,
