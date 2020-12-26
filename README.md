@@ -6,7 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/jukylin/jaeger-php/badge.svg?branch=master)](https://coveralls.io/github/jukylin/jaeger-php?branch=master)
 
 ## TODO
-- [] Implement the latest opentracing/opentracing
-- [] Improve documentation
-- [] Refactor thrift
-- [] Improve unit test coverage
+- [x] Implement the latest opentracing/opentracing
+- [ ] Improve documentation
+- [ ] Refactor thrift
+- [ ] Improve unit test coverage
