@@ -51,7 +51,7 @@ class JaegerThrift
         $spContext = $span->spanContext;
         assert($spContext instanceof \Jaeger\SpanContext);
 
-        $spanVals = [
+        $thriftSpan = new Span([
             'traceIdLow' => intval($spContext->traceIdLow),
             'traceIdHigh' => intval($spContext->traceIdHigh),
             'spanId' => intval($spContext->spanId),
@@ -62,13 +62,8 @@ class JaegerThrift
             'duration' => $span->duration,
             'tags' => $this->buildTags($span->tags),
             'logs' => $this->buildLogs($span->logs),
-        ];
-
-        if($spContext->parentId != 0) {
-            $spanVals['references'] = $this->buildReferences($span->references);
-        }
-
-        $thriftSpan = new Span($spanVals);
+            'references' => $this->buildReferences($span->references),
+        ]);
 
         return $thriftSpan;
     }

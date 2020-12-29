@@ -13,7 +13,7 @@
  * the License.
  */
 
-require_once dirname(__FILE__, 4).'/autoload.php';
+require_once dirname(__FILE__, 2).'/vendor/autoload.php';
 
 use Jaeger\Config;
 use OpenTracing\Formats;

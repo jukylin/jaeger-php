@@ -27,18 +27,36 @@ use OpenTracing\Tracer;
 
 class Config
 {
+    /**
+     * @var \Jaeger\Transport\Transport|null
+     */
     private $transport = null;
 
+    /**
+     * @var \Jaeger\Reporter\Reporter|null
+     */
     private $reporter = null;
 
+    /**
+     * @var \Jaeger\Sampler\Sampler|null
+     */
     private $sampler = null;
 
+    /**
+     * @var \OpenTracing\ScopeManager|null
+     */
     private $scopeManager = null;
 
     private $gen128bit = false;
 
+    /**
+     * @var Tracer|null
+     */
     public static $tracer = null;
 
+    /**
+     * @var \OpenTracing\Span|null
+     */
     public static $span = null;
 
     public static $instance = null;

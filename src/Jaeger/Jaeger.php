@@ -21,8 +21,14 @@ use Jaeger\Sampler\Sampler;
 
 class Jaeger implements \OpenTracing\Tracer
 {
+    /**
+     * @var Reporter|null
+     */
     private $reporter = null;
 
+    /**
+     * @var Sampler|null
+     */
     private $sampler = null;
 
     private $gen128bit = false;
@@ -41,8 +47,8 @@ class Jaeger implements \OpenTracing\Tracer
     /** @var Propagator|null */
     public $propagator = null;
 
-    public function __construct(string $serviceName, Reporter $reporter, Sampler $sampler,
-                                ScopeManager $scopeManager)
+    public function __construct(string $serviceName, Reporter $reporter = null, Sampler $sampler = null,
+                                ScopeManager $scopeManager = null)
     {
         $this->reporter = $reporter;
 

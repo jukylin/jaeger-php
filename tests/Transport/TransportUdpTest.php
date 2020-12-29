@@ -24,8 +24,14 @@ use Jaeger\ScopeManager;
 
 class TransportUdpTest extends TestCase
 {
+    /**
+     * @var TransportUdp|null
+     */
     public $tran = null;
 
+    /**
+     * @var Jaeger|null
+     */
     public $tracer = null;
 
     public function setUp()
@@ -37,12 +43,6 @@ class TransportUdpTest extends TestCase
         $scopeManager = new ScopeManager();
 
         $this->tracer = new Jaeger('jaeger', $reporter, $sampler, $scopeManager);
-    }
-
-    public function testResetBuffer()
-    {
-        $this->tran->resetBuffer();
-        $this->assertCount(0, $this->tran->getBatchs());
     }
 
     public function testBuildAndCalcSizeOfProcessThrift()

@@ -27,7 +27,7 @@ $config = Config::getInstance();
 
 $config->gen128bit();
 
-$config::$propagator = Jaeger\Constants\PROPAGATOR_JAEGER;
+$config::$propagator = Jaeger\Constants\PROPAGATOR_ZIPKIN;
 
 $tracer = $config->initTracer('example', 'localhost:6831');
 

@@ -23,7 +23,7 @@ class ZipkinPropagator implements Propagator
     /**
      * {@inheritDoc}
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier)
+    public function inject(\OpenTracing\SpanContext $spanContext, $format, &$carrier)
     {
         $carrier[Constants\X_B3_TRACEID] = $spanContext->traceIdLowToString();
         $carrier[Constants\X_B3_PARENT_SPANID] = $spanContext->parentIdToString();
