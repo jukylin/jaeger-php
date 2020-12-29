@@ -17,23 +17,68 @@ namespace tests;
 
 use Jaeger\Transport\TransportUdp;
 use PHPUnit\Framework\TestCase;
+use Jaeger\Jaeger;
+use Jaeger\Reporter\RemoteReporter;
+use Jaeger\Sampler\ConstSampler;
+use Jaeger\ScopeManager;
 
 class TransportUdpTest extends TestCase
 {
     public $tran = null;
 
+    public $tracer = null;
+
     public function setUp()
     {
         $this->tran = new TransportUdp('localhost:6831');
-    }
 
-//    public function testFlush(){
-//        $this->tran->append();
-//    }
+        $reporter = new RemoteReporter($this->tran);
+        $sampler = new ConstSampler();
+        $scopeManager = new ScopeManager();
+
+        $this->tracer = new Jaeger('jaeger', $reporter, $sampler, $scopeManager);
+    }
 
     public function testResetBuffer()
     {
         $this->tran->resetBuffer();
         $this->assertCount(0, $this->tran->getBatchs());
+    }
+
+    public function testBuildAndCalcSizeOfProcessThrift()
+    {
+        $span = $this->tracer->startSpan('BuildAndCalcSizeOfProcessThrift');
+        $span->finish();
+        $this->tran->buildAndCalcSizeOfProcessThrift($this->tracer);
+        $this->assertEquals(95, $this->tran->procesSize);
+    }
+
+    public function testSpanIsTooLarge()
+    {
+        $this->tran::$maxSpanBytes = 50;
+        $span = $this->tracer->startSpan('SpanIsTooLarge');
+        $span->finish();
+        $this->tran->append($this->tracer);
+        $this->assertEquals(0, $this->tran->flushSpanNum);
+    }
+
+    public function testSplitEmit()
+    {
+        $i = 0;
+        $this->tran::$maxSpanBytes = 150;
+        $span = $this->tracer->startSpan('SplitEmit1');
+        $i++;
+        $span->finish();
+
+        $span = $this->tracer->startSpan('SplitEmit2');
+        $i++;
+        $span->finish();
+
+        $span = $this->tracer->startSpan('SplitEmit3');
+        $i++;
+        $span->finish();
+
+        $this->tran->append($this->tracer);
+        $this->assertEquals(3, $this->tran->flushSpanNum);
     }
 }

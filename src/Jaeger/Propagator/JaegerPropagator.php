@@ -23,7 +23,7 @@ class JaegerPropagator implements Propagator
     /**
      * {@inheritDoc}
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier)
+    public function inject(\OpenTracing\SpanContext $spanContext, $format, &$carrier)
     {
         $carrier[strtoupper(Constants\Tracer_State_Header_Name)] = $spanContext->buildString();
         if ($spanContext->baggage) {

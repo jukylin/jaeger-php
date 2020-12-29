@@ -36,16 +36,12 @@ class Jaeger implements \OpenTracing\Tracer
 
     public $tags = [];
 
-    public $process = null;
-
-    public $serverName = '';
-
-    public $processThrift = '';
+    public $serviceName = '';
 
     /** @var Propagator|null */
     public $propagator = null;
 
-    public function __construct(string $serverName, Reporter $reporter, Sampler $sampler,
+    public function __construct(string $serviceName, Reporter $reporter, Sampler $sampler,
                                 ScopeManager $scopeManager)
     {
         $this->reporter = $reporter;
@@ -57,10 +53,10 @@ class Jaeger implements \OpenTracing\Tracer
         $this->setTags($this->sampler->getTags());
         $this->setTags($this->getEnvTags());
 
-        if ('' == $serverName) {
-            $this->serverName = $_SERVER['SERVER_NAME'] ?? 'unknow server';
+        if ('' == $serviceName) {
+            $this->serviceName = $_SERVER['SERVER_NAME'] ?? 'unknow server';
         } else {
-            $this->serverName = $serverName;
+            $this->serviceName = $serviceName;
         }
     }
 

@@ -71,18 +71,18 @@ class Config
      *
      * @throws \RuntimeException
      */
-    public function initTracer(string $serverName, $agentHostPort = ''): Tracer
+    public function initTracer(string $serviceName, $agentHostPort = ''): Tracer
     {
         if (self::$disabled) {
             return new NoopTracer();
         }
 
-        if ('' == $serverName) {
-            throw new \RuntimeException('serverName require');
+        if ('' == $serviceName) {
+            throw new \RuntimeException('serviceName require');
         }
 
-        if (isset(self::$tracer[$serverName]) && !empty(self::$tracer[$serverName])) {
-            return self::$tracer[$serverName];
+        if (isset(self::$tracer[$serviceName]) && !empty(self::$tracer[$serviceName])) {
+            return self::$tracer[$serviceName];
         }
 
         if (null == $this->transport) {
@@ -101,7 +101,7 @@ class Config
             $this->scopeManager = new ScopeManager();
         }
 
-        $tracer = new Jaeger($serverName, $this->reporter, $this->sampler, $this->scopeManager);
+        $tracer = new Jaeger($serviceName, $this->reporter, $this->sampler, $this->scopeManager);
 
         if (true == $this->gen128bit) {
             $tracer->gen128bit();
@@ -113,7 +113,7 @@ class Config
             $tracer->setPropagator(new JaegerPropagator());
         }
 
-        self::$tracer[$serverName] = $tracer;
+        self::$tracer[$serviceName] = $tracer;
 
         return $tracer;
     }

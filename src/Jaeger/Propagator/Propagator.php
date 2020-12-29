@@ -25,7 +25,7 @@ interface Propagator
      * @param string $format
      * @param mixed  $carrier
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier);
+    public function inject(\OpenTracing\SpanContext $spanContext, $format, &$carrier);
 
     /**
      * 提取.

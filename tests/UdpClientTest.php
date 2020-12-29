@@ -15,20 +15,40 @@
 
 namespace tests;
 
-use Jaeger\Thrift\AgentClient;
+use Jaeger\Thrift\Agent\AgentClient;
 use Jaeger\UdpClient;
 use PHPUnit\Framework\TestCase;
+use Thrift\Protocol\TCompactProtocol;
+use Thrift\Transport\TMemoryBuffer;
 
 class UdpClientTest extends TestCase
 {
+    /**
+     * @var UdpClient|null
+     */
     public $udpClient = null;
 
+    /**
+     * @var AgentClient|null
+     */
     public $agentClient = null;
+
+    /**
+     * @var TMemoryBuffer|null
+     */
+    public $tran = null;
+
+    /**
+     * @var TCompactProtocol|null
+     */
+    public $protocol = null;
 
     public function setUp()
     {
-        $this->agentClient = $this->createMock(AgentClient::class);
-        $this->udpClient = new UdpClient('localhost:6831', $this->agentClient);
+        $this->tran = new TMemoryBuffer();
+        $this->protocol = new TCompactProtocol($this->tran);
+        $this->agentClient = (new AgentClient($this->protocol, null));
+        $this->udpClient = new UdpClient('localhost:6831', $this->agentClient, $this->tran);
     }
 
     public function testIsOpen()
@@ -36,34 +56,61 @@ class UdpClientTest extends TestCase
         $this->assertTrue($this->udpClient->isOpen());
     }
 
-    public function testEmitBatch()
-    {
-        $this->agentClient->expects($this->once())->method('buildThrift')
-            ->willReturn(['len' => 3, 'thriftStr' => 123]);
-        $batch = ['thriftProcess' => '', 'thriftSpans' => ''];
-
-        $this->assertTrue($this->udpClient->emitBatch($batch));
-    }
-
-    public function testEmitBatchFalse()
-    {
-        $batch = ['thriftProcess' => '', 'thriftSpans' => ''];
-
-        $this->agentClient->expects($this->any())->method('buildThrift')
-            ->willReturn(['thriftStr' => 123]);
-
-        $this->assertFalse($this->udpClient->emitBatch($batch));
-
-        $this->udpClient->close();
-        $this->agentClient->expects($this->any())->method('buildThrift')
-            ->willReturn(['len' => 3, 'thriftStr' => 123]);
-
-        $this->assertFalse($this->udpClient->emitBatch($batch));
-    }
 
     public function testClose()
     {
         $this->udpClient->close();
         $this->assertFalse($this->udpClient->isOpen());
+    }
+
+
+    public function testEmitBatch()
+    {
+        $span = new \Jaeger\Thrift\Span(
+            [
+                'traceIdLow' => 1609214197859399756,
+                'traceIdHigh' => 1609214197860113544,
+                'spanId' => 1609214197859399756,
+                'parentSpanId' => 0,
+                'operationName' => 'test',
+                'flags' => 1,
+                'startTime' => 1609214197860775,
+                'duration' => 3216877,
+                'tags' => [],
+                'logs' => [],
+            ]
+        );
+
+        $batch = new \Jaeger\Thrift\Batch(
+            [
+                'process' => new \Jaeger\Thrift\Process([
+                    'serviceName' => 'EmitBatch',
+                    'tags' => [
+                        (new \Jaeger\Thrift\Tag([
+                            'key' => 'peer.ipv4',
+                            'vType' => 0,
+                            'vStr' => '0.0.0.0',
+                        ])),
+                        (new \Jaeger\Thrift\Tag([
+                            'key' => 'peer.port',
+                            'vType' => 0,
+                            'vStr' => '80',
+                        ])),
+                        (new \Jaeger\Thrift\Tag([
+                            'key' => 'sampler.type',
+                            'vType' => 0,
+                            'vStr' => 'const',
+                        ])),
+                        (new \Jaeger\Thrift\Tag([
+                            'key' => 'sampler.param',
+                            'vType' => 2,
+                            'vBool' => true,
+                        ])),
+                    ],
+                ]),
+                'spans' => [$span],
+            ]
+        );
+        $this->assertTrue($this->udpClient->emitBatch($batch));
     }
 }

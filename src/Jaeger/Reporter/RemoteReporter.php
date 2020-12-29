@@ -20,6 +20,9 @@ use Jaeger\Transport\Transport;
 
 class RemoteReporter implements Reporter
 {
+    /**
+     * @var Transport|null
+     */
     public $tran = null;
 
     public function __construct(Transport $tran)

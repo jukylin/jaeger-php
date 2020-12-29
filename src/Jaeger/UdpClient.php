@@ -15,7 +15,8 @@
 
 namespace Jaeger;
 
-use Jaeger\Thrift\AgentClient;
+use Jaeger\Thrift\Agent\AgentClient;
+use Thrift\Transport\TMemoryBuffer;
 
 /**
  * send thrift to jaeger-agent
@@ -27,15 +28,27 @@ class UdpClient
 
     private $post = '';
 
+    /**
+     * @var resource|string
+     */
     private $socket = '';
 
+    /**
+     * @var AgentClient|null
+     */
     private $agentClient = null;
 
-    public function __construct($hostPost, AgentClient $agentClient)
+    /**
+     * @var null|TMemoryBuffer
+     */
+    private $tran = null;
+
+    public function __construct(string $hostPost, AgentClient $agentClient, TMemoryBuffer $tran)
     {
         [$this->host, $this->post] = explode(':', $hostPost);
         $this->agentClient = $agentClient;
-        $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+        $this->socket = fsockopen("udp://$this->host", $this->post);
+        $this->tran = $tran;
     }
 
     /**
@@ -55,13 +68,12 @@ class UdpClient
      *
      * @throws \Exception
      */
-    public function emitBatch($batch)
+    public function emitBatch(\Jaeger\Thrift\Batch $batch)
     {
-        $buildThrift = $this->agentClient->buildThrift($batch);
-        if (isset($buildThrift['len']) && $buildThrift['len'] && $this->isOpen()) {
-            $len = $buildThrift['len'];
-            $enitThrift = $buildThrift['thriftStr'];
-            $res = socket_sendto($this->socket, $enitThrift, $len, 0, $this->host, $this->post);
+        $this->agentClient->emitBatch($batch);
+        $len = $this->tran->available();
+        if ($len > 0 && $this->isOpen()) {
+            $res = fwrite($this->socket, $this->tran->getBuffer());
             if (false === $res) {
                 throw new \Exception('emit failse');
             }
@@ -74,7 +86,7 @@ class UdpClient
 
     public function close()
     {
-        socket_close($this->socket);
+        fclose($this->socket);
         $this->socket = null;
     }
 }

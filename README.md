@@ -8,5 +8,5 @@
 ## TODO
 - [x] Implement the latest opentracing/opentracing
 - [ ] Improve documentation
-- [ ] Refactor thrift
+- [x] Refactor thrift
 - [ ] Improve unit test coverage
