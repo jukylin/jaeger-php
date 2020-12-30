@@ -23,33 +23,36 @@ use PHPUnit\Framework\TestCase;
 
 class JaegerPropagatorTest extends TestCase
 {
-    public function getSpanContext()
+    /**
+     * @var SpanContext|null
+     */
+    public $spanContext = null;
+
+    public function setUp()
     {
-        return new SpanContext(1562237095801441413, 0, 1, null, 1);
+        $this->spanContext = new SpanContext(1, 1, 1, null, 1);
     }
 
     public function testInject()
     {
-        $context = $this->getSpanContext();
-        $context->traceIdLow = 1562237095801441413;
+        $this->spanContext->traceIdLow = 1562237095801441413;
         $jaeger = new JaegerPropagator();
         $carrier = [];
 
-        $jaeger->inject($context, Formats\TEXT_MAP, $carrier);
-        $this->assertTrue('15ae2e5c8e2ecc85:15ae2e5c8e2ecc85:0:1' == $carrier[strtoupper(Constants\Tracer_State_Header_Name)]);
+        $jaeger->inject( $this->spanContext, Formats\TEXT_MAP, $carrier);
+        $this->assertTrue('15ae2e5c8e2ecc85:1:1:1' == $carrier[strtoupper(Constants\Tracer_State_Header_Name)]);
     }
 
     public function testInject128Bit()
     {
-        $context = $this->getSpanContext();
-        $context->traceIdLow = 1562289663898779811;
-        $context->traceIdHigh = 1562289663898881723;
+        $this->spanContext->traceIdLow = 1562289663898779811;
+        $this->spanContext->traceIdHigh = 1562289663898881723;
 
         $jaeger = new JaegerPropagator();
         $carrier = [];
 
-        $jaeger->inject($context, Formats\TEXT_MAP, $carrier);
-        $this->assertTrue('15ae5e2c04f50ebb15ae5e2c04f380a3:15ae2e5c8e2ecc85:0:1'
+        $jaeger->inject( $this->spanContext, Formats\TEXT_MAP, $carrier);
+        $this->assertTrue('15ae5e2c04f50ebb15ae5e2c04f380a3:1:1:1'
             == $carrier[strtoupper(Constants\Tracer_State_Header_Name)]);
     }
 
