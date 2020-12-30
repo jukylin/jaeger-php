@@ -23,7 +23,7 @@ const Trace_Baggage_Header_Prefix = 'uberctx-';
 
 const Jaeger_Debug_Header = 'jaeger-debug-id';
 
-const EMIT_BATCH_OVER_HEAD = 30;
+const EMIT_BATCH_OVER_HEAD = 70;
 
 const UDP_PACKET_MAX_LENGTH = 65000;
 

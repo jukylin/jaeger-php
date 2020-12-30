@@ -20,78 +20,76 @@ use PHPUnit\Framework\TestCase;
 
 class SpanContextTest extends TestCase
 {
-    public function getSpanContext()
+    /**
+     * @var SpanContext|null
+     */
+    public $spanContext = null;
+
+    public function setUp()
     {
-        return new SpanContext(1, 1, 1, null, 1);
+        $this->spanContext = new SpanContext(1, 1, 1, null, 1);
     }
 
     public function testNew()
     {
-        $spanContext = $this->getSpanContext();
-        $this->assertInstanceOf(SpanContext::class, $spanContext);
+        $this->assertInstanceOf(SpanContext::class, $this->spanContext);
     }
 
     public function testWithBaggageItem()
     {
-        $spanContext = $this->getSpanContext();
-        $res = $spanContext->withBaggageItem('version', '2.0.0');
+        $res = $this->spanContext->withBaggageItem('version', '2.0.0');
         // TODO
         // $this->assertTrue($res);
     }
 
     public function testGetBaggageItem()
     {
-        $spanContext = $this->getSpanContext();
-        $spanContext->withBaggageItem('version', '2.0.0');
+        $this->spanContext->withBaggageItem('version', '2.0.0');
 
-        $version = $spanContext->getBaggageItem('version');
+        $version = $this->spanContext->getBaggageItem('version');
 
         $this->assertTrue('2.0.0' === $version);
 
-        $service = $spanContext->getBaggageItem('service');
+        $service = $this->spanContext->getBaggageItem('service');
         $this->assertNull($service);
     }
 
     public function testBuildString()
     {
-        $spanContext = $this->getSpanContext();
-        $spanContext->traceIdLow = 1;
-        $this->assertTrue('1:1:1:1' == $spanContext->buildString());
+        $this->spanContext->traceIdLow = 1;
+        $this->assertTrue('1:1:1:1' == $this->spanContext->buildString());
 
-        $spanContext->traceIdHigh = 1;
-        $this->assertTrue('10000000000000001:1:1:1' == $spanContext->buildString());
+        $this->spanContext->traceIdHigh = 1;
+        $this->assertTrue('10000000000000001:1:1:1' == $this->spanContext->buildString());
     }
 
     public function testSpanIdToString()
     {
-        $spanContext = $this->getSpanContext();
-        $this->assertTrue('1' == $spanContext->spanIdToString());
+        $this->assertTrue('1' == $this->spanContext->spanIdToString());
 
-        $spanContext->spanId = '111111';
-        $this->assertTrue('1b207' == $spanContext->spanIdToString());
+        $this->spanContext->spanId = '111111';
+        $this->assertTrue('1b207' == $this->spanContext->spanIdToString());
     }
 
     public function testTraceIdLowToString()
     {
-        $spanContext = $this->getSpanContext();
-        $spanContext->traceIdLow = '111111';
-        $this->assertTrue('1b207' == $spanContext->traceIdLowToString());
+        $this->spanContext->traceIdLow = '111111';
+        $this->assertTrue('1b207' == $this->spanContext->traceIdLowToString());
 
-        $spanContext->traceIdHigh = '111111';
-        $this->assertTrue('1b207000000000001b207' == $spanContext->traceIdLowToString());
+        $this->spanContext->traceIdHigh = '111111';
+        $this->assertTrue('1b207000000000001b207' == $this->spanContext->traceIdLowToString());
     }
 
     public function testTraceIdToString()
     {
-        $spanContext = $this->getSpanContext();
-        $spanContext->traceIdToString('1b207000000000001b207');
-        $this->assertTrue('111111' == $spanContext->traceIdLow);
-        $this->assertTrue('1954685383581106176' == $spanContext->traceIdHigh);
+        $this->spanContext->traceIdToString('1b207000000000001b207');
+        $this->assertTrue('111111' == $this->spanContext->traceIdLow);
+        $this->assertTrue('1954685383581106176' == $this->spanContext->traceIdHigh);
 
-        $spanContext->traceIdLow = null;
-        $spanContext->traceIdHigh = null;
-        $spanContext->traceIdToString('1b207');
-        $this->assertTrue('111111' == $spanContext->traceIdLow);
-        $this->assertTrue(null === $spanContext->traceIdHigh);
+        $this->spanContext->traceIdLow = null;
+        $this->spanContext->traceIdHigh = null;
+        $this->spanContext->traceIdToString('1b207');
+        $this->assertTrue('111111' == $this->spanContext->traceIdLow);
+        $this->assertTrue(null === $this->spanContext->traceIdHigh);
     }
 }

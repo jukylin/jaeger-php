@@ -16,27 +16,16 @@
 namespace Jaeger\Reporter;
 
 use Jaeger\Jaeger;
-use Jaeger\Transport\Transport;
 
-class RemoteReporter implements Reporter
+class NullReporter implements Reporter
 {
-    /**
-     * @var Transport|null
-     */
-    public $tran = null;
-
-    public function __construct(Transport $tran)
-    {
-        $this->tran = $tran;
-    }
-
     public function report(Jaeger $jaeger)
     {
-        $this->tran->append($jaeger);
+        // no-op
     }
 
     public function close()
     {
-        $this->tran->close();
+        // no-op
     }
 }

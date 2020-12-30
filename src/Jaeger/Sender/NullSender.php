@@ -13,30 +13,19 @@
  * the License.
  */
 
-namespace Jaeger\Reporter;
+namespace Jaeger\Sender;
 
-use Jaeger\Jaeger;
-use Jaeger\Transport\Transport;
-
-class RemoteReporter implements Reporter
+class NullSender implements Sender
 {
-    /**
-     * @var Transport|null
-     */
-    public $tran = null;
-
-    public function __construct(Transport $tran)
+    public function isOpen()
     {
-        $this->tran = $tran;
     }
 
-    public function report(Jaeger $jaeger)
+    public function emitBatch(\Jaeger\Thrift\Batch $batch)
     {
-        $this->tran->append($jaeger);
     }
 
     public function close()
     {
-        $this->tran->close();
     }
 }

@@ -18,13 +18,13 @@ namespace Jaeger\Transport;
 use Jaeger\Constants;
 use Jaeger\Jaeger;
 use Jaeger\JaegerThrift;
+use Jaeger\Sender\UdpSender;
 use Jaeger\Thrift\Batch;
 use Jaeger\Thrift\Process;
-use Jaeger\UdpClient;
+use Jaeger\Sender\Sender;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TMemoryBuffer;
 use Jaeger\Thrift\Agent\AgentClient;
-use Jaeger\Thrift\ClientStats;
 
 class TransportUdp implements Transport
 {
@@ -34,9 +34,9 @@ class TransportUdp implements Transport
     private $tran = null;
 
     /**
-     * @var UdpClient|null
+     * @var Sender|null
      */
-    private $udpClient = null;
+    private $sender = null;
 
     /**
      * @var AgentClient|null
@@ -76,7 +76,7 @@ class TransportUdp implements Transport
 
     const MAC_UDP_MAX_SIZE = 9216;
 
-    public function __construct($hostport = '', $maxPacketSize = '')
+    public function __construct($hostport = '', $maxPacketSize = '', Sender $udpSender = null)
     {
         if ('' == $hostport) {
             $hostport = $this->agentServerHostPort;
@@ -95,7 +95,10 @@ class TransportUdp implements Transport
 
         $this->agentClient = new AgentClient($this->protocol, null);
 
-        $this->udpClient = new UdpClient(self::$hostPort, $this->agentClient, $this->tran);
+        $this->sender = $udpSender;
+        if($this->sender == null) {
+            $this->sender = new UdpSender(self::$hostPort, $this->agentClient, $this->tran);
+        }
 
         $this->jaegerThrift = new JaegerThrift();
     }
@@ -181,7 +184,7 @@ class TransportUdp implements Transport
         }
 
         $spanNum = count(self::$batch->spans);
-        $this->udpClient->emitBatch(self::$batch);
+        $this->sender->emitBatch(self::$batch);
 
         $this->resetBuffer();
 
@@ -192,5 +195,10 @@ class TransportUdp implements Transport
     {
         $this->bufferSize = $this->procesSize;
         self::$batch = null;
+    }
+
+    public function close()
+    {
+        $this->sender->close();
     }
 }

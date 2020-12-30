@@ -16,17 +16,17 @@
 namespace tests;
 
 use Jaeger\Thrift\Agent\AgentClient;
-use Jaeger\UdpClient;
+use Jaeger\Sender\UdpSender;
 use PHPUnit\Framework\TestCase;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TMemoryBuffer;
 
-class UdpClientTest extends TestCase
+class UdpSenderTest extends TestCase
 {
     /**
-     * @var UdpClient|null
+     * @var UdpSender|null
      */
-    public $udpClient = null;
+    public $udpSender = null;
 
     /**
      * @var AgentClient|null
@@ -48,19 +48,19 @@ class UdpClientTest extends TestCase
         $this->tran = new TMemoryBuffer();
         $this->protocol = new TCompactProtocol($this->tran);
         $this->agentClient = (new AgentClient($this->protocol, null));
-        $this->udpClient = new UdpClient('localhost:6831', $this->agentClient, $this->tran);
+        $this->udpSender = new UdpSender('localhost:6831', $this->agentClient, $this->tran);
     }
 
     public function testIsOpen()
     {
-        $this->assertTrue($this->udpClient->isOpen());
+        $this->assertTrue($this->udpSender->isOpen());
     }
 
 
     public function testClose()
     {
-        $this->udpClient->close();
-        $this->assertFalse($this->udpClient->isOpen());
+        $this->udpSender->close();
+        $this->assertFalse($this->udpSender->isOpen());
     }
 
 
@@ -111,6 +111,6 @@ class UdpClientTest extends TestCase
                 'spans' => [$span],
             ]
         );
-        $this->assertTrue($this->udpClient->emitBatch($batch));
+        $this->assertTrue($this->udpSender->emitBatch($batch));
     }
 }

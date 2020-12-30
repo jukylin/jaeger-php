@@ -13,16 +13,16 @@
  * the License.
  */
 
-namespace Jaeger;
+namespace Jaeger\Sender;
 
 use Jaeger\Thrift\Agent\AgentClient;
 use Thrift\Transport\TMemoryBuffer;
 
 /**
  * send thrift to jaeger-agent
- * Class UdpClient.
+ * Class UdpSender.
  */
-class UdpClient
+class UdpSender implements Sender
 {
     private $host = '';
 
@@ -73,7 +73,7 @@ class UdpClient
         $this->agentClient->emitBatch($batch);
         $len = $this->tran->available();
         if ($len > 0 && $this->isOpen()) {
-            $res = fwrite($this->socket, $this->tran->getBuffer());
+            $res = fwrite($this->socket, $this->tran->read($len));
             if (false === $res) {
                 throw new \Exception('emit failse');
             }

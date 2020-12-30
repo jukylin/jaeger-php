@@ -22,4 +22,6 @@ interface Transport
     public function append(Jaeger $jaeger);
 
     public function flush();
+
+    public function close();
 }

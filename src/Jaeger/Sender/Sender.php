@@ -12,31 +12,13 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
+namespace Jaeger\Sender;
 
-namespace Jaeger\Reporter;
-
-use Jaeger\Jaeger;
-use Jaeger\Transport\Transport;
-
-class RemoteReporter implements Reporter
+interface Sender
 {
-    /**
-     * @var Transport|null
-     */
-    public $tran = null;
+    public function isOpen();
 
-    public function __construct(Transport $tran)
-    {
-        $this->tran = $tran;
-    }
+    public function emitBatch(\Jaeger\Thrift\Batch $batch);
 
-    public function report(Jaeger $jaeger)
-    {
-        $this->tran->append($jaeger);
-    }
-
-    public function close()
-    {
-        $this->tran->close();
-    }
+    public function close();
 }
