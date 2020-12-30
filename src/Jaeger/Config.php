@@ -50,7 +50,7 @@ class Config
     private $gen128bit = false;
 
     /**
-     * @var Tracer|null
+     * @var array|null
      */
     public static $tracer = null;
 
@@ -59,6 +59,9 @@ class Config
      */
     public static $span = null;
 
+    /**
+     * @var null
+     */
     public static $instance = null;
 
     public static $disabled = false;
@@ -83,7 +86,7 @@ class Config
     }
 
     /**
-     * init jaeger, return can use flush  buffers.
+     * init tracer.
      *
      * @param string $agentHostPort
      *
