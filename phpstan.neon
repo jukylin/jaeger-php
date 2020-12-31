@@ -4,6 +4,7 @@ parameters:
         - src
         - tests
     ignoreErrors:
-         -
+        -
             message: '#Constant#'
             path: src/Jaeger/Constants.php
+        - '#Function thrift_protocol_.* not found#'
