@@ -28,6 +28,8 @@ use Jaeger\Thrift\Agent\AgentClient;
 
 class TransportUdp implements Transport
 {
+    const DEFAULT_AGENT_HOST_PORT = 'localhost:6831';
+
     /**
      * @var null|TMemoryBuffer
      */
@@ -53,7 +55,11 @@ class TransportUdp implements Transport
      */
     private $process = null;
 
-    public static $hostPort = '';
+
+    /**
+     * @var string
+     */
+    public $agentHostPort = '';
 
     // sizeof(Span) * numSpans + processByteSize + emitBatchOverhead <= maxPacketSize
     public static $maxSpanBytes = 0;
@@ -76,14 +82,11 @@ class TransportUdp implements Transport
 
     const MAC_UDP_MAX_SIZE = 9216;
 
-    public function __construct($hostport = '', $maxPacketSize = '', Sender $udpSender = null)
+    public function __construct(string $hostport = self::DEFAULT_AGENT_HOST_PORT, int $maxPacketSize = 0, Sender $udpSender = null)
     {
-        if ('' == $hostport) {
-            $hostport = $this->agentServerHostPort;
-        }
-        self::$hostPort = $hostport;
+        $this->agentHostPort = $hostport;
 
-        if (0 == $maxPacketSize) {
+        if (0 === $maxPacketSize) {
             $maxPacketSize = stristr(PHP_OS, 'DAR') ? self::MAC_UDP_MAX_SIZE : Constants\UDP_PACKET_MAX_LENGTH;
         }
 
@@ -96,8 +99,8 @@ class TransportUdp implements Transport
         $this->agentClient = new AgentClient($this->protocol, null);
 
         $this->sender = $udpSender;
-        if($this->sender == null) {
-            $this->sender = new UdpSender(self::$hostPort, $this->agentClient, $this->tran);
+        if ($this->sender == null) {
+            $this->sender = new UdpSender($this->agentServerHostPort, $this->agentClient, $this->tran);
         }
 
         $this->jaegerThrift = new JaegerThrift();
