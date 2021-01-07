@@ -11,6 +11,7 @@
 // Exclude some directories that are excluded by Git anyways to speed up the sniffing
 $finder = PhpCsFixer\Finder::create()
     ->exclude('vendor')
+    ->exclude('src/Jaeger/Thrift')
     ->in(__DIR__);
 
 return PhpCsFixer\Config::create()

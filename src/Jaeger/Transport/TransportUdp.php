@@ -18,20 +18,20 @@ namespace Jaeger\Transport;
 use Jaeger\Constants;
 use Jaeger\Jaeger;
 use Jaeger\JaegerThrift;
+use Jaeger\Sender\Sender;
 use Jaeger\Sender\UdpSender;
+use Jaeger\Thrift\Agent\AgentClient;
 use Jaeger\Thrift\Batch;
 use Jaeger\Thrift\Process;
-use Jaeger\Sender\Sender;
 use Thrift\Protocol\TCompactProtocol;
 use Thrift\Transport\TMemoryBuffer;
-use Jaeger\Thrift\Agent\AgentClient;
 
 class TransportUdp implements Transport
 {
     const DEFAULT_AGENT_HOST_PORT = 'localhost:6831';
 
     /**
-     * @var null|TMemoryBuffer
+     * @var TMemoryBuffer|null
      */
     private $tran = null;
 
@@ -55,7 +55,6 @@ class TransportUdp implements Transport
      */
     private $process = null;
 
-
     /**
      * @var string
      */
@@ -72,7 +71,7 @@ class TransportUdp implements Transport
     public $agentServerHostPort = 'localhost:6831';
 
     /**
-     * @var null|TCompactProtocol
+     * @var TCompactProtocol|null
      */
     public $protocol = null;
 
@@ -99,7 +98,7 @@ class TransportUdp implements Transport
         $this->agentClient = new AgentClient($this->protocol, null);
 
         $this->sender = $udpSender;
-        if ($this->sender == null) {
+        if (null == $this->sender) {
             $this->sender = new UdpSender($this->agentServerHostPort, $this->agentClient, $this->tran);
         }
 
@@ -182,7 +181,7 @@ class TransportUdp implements Transport
      */
     public function flush()
     {
-        if (self::$batch == null) {
+        if (null == self::$batch) {
             return 0;
         }
 

@@ -39,7 +39,7 @@ class UdpSender implements Sender
     private $agentClient = null;
 
     /**
-     * @var null|TMemoryBuffer
+     * @var TMemoryBuffer|null
      */
     private $tran = null;
 

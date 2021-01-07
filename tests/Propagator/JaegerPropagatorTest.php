@@ -39,7 +39,7 @@ class JaegerPropagatorTest extends TestCase
         $jaeger = new JaegerPropagator();
         $carrier = [];
 
-        $jaeger->inject( $this->spanContext, Formats\TEXT_MAP, $carrier);
+        $jaeger->inject($this->spanContext, Formats\TEXT_MAP, $carrier);
         $this->assertTrue('15ae2e5c8e2ecc85:1:1:1' == $carrier[strtoupper(Constants\Tracer_State_Header_Name)]);
     }
 
@@ -51,7 +51,7 @@ class JaegerPropagatorTest extends TestCase
         $jaeger = new JaegerPropagator();
         $carrier = [];
 
-        $jaeger->inject( $this->spanContext, Formats\TEXT_MAP, $carrier);
+        $jaeger->inject($this->spanContext, Formats\TEXT_MAP, $carrier);
         $this->assertTrue('15ae5e2c04f50ebb15ae5e2c04f380a3:1:1:1'
             == $carrier[strtoupper(Constants\Tracer_State_Header_Name)]);
     }

@@ -15,14 +15,13 @@
 
 namespace tests;
 
-use Jaeger\Sender\Sender;
-use Jaeger\Transport\TransportUdp;
-use PHPUnit\Framework\TestCase;
 use Jaeger\Jaeger;
 use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\ScopeManager;
-use Jaeger\Sender\NullSender;
+use Jaeger\Sender\Sender;
+use Jaeger\Transport\TransportUdp;
+use PHPUnit\Framework\TestCase;
 
 class TransportUdpTest extends TestCase
 {
@@ -71,15 +70,15 @@ class TransportUdpTest extends TestCase
         $i = 0;
         $this->tran::$maxSpanBytes = 150;
         $span = $this->tracer->startSpan('SplitEmit1');
-        $i++;
+        ++$i;
         $span->finish();
 
         $span = $this->tracer->startSpan('SplitEmit2');
-        $i++;
+        ++$i;
         $span->finish();
 
         $span = $this->tracer->startSpan('SplitEmit3');
-        $i++;
+        ++$i;
         $span->finish();
 
         $this->tran->append($this->tracer);

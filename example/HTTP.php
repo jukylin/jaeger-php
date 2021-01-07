@@ -35,7 +35,7 @@ $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
 
 $options = [];
-if($spanContext != null) {
+if (null != $spanContext) {
     $options = ['child_of' => $spanContext];
 }
 

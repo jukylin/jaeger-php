@@ -15,18 +15,17 @@
 
 namespace tests;
 
-use Jaeger\JaegerThrift;
-use PHPUnit\Framework\TestCase;
 use Jaeger\Jaeger;
+use Jaeger\JaegerThrift;
 use Jaeger\Reporter\RemoteReporter;
 use Jaeger\Sampler\ConstSampler;
 use Jaeger\ScopeManager;
-use Jaeger\Transport\TransportUdp;
 use Jaeger\Thrift\TagType;
+use Jaeger\Transport\TransportUdp;
+use PHPUnit\Framework\TestCase;
 
 class JaegerThriftTest extends TestCase
 {
-
     /**
      * @var JaegerThrift|null
      */
@@ -48,39 +47,42 @@ class JaegerThriftTest extends TestCase
         $this->jaegerThrift = new JaegerThrift();
     }
 
-    public function testBuildProcessThrift(){
+    public function testBuildProcessThrift()
+    {
         $process = $this->jaegerThrift->buildProcessThrift($this->tracer);
         $this->assertEquals('jaeger', $process->serviceName);
     }
 
-   public function testBuildTags(){
-       $tags = ['event' => 'test'];
-       $jtags = $this->jaegerThrift->buildTags($tags);
-       $this->assertEquals('event', $jtags[0]->key);
-       $this->assertEquals(TagType::STRING, $jtags[0]->vType);
-       $this->assertEquals('test', $jtags[0]->vStr);
+    public function testBuildTags()
+    {
+        $tags = ['event' => 'test'];
+        $jtags = $this->jaegerThrift->buildTags($tags);
+        $this->assertEquals('event', $jtags[0]->key);
+        $this->assertEquals(TagType::STRING, $jtags[0]->vType);
+        $this->assertEquals('test', $jtags[0]->vStr);
 
-       $tags = ['success' => true];
-       $jtags = $this->jaegerThrift->buildTags($tags);
-       $this->assertEquals('success', $jtags[0]->key);
-       $this->assertEquals(TagType::BOOL, $jtags[0]->vType);
-       $this->assertTrue($jtags[0]->vBool);
+        $tags = ['success' => true];
+        $jtags = $this->jaegerThrift->buildTags($tags);
+        $this->assertEquals('success', $jtags[0]->key);
+        $this->assertEquals(TagType::BOOL, $jtags[0]->vType);
+        $this->assertTrue($jtags[0]->vBool);
 
-       $tags = ['data' => [1,2]];
-       $jtags = $this->jaegerThrift->buildTags($tags);
-       $this->assertEquals('data', $jtags[0]->key);
-       $this->assertEquals(TagType::STRING, $jtags[0]->vType);
+        $tags = ['data' => [1, 2]];
+        $jtags = $this->jaegerThrift->buildTags($tags);
+        $this->assertEquals('data', $jtags[0]->key);
+        $this->assertEquals(TagType::STRING, $jtags[0]->vType);
 
-       $tags = ['num' => 1];
-       $jtags = $this->jaegerThrift->buildTags($tags);
-       $this->assertEquals('num', $jtags[0]->key);
-       $this->assertEquals(TagType::LONG, $jtags[0]->vType);
-       $this->assertEquals(1, $jtags[0]->vDouble);
-   }
+        $tags = ['num' => 1];
+        $jtags = $this->jaegerThrift->buildTags($tags);
+        $this->assertEquals('num', $jtags[0]->key);
+        $this->assertEquals(TagType::LONG, $jtags[0]->vType);
+        $this->assertEquals(1, $jtags[0]->vDouble);
+    }
 
-   public function testBuildSpanThrift() {
-       $span = $this->tracer->startSpan('BuildSpanThrift');
-       $jspan = $this->jaegerThrift->buildSpanThrift($span);
-       $this->assertEquals('BuildSpanThrift', $jspan->operationName);
-   }
+    public function testBuildSpanThrift()
+    {
+        $span = $this->tracer->startSpan('BuildSpanThrift');
+        $jspan = $this->jaegerThrift->buildSpanThrift($span);
+        $this->assertEquals('BuildSpanThrift', $jspan->operationName);
+    }
 }

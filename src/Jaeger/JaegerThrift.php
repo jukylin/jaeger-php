@@ -16,14 +16,14 @@
 namespace Jaeger;
 
 use Jaeger\Span as jspan;
-use OpenTracing\Reference;
+use Jaeger\Thrift\Log;
 use Jaeger\Thrift\Process;
 use Jaeger\Thrift\Span;
-use Jaeger\Thrift\TagType;
-use Jaeger\Thrift\Log;
-use Jaeger\Thrift\Tag;
 use Jaeger\Thrift\SpanRef;
 use Jaeger\Thrift\SpanRefType;
+use Jaeger\Thrift\Tag;
+use Jaeger\Thrift\TagType;
+use OpenTracing\Reference;
 
 class JaegerThrift
 {
@@ -83,8 +83,6 @@ class JaegerThrift
 
     /**
      * @param array<Reference> $references
-     *
-     * @return array
      */
     private function buildReferences(array $references): array
     {
@@ -111,7 +109,6 @@ class JaegerThrift
 
         return $spanRef;
     }
-
 
     public function buildTags(array $tags): array
     {
