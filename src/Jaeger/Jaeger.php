@@ -78,6 +78,8 @@ class Jaeger implements \OpenTracing\Tracer
 
     /**
      * {@inheritDoc}
+     *
+     * @return Span
      */
     public function startSpan(string $operationName, $options = []): \OpenTracing\Span
     {
@@ -137,6 +139,8 @@ class Jaeger implements \OpenTracing\Tracer
 
     /**
      * {@inheritDoc}
+     *
+     * @return SpanContext
      */
     public function extract(string $format, $carrier): ?\OpenTracing\SpanContext
     {

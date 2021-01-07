@@ -22,6 +22,8 @@ class JaegerPropagator implements Propagator
 {
     /**
      * {@inheritDoc}
+     *
+     * @param SpanContext $spanContext
      */
     public function inject(\OpenTracing\SpanContext $spanContext, $format, &$carrier)
     {

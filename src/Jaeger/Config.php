@@ -60,7 +60,7 @@ class Config
     public static $span = null;
 
     /**
-     * @var null
+     * @var self|null
      */
     public static $instance = null;
 

@@ -162,7 +162,7 @@ class TransportUdp implements Transport
     /**
      * 计算序列化后的thrift字符长度.
      *
-     * @param mixed $serializedThrift
+     * @param mixed $thrift
      *
      * @return mixed
      */

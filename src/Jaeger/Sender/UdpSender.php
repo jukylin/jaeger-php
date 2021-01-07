@@ -29,9 +29,9 @@ class UdpSender implements Sender
     private $post = '';
 
     /**
-     * @var resource|string
+     * @var resource|null
      */
-    private $socket = '';
+    private $socket = null;
 
     /**
      * @var AgentClient|null
@@ -61,8 +61,6 @@ class UdpSender implements Sender
 
     /**
      * send thrift.
-     *
-     * @param mixed $batch
      *
      * @return bool
      *
