@@ -8,7 +8,7 @@
     "php": ">=7.1",
     "ext-json": "*",
     "packaged/thrift" : "~0.13.0",
-    "opentracing/opentracing" : "^1.0.0"
+    "opentracing/opentracing" : "^1.0.1"
   },
   "authors": [
     {
