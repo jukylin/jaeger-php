@@ -21,7 +21,7 @@ $third = $tracer->startActiveSpan('level third');
 
 $num = 0;
 for ($i = 0; $i < 10; $i++){
-    $num += 1;
+    ++$num;
 }
 $third->getSpan()->setTag("num", $num);
 sleep(1);
