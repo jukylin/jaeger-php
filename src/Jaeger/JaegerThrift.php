@@ -130,7 +130,7 @@ class JaegerThrift
                     $jTags[] = new Tag([
                         'key' => $k,
                         'vType' => TagType::LONG,
-                        'vDouble' => $v,
+                        'vLong' => $v,
                     ]);
                     break;
                 case 'double':
@@ -142,6 +142,7 @@ class JaegerThrift
                     break;
                 case 'array':
                     $v = json_encode($v, JSON_UNESCAPED_UNICODE);
+                    // no break
                 default:
                     $jTags[] = new Tag([
                         'key' => $k,
