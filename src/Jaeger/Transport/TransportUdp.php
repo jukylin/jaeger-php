@@ -68,8 +68,6 @@ class TransportUdp implements Transport
      */
     public static $batch = null;
 
-    public $agentServerHostPort = 'localhost:6831';
-
     /**
      * @var TCompactProtocol|null
      */
@@ -99,7 +97,7 @@ class TransportUdp implements Transport
 
         $this->sender = $udpSender;
         if (null == $this->sender) {
-            $this->sender = new UdpSender($this->agentServerHostPort, $this->agentClient, $this->tran);
+            $this->sender = new UdpSender($this->agentHostPort, $this->agentClient, $this->tran);
         }
 
         $this->jaegerThrift = new JaegerThrift();
