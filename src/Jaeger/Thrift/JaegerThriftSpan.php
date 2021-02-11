@@ -99,7 +99,7 @@ class JaegerThriftSpan{
             }else if($ref->isType(Reference::FOLLOWS_FROM)){
                 $type = SpanRefType::FOLLOWS_FROM;
             }
-            $ctx = $ref->getContext();
+            $ctx = $ref->getSpanContext();
             $spanRef[] = [
                 'refType' => $type,
                 'traceIdLow' => $ctx->traceIdLow,

@@ -36,7 +36,7 @@ class SpanContextTest extends TestCase
     public function testWithBaggageItem(){
         $spanContext = $this->getSpanContext();
         $res = $spanContext->withBaggageItem('version', '2.0.0');
-        $this->assertTrue($res);
+        $this->assertInstanceOf(SpanContext::class, $res);
     }
 
 
@@ -45,7 +45,7 @@ class SpanContextTest extends TestCase
         $res = $spanContext->withBaggageItem('version', '2.0.0');
 
         $version = $spanContext->getBaggageItem('version');
-        $this->assertTrue($res == $version);
+        $this->assertTrue($version == '2.0.0');
 
         $service = $spanContext->getBaggageItem('service');
         $this->assertNull($service);

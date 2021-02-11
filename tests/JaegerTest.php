@@ -82,7 +82,7 @@ class JaegerTest extends TestCase
         $Jaeger->setPropagator(new JaegerPropagator());
 
         $context = new SpanContext(1, 1, 1, null, 1);
-        $this->expectExceptionMessage('The format \'http_headers\' is not supported.');
+        $this->expectExceptionMessage('The format "http_headers" is not supported.');
 
         $Jaeger->inject($context, Formats\HTTP_HEADERS, $_SERVER);
     }
@@ -106,7 +106,7 @@ class JaegerTest extends TestCase
         $Jaeger->setPropagator(new JaegerPropagator());
 
         $_SERVER[strtoupper(Constants\Tracer_State_Header_Name)] = '1:1:1:1';
-        $this->expectExceptionMessage('The format \'http_headers\' is not supported.');
+        $this->expectExceptionMessage('The format "http_headers" is not supported.');
 
         $Jaeger->extract(Formats\HTTP_HEADERS, $_SERVER);
     }
@@ -125,17 +125,17 @@ class JaegerTest extends TestCase
         $jaeger = $this->getJaeger();
         $rootSpan = $jaeger->startSpan('root-a');
         $childSpan = $jaeger->startSpan('span-a', [
-            'references' => Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
+            'references' => Reference::createForSpan(Reference::FOLLOWS_FROM, $rootSpan),
         ]);
 
         $this->assertSame($childSpan->spanContext->traceIdLow, $rootSpan->spanContext->traceIdLow);
-        $this->assertSame(current($childSpan->references)->getContext(), $rootSpan->spanContext);
+        $this->assertSame(current($childSpan->references)->getSpanContext(), $rootSpan->spanContext);
 
         $otherRootSpan = $jaeger->startSpan('root-a');
         $childSpan = $jaeger->startSpan('span-b', [
             'references' => [
-                Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
-                Reference::create(Reference::FOLLOWS_FROM, $otherRootSpan),
+                Reference::createForSpan(Reference::FOLLOWS_FROM, $rootSpan),
+                Reference::createForSpan(Reference::FOLLOWS_FROM, $otherRootSpan),
             ],
         ]);
 
@@ -150,8 +150,8 @@ class JaegerTest extends TestCase
         $otherRootSpan = $jaeger->startSpan('root-b');
         $childSpan = $jaeger->startSpan('span-a', [
             'references' => [
-                Reference::create(Reference::CHILD_OF, $rootSpan),
-                Reference::create(Reference::CHILD_OF, $otherRootSpan),
+                Reference::createForSpan(Reference::CHILD_OF, $rootSpan),
+                Reference::createForSpan(Reference::CHILD_OF, $otherRootSpan),
             ],
         ]);
 
@@ -175,8 +175,8 @@ class JaegerTest extends TestCase
         $otherRootSpan = $jaeger->startSpan('root-b');
         $childSpan = $jaeger->startSpan('span-a', [
             'references' => [
-                Reference::create(Reference::FOLLOWS_FROM, $rootSpan),
-                Reference::create(Reference::CHILD_OF, $otherRootSpan),
+                Reference::createForSpan(Reference::FOLLOWS_FROM, $rootSpan),
+                Reference::createForSpan(Reference::CHILD_OF, $otherRootSpan),
             ],
         ]);
 

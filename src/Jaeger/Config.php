@@ -77,7 +77,7 @@ class Config {
     public function initTracer($serverName, $agentHostPort = ''){
 
         if(self::$disabled){
-            return NoopTracer::create();
+            return new NoopTracer();
         }
 
         if($serverName == ''){
