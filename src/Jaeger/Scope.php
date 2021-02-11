@@ -35,7 +35,7 @@ class Scope implements \OpenTracing\Scope{
     }
 
 
-    public function close(){
+    public function close(): void{
         if ($this->finishSpanOnClose) {
             $this->span->finish();
         }
@@ -44,7 +44,7 @@ class Scope implements \OpenTracing\Scope{
     }
 
 
-    public function getSpan(){
+    public function getSpan(): \OpenTracing\Span {
         return $this->span;
     }
 }

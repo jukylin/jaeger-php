@@ -2,6 +2,7 @@
 
 namespace Jaeger;
 
+use OpenTracing;
 
 class ScopeManager implements \OpenTracing\ScopeManager{
 
@@ -14,7 +15,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
      * @param bool $finishSpanOnClose
      * @return Scope
      */
-    public function activate(\OpenTracing\Span $span, $finishSpanOnClose){
+    public function activate(\OpenTracing\Span $span, bool $finishSpanOnClose = self::DEFAULT_FINISH_SPAN_ON_CLOSE): OpenTracing\Scope{
         $scope = new Scope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
         return $scope;
@@ -25,7 +26,7 @@ class ScopeManager implements \OpenTracing\ScopeManager{
      * get last scope
      * @return mixed|null
      */
-    public function getActive(){
+    public function getActive(): ?OpenTracing\Scope{
         if (empty($this->scopes)) {
             return null;
         }

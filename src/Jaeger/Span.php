@@ -46,24 +46,23 @@ class Span implements \OpenTracing\Span{
     /**
      * @return string
      */
-    public function getOperationName(){
+    public function getOperationName(): string{
         return $this->operationName;
     }
 
     /**
      * @return SpanContext
      */
-    public function getContext(){
+    public function getContext(): \OpenTracing\SpanContext{
         return $this->spanContext;
     }
 
     /**
      * @param float|int|\DateTimeInterface|null $finishTime if passing float or int
      * it should represent the timestamp (including as many decimal places as you need)
-     * @param array $logRecords
      * @return mixed
      */
-    public function finish($finishTime = null, array $logRecords = []){
+    public function finish($finishTime = null): void{
         $this->finishTime = $finishTime == null ? $this->microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
     }
@@ -71,12 +70,12 @@ class Span implements \OpenTracing\Span{
     /**
      * @param string $newOperationName
      */
-    public function overwriteOperationName($newOperationName){
+    public function overwriteOperationName(string $newOperationName): void{
         $this->operationName = $newOperationName;
     }
 
 
-    public function setTag($key, $value){
+    public function setTag(string $key, $value): void{
         $this->tags[$key] = $value;
     }
 
@@ -88,7 +87,7 @@ class Span implements \OpenTracing\Span{
      * @param int|float|\DateTimeInterface $timestamp
      * @throws SpanAlreadyFinished if the span is already finished
      */
-    public function log(array $fields = [], $timestamp = null){
+    public function log(array $fields = [], $timestamp = null): void{
         $log['timestamp'] = $timestamp ? $timestamp : $this->microtimeToInt();
         $log['fields'] = $fields;
         $this->logs[] = $log;
@@ -102,20 +101,20 @@ class Span implements \OpenTracing\Span{
      * @param string $value
      * @throws SpanAlreadyFinished if the span is already finished
      */
-    public function addBaggageItem($key, $value){
+    public function addBaggageItem(string $key, string $value): void{
         $this->log([
             'event' => 'baggage',
             'key' => $key,
             'value' => $value,
         ]);
-        return $this->spanContext->withBaggageItem($key, $value);
+        $this->spanContext->withBaggageItem($key, $value);
     }
 
     /**
      * @param string $key
      * @return string|null
      */
-    public function getBaggageItem($key){
+    public function getBaggageItem(string $key): ?string{
         return $this->spanContext->getBaggageItem($key);
     }
 
