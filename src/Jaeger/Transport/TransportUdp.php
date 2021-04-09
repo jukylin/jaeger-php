@@ -48,7 +48,7 @@ class TransportUdp implements Transport
 
     const MAC_UDP_MAX_SIZE = 9216;
 
-    public function __construct($hostport = '', $maxPacketSize = '')
+    public function __construct($hostport = '', $maxPacketSize = 0)
     {
         if ($hostport == "") {
             $hostport = $this->agentServerHostPort;

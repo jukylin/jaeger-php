@@ -105,7 +105,7 @@ class Config {
             $this->scopeManager = new ScopeManager();
         }
 
-        $tracer = new Jaeger($serverName, $this->reporter, $this->sampler, $this->scopeManager);
+        $tracer = new Jaeger($this->reporter, $this->sampler, $this->scopeManager, $serverName);
 
         if($this->gen128bit == true){
             $tracer->gen128bit();
