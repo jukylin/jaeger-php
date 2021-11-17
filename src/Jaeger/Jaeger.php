@@ -167,6 +167,9 @@ class Jaeger implements Tracer{
         if($this->spans) {
             $this->reporter->report($this);
             $this->spans = [];
+
+            // spanThrifts 资源也需要释放，不然在定时任务中会发现，span会一直存在
+            $this->spanThrifts = [];
         }
     }
 
