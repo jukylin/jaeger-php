@@ -13,13 +13,19 @@
  * the License.
  */
 
-namespace Jaeger\Thrift;
+namespace Jaeger\Sender;
 
-use Thrift\Protocol\TProtocol;
+class NullSender implements Sender
+{
+    public function isOpen()
+    {
+    }
 
-interface TStruct {
+    public function emitBatch(\Jaeger\Thrift\Batch $batch)
+    {
+    }
 
-    public function write(TProtocol $t);
-
-    public function read(TProtocol $t);
+    public function close()
+    {
+    }
 }

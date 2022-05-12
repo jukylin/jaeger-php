@@ -13,12 +13,11 @@
  * the License.
  */
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
+require_once dirname(__FILE__, 2).'/vendor/autoload.php';
 
 use Hprose\Client;
 use Jaeger\Config;
 use OpenTracing\Formats;
-
 
 unset($_SERVER['argv']);
 
@@ -37,27 +36,26 @@ $clientTracer = $config->initTracer('Hprose');
 $header = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSpan = $clientTracer->startSpan('get', ['child_of' => $spanContext]);
-$clientSpan->addBaggageItem("version", "2.0.0");
+$clientSpan->addBaggageItem('version', '2.0.0');
 
 $clientTracer->inject($clientSpan->spanContext, Formats\TEXT_MAP, $header);
 
 $url = 'http://0.0.0.0:8080/main';
 $client = Client::create($url, false);
 
-if($header){
-    foreach($header as $key => $val){
+if ($header) {
+    foreach ($header as $key => $val) {
         $client->setHeader($key, $val);
     }
 }
 $clientSpan->setTag('http.url', $url);
-$clientSpan->setTag('http.method' , 'POST');
+$clientSpan->setTag('http.method', 'POST');
 
-$result =  $client->get("Hprose");
+$result = $client->get('Hprose');
 
 $clientSpan->log(['http.result' => $result]);
 $clientSpan->finish();
 //client span end
-
 
 //server span end
 $serverSpan->finish();
@@ -65,5 +63,3 @@ $serverSpan->finish();
 $config->flush();
 
 echo "success\r\n";
-
-

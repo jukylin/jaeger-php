@@ -5,9 +5,10 @@
   "license":           "Apache-2.0",
   "minimum-stability": "stable",
   "require":           {
-    "php": ">=5.6.0",
-    "packaged/thrift" : "0.10.0",
-    "opentracing/opentracing" : "1.0.0-beta5"
+    "php": ">=7.1",
+    "ext-json": "*",
+    "packaged/thrift" : "~0.13.0",
+    "opentracing/opentracing" : "^1.0.1"
   },
   "authors": [
     {
@@ -24,10 +25,14 @@
     ]
   },
   "scripts": {
-    "test": "./vendor/bin/phpunit"
+    "test": "./vendor/bin/phpunit",
+    "phpcs": "./vendor/bin/php-cs-fixer fix --ansi",
+    "phpstan": "./vendor/bin/phpstan analyse src tests"
   },
   "require-dev": {
     "phpunit/phpunit": "^5",
-    "php-coveralls/php-coveralls": "^1.0"
+    "php-coveralls/php-coveralls": "^v2.4.3",
+    "phpstan/phpstan": "^0.12.64",
+    "friendsofphp/php-cs-fixer": "^2.17"
   }
 }

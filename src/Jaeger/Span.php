@@ -15,112 +15,136 @@
 
 namespace Jaeger;
 
-
-class Span implements \OpenTracing\Span{
-
+class Span implements \OpenTracing\Span
+{
+    /**
+     * @var string
+     */
     private $operationName = '';
 
-    public $startTime = '';
+    /**
+     * @var int|null
+     */
+    public $startTime = null;
 
-    public $finishTime = '';
+    /**
+     * @var int|null
+     */
+    public $finishTime = null;
 
+    /**
+     * @var string
+     */
     public $spanKind = '';
 
+    /**
+     * @var \OpenTracing\SpanContext|null
+     */
     public $spanContext = null;
 
+    /**
+     * @var int
+     */
     public $duration = 0;
 
+    /**
+     * @var array
+     */
     public $logs = [];
 
+    /**
+     * @var array
+     */
     public $tags = [];
 
+    /**
+     * @var array
+     */
     public $references = [];
 
-    public function __construct($operationName, \OpenTracing\SpanContext $spanContext, $references, $startTime = null){
+    public function __construct($operationName, \OpenTracing\SpanContext $spanContext, $references, $startTime = null)
+    {
         $this->operationName = $operationName;
-        $this->startTime = $startTime == null ? $this->microtimeToInt() : $startTime;
+        $this->startTime = null == $startTime ? $this->microtimeToInt() : $startTime;
         $this->spanContext = $spanContext;
         $this->references = $references;
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getOperationName(){
+    public function getOperationName(): string
+    {
         return $this->operationName;
     }
 
     /**
-     * @return SpanContext
+     * {@inheritDoc}
      */
-    public function getContext(){
+    public function getContext(): \OpenTracing\SpanContext
+    {
         return $this->spanContext;
     }
 
     /**
-     * @param float|int|\DateTimeInterface|null $finishTime if passing float or int
-     * it should represent the timestamp (including as many decimal places as you need)
-     * @param array $logRecords
-     * @return mixed
+     * {@inheritDoc}
      */
-    public function finish($finishTime = null, array $logRecords = []){
-        $this->finishTime = $finishTime == null ? $this->microtimeToInt() : $finishTime;
+    public function finish($finishTime = null): void
+    {
+        $this->finishTime = null == $finishTime ? $this->microtimeToInt() : $finishTime;
         $this->duration = $this->finishTime - $this->startTime;
     }
 
     /**
-     * @param string $newOperationName
+     * {@inheritDoc}
      */
-    public function overwriteOperationName($newOperationName){
+    public function overwriteOperationName(string $newOperationName): void
+    {
         $this->operationName = $newOperationName;
     }
 
-
-    public function setTag($key, $value){
+    /**
+     * {@inheritDoc}
+     */
+    public function setTag(string $key, $value): void
+    {
         $this->tags[$key] = $value;
     }
 
-
     /**
-     * Adds a log record to the span
-     *
-     * @param array $fields [key => val]
-     * @param int|float|\DateTimeInterface $timestamp
-     * @throws SpanAlreadyFinished if the span is already finished
+     * {@inheritDoc}
      */
-    public function log(array $fields = [], $timestamp = null){
+    public function log(array $fields = [], $timestamp = null): void
+    {
         $log['timestamp'] = $timestamp ? $timestamp : $this->microtimeToInt();
         $log['fields'] = $fields;
         $this->logs[] = $log;
     }
 
     /**
-     * Adds a baggage item to the SpanContext which is immutable so it is required to use SpanContext::withBaggageItem
-     * to get a new one.
-     *
-     * @param string $key
-     * @param string $value
-     * @throws SpanAlreadyFinished if the span is already finished
+     * {@inheritDoc}
      */
-    public function addBaggageItem($key, $value){
+    public function addBaggageItem(string $key, string $value): void
+    {
         $this->log([
             'event' => 'baggage',
             'key' => $key,
             'value' => $value,
         ]);
-        return $this->spanContext->withBaggageItem($key, $value);
+
+        $this->spanContext->withBaggageItem($key, $value);
     }
 
     /**
-     * @param string $key
-     * @return string|null
+     * {@inheritDoc}
      */
-    public function getBaggageItem($key){
+    public function getBaggageItem(string $key): ?string
+    {
         return $this->spanContext->getBaggageItem($key);
     }
 
-
-    private function microtimeToInt(){
+    private function microtimeToInt()
+    {
         return intval(microtime(true) * 1000000);
     }
 }

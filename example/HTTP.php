@@ -13,29 +13,34 @@
  * the License.
  */
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
+require_once dirname(__FILE__, 2).'/vendor/autoload.php';
 
-use Jaeger\Config;
 use GuzzleHttp\Client;
+use Jaeger\Config;
 use OpenTracing\Formats;
 use OpenTracing\Reference;
 
 unset($_SERVER['argv']);
 
-
 //init server span start
 $config = Config::getInstance();
+
 $config->gen128bit();
 
 $config::$propagator = Jaeger\Constants\PROPAGATOR_ZIPKIN;
 
-$tracer = $config->initTracer('example', '0.0.0.0:6831');
+$tracer = $config->initTracer('example', 'localhost:6831');
 
 $injectTarget = [];
 $spanContext = $tracer->extract(Formats\TEXT_MAP, $_SERVER);
-$serverSpan = $tracer->startSpan('example HTTP', ['child_of' => $spanContext]);
-$serverSpan->addBaggageItem("version", "1.8.9");
-print_r($serverSpan->getContext());
+
+$options = [];
+if (null != $spanContext) {
+    $options = ['child_of' => $spanContext];
+}
+
+$serverSpan = $tracer->startSpan('HTTP', $options);
+//$serverSpan->addBaggageItem('version', '1.8.9');
 $tracer->inject($serverSpan->getContext(), Formats\TEXT_MAP, $_SERVER);
 
 //init server span end
@@ -50,13 +55,13 @@ $clientTracer->inject($clientSpan1->spanContext, Formats\TEXT_MAP, $injectTarget
 $method = 'GET';
 $url = 'https://github.com/';
 $client = new Client();
-$res = $client->request($method, $url,['headers' => $injectTarget1]);
+$res = $client->request($method, $url, ['headers' => $injectTarget1]);
 
 $clientSpan1->setTag('http.status_code', 200);
 $clientSpan1->setTag('http.method', 'GET');
 $clientSpan1->setTag('http.url', $url);
 
-$clientSpan1->log(['message' => "HTTP1 ". $method .' '. $url .' end !']);
+//$clientSpan1->log(['message' => 'HTTP1 '.$method.' '.$url.' end !']);
 $clientSpan1->finish();
 //client span1 end
 
@@ -65,8 +70,8 @@ $injectTarget2 = [];
 $spanContext = $clientTracer->extract(Formats\TEXT_MAP, $_SERVER);
 $clientSpan2 = $clientTracer->startSpan('HTTP2',
     ['references' => [
-        Reference::create(Reference::FOLLOWS_FROM, $clientSpan1->spanContext),
-        Reference::create(Reference::CHILD_OF, $spanContext)
+        //Reference::createForSpan(Reference::FOLLOWS_FROM, $clientSpan1),
+        Reference::createForSpan(Reference::CHILD_OF, $clientSpan1),
     ]]);
 
 $clientTracer->inject($clientSpan2->spanContext, Formats\TEXT_MAP, $injectTarget2);
@@ -80,7 +85,7 @@ $clientSpan2->setTag('http.status_code', 200);
 $clientSpan2->setTag('http.method', 'GET');
 $clientSpan2->setTag('http.url', $url);
 
-$clientSpan2->log(['message' => "HTTP2 ". $method .' '. $url .' end !']);
+//$clientSpan2->log(['message' => 'HTTP2 '.$method.' '.$url.' end !']);
 $clientSpan2->finish();
 //client span2 end
 

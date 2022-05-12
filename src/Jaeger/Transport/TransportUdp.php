@@ -15,32 +15,63 @@
 
 namespace Jaeger\Transport;
 
-use Jaeger\Jaeger;
-use Jaeger\Thrift\AgentClient;
-use Jaeger\Thrift\JaegerThriftSpan;
-use Jaeger\Thrift\Process;
-use Jaeger\Thrift\Span;
-use Jaeger\Thrift\TStruct;
-use Jaeger\UdpClient;
-use Thrift\Transport\TMemoryBuffer;
-use Thrift\Protocol\TCompactProtocol;
 use Jaeger\Constants;
+use Jaeger\Jaeger;
+use Jaeger\JaegerThrift;
+use Jaeger\Sender\Sender;
+use Jaeger\Sender\UdpSender;
+use Jaeger\Thrift\Agent\AgentClient;
+use Jaeger\Thrift\Batch;
+use Jaeger\Thrift\Process;
+use Thrift\Protocol\TCompactProtocol;
+use Thrift\Transport\TMemoryBuffer;
 
 class TransportUdp implements Transport
 {
+    const DEFAULT_AGENT_HOST_PORT = 'localhost:6831';
 
+    /**
+     * @var TMemoryBuffer|null
+     */
     private $tran = null;
 
-    public static $hostPort = '';
+    /**
+     * @var Sender|null
+     */
+    private $sender = null;
+
+    /**
+     * @var AgentClient|null
+     */
+    private $agentClient = null;
+
+    /**
+     * @var JaegerThrift|null
+     */
+    private $jaegerThrift = null;
+
+    /**
+     * @var Process|null
+     */
+    private $process = null;
+
+    /**
+     * @var string
+     */
+    public $agentHostPort = '';
 
     // sizeof(Span) * numSpans + processByteSize + emitBatchOverhead <= maxPacketSize
     public static $maxSpanBytes = 0;
 
-    public static $batchs = [];
+    /**
+     * @var Batch|null
+     */
+    public static $batch = null;
 
-    public $agentServerHostPort = '0.0.0.0:5775';
-
-    public $thriftProtocol = null;
+    /**
+     * @var TCompactProtocol|null
+     */
+    public $protocol = null;
 
     public $procesSize = 0;
 
@@ -48,137 +79,126 @@ class TransportUdp implements Transport
 
     const MAC_UDP_MAX_SIZE = 9216;
 
-    public function __construct($hostport = '', $maxPacketSize = '')
+    public function __construct(string $hostport = self::DEFAULT_AGENT_HOST_PORT, int $maxPacketSize = 0, Sender $udpSender = null)
     {
-        if ($hostport == "") {
-            $hostport = $this->agentServerHostPort;
-        }
-        self::$hostPort = $hostport;
+        $this->agentHostPort = $hostport;
 
-        if ($maxPacketSize == 0) {
+        if (0 === $maxPacketSize) {
             $maxPacketSize = stristr(PHP_OS, 'DAR') ? self::MAC_UDP_MAX_SIZE : Constants\UDP_PACKET_MAX_LENGTH;
         }
 
         self::$maxSpanBytes = $maxPacketSize - Constants\EMIT_BATCH_OVER_HEAD;
 
         $this->tran = new TMemoryBuffer();
-        $this->thriftProtocol = new TCompactProtocol($this->tran);
+
+        $this->protocol = new TCompactProtocol($this->tran);
+
+        $this->agentClient = new AgentClient($this->protocol, null);
+
+        $this->sender = $udpSender;
+        if (null == $this->sender) {
+            $this->sender = new UdpSender($this->agentHostPort, $this->agentClient, $this->tran);
+        }
+
+        $this->jaegerThrift = new JaegerThrift();
     }
-
-
-    public function buildAndCalcSizeOfProcessThrift(Jaeger $jaeger)
-    {
-        $jaeger->processThrift = (new JaegerThriftSpan())->buildJaegerProcessThrift($jaeger);
-        $jaeger->process = (new Process($jaeger->processThrift));
-        $this->procesSize = $this->getAndCalcSizeOfSerializedThrift($jaeger->process, $jaeger->processThrift);
-        $this->bufferSize += $this->procesSize;
-    }
-
 
     /**
-     * 收集将要发送的追踪信息
-     * @param Jaeger $jaeger
+     * 收集将要发送的追踪信息.
+     *
      * @return bool
      */
     public function append(Jaeger $jaeger)
     {
-
-        if ($jaeger->process == null) {
+        if (null == $this->process) {
             $this->buildAndCalcSizeOfProcessThrift($jaeger);
         }
 
         $thriftSpansBuffer = [];  // Uncommitted span used to temporarily store shards
 
         foreach ($jaeger->spans as $span) {
-
-            $spanThrift = (new JaegerThriftSpan())->buildJaegerSpanThrift($span);
-
-            $agentSpan = Span::getInstance();
-            $agentSpan->setThriftSpan($spanThrift);
-            $spanSize = $this->getAndCalcSizeOfSerializedThrift($agentSpan, $spanThrift);
-
+            $spanThrift = $this->jaegerThrift->buildSpanThrift($span);
+            $spanSize = $this->getAndCalcSizeOfSerializedThrift($spanThrift);
             if ($spanSize > self::$maxSpanBytes) {
                 //throw new \Exception("Span is too large");
                 continue;
             }
 
-            if ($this->bufferSize + $spanSize >= self::$maxSpanBytes) {
-                self::$batchs[] = [
-                    'thriftProcess' => $jaeger->processThrift,
-                    'thriftSpans' => $thriftSpansBuffer,
-                ];
+            $thriftSpansBuffer[] = $spanThrift;
+            $this->bufferSize += $spanSize;
+
+            if ($this->bufferSize >= self::$maxSpanBytes) {
+                self::$batch = new Batch([
+                    'process' => $this->process,
+                    'spans' => $thriftSpansBuffer,
+                ]);
                 $this->flush();
                 $thriftSpansBuffer = [];  // Empty the temp buffer
             }
-
-            $thriftSpansBuffer[] = $spanThrift;
-            $this->bufferSize += $spanSize;
         }
 
-        if ($thriftSpansBuffer) {
-            self::$batchs[] = [
-                'thriftProcess' => $jaeger->processThrift,
-                'thriftSpans' => $thriftSpansBuffer,
-            ];
+        if (count($thriftSpansBuffer) > 0) {
+            self::$batch = new Batch([
+                'process' => $this->process,
+                'spans' => $thriftSpansBuffer,
+            ]);
             $this->flush();
         }
+
+        $this->process = null;
 
         return true;
     }
 
-
-    public function resetBuffer()
+    public function buildAndCalcSizeOfProcessThrift(Jaeger $jaeger)
     {
-        $this->bufferSize = $this->procesSize;
-        self::$batchs = [];
+        $this->process = $this->jaegerThrift->buildProcessThrift($jaeger);
+        $this->procesSize = $this->getAndCalcSizeOfSerializedThrift($this->process);
+        $this->bufferSize += $this->procesSize;
     }
-
 
     /**
-     * 获取序列化后的thrift和计算序列化后的thrift字符长度
-     * @param TStruct $ts
-     * @param $serializedThrift
+     * 计算序列化后的thrift字符长度.
+     *
+     * @param mixed $thrift
+     *
      * @return mixed
      */
-    private function getAndCalcSizeOfSerializedThrift(TStruct $ts, &$serializedThrift)
+    private function getAndCalcSizeOfSerializedThrift($thrift)
     {
+        $thrift->write($this->protocol);
+        $len = $this->tran->available();
+        // 清空buf, 避免重复序列化
+        $this->tran->read($len);
 
-        $ts->write($this->thriftProtocol);
-        $serThriftStrlen = $this->tran->available();
-        //获取后buf清空
-        $serializedThrift['wrote'] = $this->tran->read(Constants\UDP_PACKET_MAX_LENGTH);
-
-        return $serThriftStrlen;
+        return $len;
     }
-
 
     /**
      * @return int
      */
     public function flush()
     {
-        $batchNum = count(self::$batchs);
-        if ($batchNum <= 0) {
+        if (null == self::$batch) {
             return 0;
         }
 
-        $spanNum = 0;
-        $udp = new UdpClient(self::$hostPort, new AgentClient());
+        $spanNum = count(self::$batch->spans);
+        $this->sender->emitBatch(self::$batch);
 
-        foreach (self::$batchs as $batch) {
-            $spanNum += count($batch['thriftSpans']);
-            $udp->emitBatch($batch);
-        }
-
-        $udp->close();
         $this->resetBuffer();
 
         return $spanNum;
     }
 
-
-    public function getBatchs()
+    public function resetBuffer()
     {
-        return self::$batchs;
+        $this->bufferSize = $this->procesSize;
+        self::$batch = null;
+    }
+
+    public function close()
+    {
+        $this->sender->close();
     }
 }

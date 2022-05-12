@@ -1,0 +1,7 @@
+parameters:
+    level: 4
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - '#Function thrift_protocol_.* not found#'

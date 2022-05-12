@@ -15,52 +15,56 @@
 
 namespace tests;
 
-use PHPUnit\Framework\TestCase;
-use OpenTracing\Formats;
 use Jaeger\Constants;
-use Jaeger\SpanContext;
 use Jaeger\Propagator\ZipkinPropagator;
+use Jaeger\SpanContext;
+use OpenTracing\Formats;
+use PHPUnit\Framework\TestCase;
 
-class ZipkinPropagatorTest extends TestCase{
+class ZipkinPropagatorTest extends TestCase
+{
+    /**
+     * @var SpanContext|null
+     */
+    public $spanContext = null;
 
-    public function getSpanContext(){
-        return new SpanContext(1562237095801441413, 0, 1, null, 1);
+    public function setUp()
+    {
+        $this->spanContext = new SpanContext(1, 1, 1, null, 1);
     }
 
-
-    public function testInject(){
-        $context = $this->getSpanContext();
-        $context->traceIdLow = 1562237095801441413;
+    public function testInject()
+    {
+        $this->spanContext->traceIdLow = 1562237095801441413;
         $zipkin = new ZipkinPropagator();
         $carrier = [];
 
-        $zipkin->inject($context, Formats\TEXT_MAP, $carrier);
+        $zipkin->inject($this->spanContext, Formats\TEXT_MAP, $carrier);
 
-        $this->assertTrue($carrier[Constants\X_B3_TRACEID] == '15ae2e5c8e2ecc85');
-        $this->assertTrue($carrier[Constants\X_B3_PARENT_SPANID] == 0);
-        $this->assertTrue($carrier[Constants\X_B3_SPANID] == '15ae2e5c8e2ecc85');
-        $this->assertTrue($carrier[Constants\X_B3_SAMPLED] == 1);
+        $this->assertTrue('15ae2e5c8e2ecc85' == $carrier[Constants\X_B3_TRACEID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_PARENT_SPANID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_SPANID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_SAMPLED]);
     }
 
-
-    public function testInject128Bit(){
-        $context = $this->getSpanContext();
-        $context->traceIdLow = 1562289663898779811;
-        $context->traceIdHigh = 1562289663898881723;
+    public function testInject128Bit()
+    {
+        $this->spanContext->traceIdLow = 1562289663898779811;
+        $this->spanContext->traceIdHigh = 1562289663898881723;
 
         $zipkin = new ZipkinPropagator();
         $carrier = [];
 
-        $zipkin->inject($context, Formats\TEXT_MAP, $carrier);
+        $zipkin->inject($this->spanContext, Formats\TEXT_MAP, $carrier);
 
-        $this->assertTrue($carrier[Constants\X_B3_TRACEID] == '15ae5e2c04f50ebb15ae5e2c04f380a3');
-        $this->assertTrue($carrier[Constants\X_B3_PARENT_SPANID] == 0);
-        $this->assertTrue($carrier[Constants\X_B3_SPANID] == '15ae2e5c8e2ecc85');
-        $this->assertTrue($carrier[Constants\X_B3_SAMPLED] == 1);
+        $this->assertTrue('15ae5e2c04f50ebb15ae5e2c04f380a3' == $carrier[Constants\X_B3_TRACEID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_PARENT_SPANID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_SPANID]);
+        $this->assertTrue(1 == $carrier[Constants\X_B3_SAMPLED]);
     }
 
-    public function testExtract(){
-
+    public function testExtract()
+    {
         $zipkin = new ZipkinPropagator();
         $carrier = [];
         $carrier[Constants\X_B3_TRACEID] = '15ae2e5c8e2ecc85';
@@ -69,15 +73,14 @@ class ZipkinPropagatorTest extends TestCase{
         $carrier[Constants\X_B3_SAMPLED] = 1;
 
         $context = $zipkin->extract(Formats\TEXT_MAP, $carrier);
-        $this->assertTrue($context->traceIdLow == '1562237095801441413');
-        $this->assertTrue($context->parentId == 1);
-        $this->assertTrue($context->spanId == '1562237095801441413');
-        $this->assertTrue($context->flags == 1);
+        $this->assertTrue('1562237095801441413' == $context->traceIdLow);
+        $this->assertTrue(1 == $context->parentId);
+        $this->assertTrue('1562237095801441413' == $context->spanId);
+        $this->assertTrue(1 == $context->flags);
     }
 
-
-    public function testExtract128Bit(){
-
+    public function testExtract128Bit()
+    {
         $zipkin = new ZipkinPropagator();
         $carrier = [];
         $carrier[Constants\X_B3_TRACEID] = '15ae5e2c04f50ebb15ae5e2c04f380a3';
@@ -86,15 +89,15 @@ class ZipkinPropagatorTest extends TestCase{
         $carrier[Constants\X_B3_SAMPLED] = 1;
 
         $context = $zipkin->extract(Formats\TEXT_MAP, $carrier);
-        $this->assertTrue($context->traceIdLow == 1562289663898779811);
-        $this->assertTrue($context->traceIdHigh == 1562289663898881723);
-        $this->assertTrue($context->parentId == 0);
-        $this->assertTrue($context->spanId == 1562289663898779811);
-        $this->assertTrue($context->flags == 1);
+        $this->assertTrue(1562289663898779811 == $context->traceIdLow);
+        $this->assertTrue(1562289663898881723 == $context->traceIdHigh);
+        $this->assertTrue(0 == $context->parentId);
+        $this->assertTrue(1562289663898779811 == $context->spanId);
+        $this->assertTrue(1 == $context->flags);
     }
 
-
-    public function testExtractReturnsNull(){
+    public function testExtractReturnsNull()
+    {
         $jaeger = new ZipkinPropagator();
         $carrier = [];
 

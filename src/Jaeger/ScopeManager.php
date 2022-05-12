@@ -2,30 +2,30 @@
 
 namespace Jaeger;
 
-
-class ScopeManager implements \OpenTracing\ScopeManager{
-
+class ScopeManager implements \OpenTracing\ScopeManager
+{
     private $scopes = [];
 
-
     /**
-     * append scope
-     * @param \OpenTracing\Span $span
-     * @param bool $finishSpanOnClose
+     * {@inheritDoc}
+     *
      * @return Scope
      */
-    public function activate(\OpenTracing\Span $span, $finishSpanOnClose){
+    public function activate(\OpenTracing\Span $span, bool $finishSpanOnClose = self::DEFAULT_FINISH_SPAN_ON_CLOSE): \OpenTracing\Scope
+    {
         $scope = new Scope($this, $span, $finishSpanOnClose);
         $this->scopes[] = $scope;
+
         return $scope;
     }
 
-
     /**
-     * get last scope
-     * @return mixed|null
+     * {@inheritDoc}
+     *
+     * @return Scope
      */
-    public function getActive(){
+    public function getActive(): ?\OpenTracing\Scope
+    {
         if (empty($this->scopes)) {
             return null;
         }
@@ -33,20 +33,15 @@ class ScopeManager implements \OpenTracing\ScopeManager{
         return $this->scopes[count($this->scopes) - 1];
     }
 
-
-    /**
-     * del scope
-     * @param Scope $scope
-     * @return bool
-     */
-    public function delActive(Scope $scope){
+    public function deactivate(Scope $scope)
+    {
         $scopeLength = count($this->scopes);
 
-        if($scopeLength <= 0){
+        if ($scopeLength <= 0) {
             return false;
         }
 
-        for ($i = 0; $i < $scopeLength; $i++) {
+        for ($i = 0; $i < $scopeLength; ++$i) {
             if ($scope === $this->scopes[$i]) {
                 array_splice($this->scopes, $i, 1);
             }

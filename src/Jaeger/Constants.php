@@ -21,9 +21,9 @@ const Jaeger_Baggage_Header = 'jaeger-baggage';
 
 const Trace_Baggage_Header_Prefix = 'uberctx-';
 
-const Jaeger_Debug_Header = "jaeger-debug-id";
+const Jaeger_Debug_Header = 'jaeger-debug-id';
 
-const EMIT_BATCH_OVER_HEAD = 30;
+const EMIT_BATCH_OVER_HEAD = 70;
 
 const UDP_PACKET_MAX_LENGTH = 65000;
 
@@ -43,28 +43,28 @@ const X_B3_SPANID = 'x-b3-spanid';
 
 const X_B3_SAMPLED = 'x-b3-sampled';
 
-const CLIENT_SEND = "cs";
+const CLIENT_SEND = 'cs';
 
-const CLIENT_RECV = "cr";
+const CLIENT_RECV = 'cr';
 
-const SERVER_SEND = "ss";
+const SERVER_SEND = 'ss';
 
-const SERVER_RECV = "sr";
+const SERVER_RECV = 'sr';
 
-const WIRE_SEND = "ws";
+const WIRE_SEND = 'ws';
 
-const WIRE_RECV = "wr";
+const WIRE_RECV = 'wr';
 
-const CLIENT_SEND_FRAGMENT = "csf";
+const CLIENT_SEND_FRAGMENT = 'csf';
 
-const CLIENT_RECV_FRAGMENT = "crf";
+const CLIENT_RECV_FRAGMENT = 'crf';
 
-const SERVER_SEND_FRAGMENT = "ssf";
+const SERVER_SEND_FRAGMENT = 'ssf';
 
-const SERVER_RECV_FRAGMENT = "srf";
+const SERVER_RECV_FRAGMENT = 'srf';
 
-const LOCAL_COMPONENT = "lc";
+const LOCAL_COMPONENT = 'lc';
 
-const CLIENT_ADDR = "ca";
+const CLIENT_ADDR = 'ca';
 
-const SERVER_ADDR = "sa";
+const SERVER_ADDR = 'sa';

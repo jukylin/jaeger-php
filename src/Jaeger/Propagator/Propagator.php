@@ -17,23 +17,23 @@ namespace Jaeger\Propagator;
 
 use Jaeger\SpanContext;
 
-interface Propagator{
-
+interface Propagator
+{
     /**
-     * 注入
-     * @param SpanContext $spanContext
+     * 注入.
+     *
      * @param string $format
-     * @param $carrier
+     * @param mixed  $carrier
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier);
-
+    public function inject(\OpenTracing\SpanContext $spanContext, $format, &$carrier);
 
     /**
-     * 提取
+     * 提取.
+     *
      * @param string $format
-     * @param $carrier
+     * @param mixed  $carrier
+     *
      * @return SpanContext|null
      */
     public function extract($format, $carrier);
-
 }
