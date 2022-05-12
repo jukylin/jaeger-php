@@ -72,10 +72,9 @@ class SpanContext implements \OpenTracing\SpanContext
     /**
      * {@inheritDoc}
      */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
-        // @phpstan-ignore-next-line
-        // TODO: Implement getIterator() method.
+        return new \ArrayIterator($this->baggage);
     }
 
     public function buildString()
