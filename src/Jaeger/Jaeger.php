@@ -48,8 +48,8 @@ class Jaeger implements Tracer{
     /** @var Propagator|null */
     public $propagator = null;
 
-    public function __construct($serverName = '', Reporter $reporter, Sampler $sampler,
-                                ScopeManager $scopeManager){
+    public function __construct(Reporter $reporter, Sampler $sampler,
+                                ScopeManager $scopeManager, $serverName = ''){
 
         $this->reporter = $reporter;
 
