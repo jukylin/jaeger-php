@@ -15,32 +15,33 @@
 
 namespace Jaeger\Sampler;
 
-
 use Jaeger\Constants;
 
-class ConstSampler implements Sampler{
-
+class ConstSampler implements Sampler
+{
     private $decision = '';
 
     private $tags = [];
 
-    public function __construct($decision = true){
+    public function __construct($decision = true)
+    {
         $this->decision = $decision;
         $this->tags[Constants\SAMPLER_TYPE_TAG_KEY] = 'const';
         $this->tags[Constants\SAMPLER_PARAM_TAG_KEY] = $decision;
     }
 
-    public function IsSampled(){
+    public function IsSampled()
+    {
         return $this->decision;
     }
 
-
-    public function Close(){
+    public function Close()
+    {
         //nothing to do
     }
 
-
-    public function getTags(){
+    public function getTags()
+    {
         return $this->tags;
     }
 }

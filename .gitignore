@@ -2,6 +2,7 @@
 .buildpath
 .project
 .idea
+.php_cs.cache
 composer.lock
 vendor/*
 build

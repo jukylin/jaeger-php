@@ -13,12 +13,12 @@
  * the License.
  */
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
+require_once dirname(__FILE__, 2).'/vendor/autoload.php';
 
 use Jaeger\Config;
 use OpenTracing\Formats;
 
-$http = new swoole_http_server("0.0.0.0", 8002);
+$http = new swoole_http_server('0.0.0.0', 8002);
 $http->on('request', function ($request, $response) {
     unset($_SERVER['argv']);
     $config = Config::getInstance();
@@ -38,7 +38,7 @@ $http->on('request', function ($request, $response) {
     $clientSpan = $clientTracer->startSpan('Istio3', ['child_of' => $spanContext]);
 
     $sum = 0;
-    for($i = 0; $i < 10; $i++){
+    for ($i = 0; $i < 10; ++$i) {
         $sum += $i;
     }
     $clientSpan->log(['message' => 'result:'.$sum]);
@@ -51,6 +51,6 @@ $http->on('request', function ($request, $response) {
     //trace flush
     $config->flush();
 
-    $response->end("Hello Istio3");
+    $response->end('Hello Istio3');
 });
 $http->start();

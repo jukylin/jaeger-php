@@ -13,13 +13,13 @@
  * the License.
  */
 
-require_once dirname(dirname(dirname(dirname(__FILE__)))).'/autoload.php';
+require_once dirname(__FILE__, 2).'/vendor/autoload.php';
 
+use GuzzleHttp\Client;
 use Jaeger\Config;
 use OpenTracing\Formats;
-use GuzzleHttp\Client;
 
-$http = new swoole_http_server("0.0.0.0", 8000);
+$http = new swoole_http_server('0.0.0.0', 8000);
 $http->on('request', function ($request, $response) {
     unset($_SERVER['argv']);
     $config = Config::getInstance();
@@ -40,9 +40,9 @@ $http->on('request', function ($request, $response) {
     $clientTracer->inject($clientSpan->spanContext, Formats\TEXT_MAP, $injectTarget);
 
     $client = new Client();
-    $clientSpan->setTag("http.url", "Istio2:8001");
-    $res = $client->request('GET', 'Istio2:8001' ,['headers' => $injectTarget]);
-    $clientSpan->setTag("http.status_code", $res->getStatusCode());
+    $clientSpan->setTag('http.url', 'Istio2:8001');
+    $res = $client->request('GET', 'Istio2:8001', ['headers' => $injectTarget]);
+    $clientSpan->setTag('http.status_code', $res->getStatusCode());
     //client span1 end
 
     //server span end
@@ -50,6 +50,6 @@ $http->on('request', function ($request, $response) {
     //trace flush
     $config->flush();
 
-    $response->end("Hello Istio1");
+    $response->end('Hello Istio1');
 });
 $http->start();

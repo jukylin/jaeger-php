@@ -15,42 +15,41 @@
 
 namespace Jaeger;
 
-use Jaeger\Sampler\Sampler;
-use OpenTracing\Exceptions\UnsupportedFormat;
-use OpenTracing\SpanContext;
-use OpenTracing\Formats;
-use OpenTracing\Tracer;
-use Jaeger\Reporter\Reporter;
-use OpenTracing\StartSpanOptions;
-use OpenTracing\Reference;
 use Jaeger\Propagator\Propagator;
+use Jaeger\Reporter\Reporter;
+use Jaeger\Sampler\Sampler;
 
-class Jaeger implements Tracer{
-
+class Jaeger implements \OpenTracing\Tracer
+{
+    /**
+     * @var Reporter|null
+     */
     private $reporter = null;
 
+    /**
+     * @var Sampler|null
+     */
     private $sampler = null;
 
     private $gen128bit = false;
 
+    /**
+     * @var \Jaeger\ScopeManager
+     */
     private $scopeManager;
 
     public $spans = [];
 
     public $tags = [];
 
-    public $process = null;
-
-    public $serverName = '';
-
-    public $processThrift = '';
+    public $serviceName = '';
 
     /** @var Propagator|null */
     public $propagator = null;
 
-    public function __construct(Reporter $reporter, Sampler $sampler,
-                                ScopeManager $scopeManager, $serverName = ''){
-
+    public function __construct(string $serviceName, Reporter $reporter = null, Sampler $sampler = null,
+                                ScopeManager $scopeManager = null)
+    {
         $this->reporter = $reporter;
 
         $this->sampler = $sampler;
@@ -60,180 +59,190 @@ class Jaeger implements Tracer{
         $this->setTags($this->sampler->getTags());
         $this->setTags($this->getEnvTags());
 
-        if($serverName == '') {
-            $this->serverName = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'unknow server';
-        }else{
-            $this->serverName = $serverName;
+        if ('' == $serviceName) {
+            $this->serviceName = $_SERVER['SERVER_NAME'] ?? 'unknow server';
+        } else {
+            $this->serviceName = $serviceName;
         }
     }
 
-
     /**
-     * @param array $tags  key => value
+     * @param array $tags key => value
      */
-    public function setTags(array $tags = []){
-        if(!empty($tags)) {
+    public function setTags(array $tags = [])
+    {
+        if (!empty($tags)) {
             $this->tags = array_merge($this->tags, $tags);
         }
     }
 
-
     /**
-     * init span info
-     * @param string $operationName
-     * @param array $options
+     * {@inheritDoc}
+     *
      * @return Span
      */
-    public function startSpan($operationName, $options = []){
-
-        if (!($options instanceof StartSpanOptions)) {
-            $options = StartSpanOptions::create($options);
+    public function startSpan(string $operationName, $options = []): \OpenTracing\Span
+    {
+        if (!($options instanceof \OpenTracing\StartSpanOptions)) {
+            $options = \OpenTracing\StartSpanOptions::create($options);
         }
 
         $parentSpan = $this->getParentSpanContext($options);
-        if($parentSpan == null || !$parentSpan->traceIdLow){
+        if (null == $parentSpan || !$parentSpan->traceIdLow) {
             $low = $this->generateId();
             $spanId = $low;
             $flags = $this->sampler->IsSampled();
             $spanContext = new \Jaeger\SpanContext($spanId, 0, $flags, null, 0);
             $spanContext->traceIdLow = $low;
-            if($this->gen128bit == true){
+            if (true == $this->gen128bit) {
                 $spanContext->traceIdHigh = $this->generateId();
             }
-        }else{
+        } else {
             $spanContext = new \Jaeger\SpanContext($this->generateId(),
                 $parentSpan->spanId, $parentSpan->flags, $parentSpan->baggage, 0);
             $spanContext->traceIdLow = $parentSpan->traceIdLow;
-            if($parentSpan->traceIdHigh){
+            if ($parentSpan->traceIdHigh) {
                 $spanContext->traceIdHigh = $parentSpan->traceIdHigh;
             }
         }
 
         $startTime = $options->getStartTime() ? intval($options->getStartTime() * 1000000) : null;
         $span = new Span($operationName, $spanContext, $options->getReferences(), $startTime);
-        if(!empty($options->getTags())) {
+        if (!empty($options->getTags())) {
             foreach ($options->getTags() as $k => $tag) {
                 $span->setTag($k, $tag);
             }
         }
-        if($spanContext->isSampled() == 1) {
+        if (1 == $spanContext->isSampled()) {
             $this->spans[] = $span;
         }
 
         return $span;
     }
 
-
-    public function setPropagator(Propagator $propagator){
+    public function setPropagator(Propagator $propagator)
+    {
         $this->propagator = $propagator;
     }
 
-
     /**
-     * 注入
-     * @param SpanContext $spanContext
-     * @param string $format
-     * @param $carrier
+     * {@inheritDoc}
      */
-    public function inject(SpanContext $spanContext, $format, &$carrier){
-        if($format == Formats\TEXT_MAP){
+    public function inject(\OpenTracing\SpanContext $spanContext, string $format, &$carrier): void
+    {
+        if (\OpenTracing\Formats\TEXT_MAP == $format) {
             $this->propagator->inject($spanContext, $format, $carrier);
-        }else{
-            throw UnsupportedFormat::forFormat($format);
+        } else {
+            throw \OpenTracing\UnsupportedFormatException::forFormat($format);
         }
     }
-
 
     /**
-     * 提取
-     * @param string $format
-     * @param $carrier
+     * {@inheritDoc}
+     *
+     * @return SpanContext
      */
-    public function extract($format, $carrier){
-        if($format == Formats\TEXT_MAP){
+    public function extract(string $format, $carrier): ?\OpenTracing\SpanContext
+    {
+        if (\OpenTracing\Formats\TEXT_MAP == $format) {
             return $this->propagator->extract($format, $carrier);
-        }else{
-            throw UnsupportedFormat::forFormat($format);
+        } else {
+            throw \OpenTracing\UnsupportedFormatException::forFormat($format);
         }
     }
 
-
-    public function getSpans(){
+    public function getSpans()
+    {
         return $this->spans;
     }
 
-
-    public function reportSpan(){
-        if($this->spans) {
+    public function reportSpan()
+    {
+        if ($this->spans) {
             $this->reporter->report($this);
             $this->spans = [];
         }
     }
 
-
-    public function getScopeManager(){
+    /**
+     * {@inheritDoc}
+     *
+     * @return \Jaeger\ScopeManager
+     */
+    public function getScopeManager(): \OpenTracing\ScopeManager
+    {
         return $this->scopeManager;
     }
 
-
-    public function getActiveSpan(){
+    /**
+     * {@inheritDoc}
+     */
+    public function getActiveSpan(): ?\OpenTracing\Span
+    {
         $activeScope = $this->getScopeManager()->getActive();
-        if ($activeScope === null) {
+        if (null === $activeScope) {
             return null;
         }
 
         return $activeScope->getSpan();
     }
 
-
-    public function startActiveSpan($operationName, $options = []){
-        if (!$options instanceof StartSpanOptions) {
-            $options = StartSpanOptions::create($options);
+    /**
+     * {@inheritDoc}
+     *
+     * @return Scope
+     */
+    public function startActiveSpan(string $operationName, $options = []): \OpenTracing\Scope
+    {
+        if (!$options instanceof \OpenTracing\StartSpanOptions) {
+            $options = \OpenTracing\StartSpanOptions::create($options);
         }
 
         $parentSpan = $this->getParentSpanContext($options);
-        if ($parentSpan === null && $this->getActiveSpan() !== null) {
+        if (null === $parentSpan && null !== $this->getActiveSpan()) {
             $parentContext = $this->getActiveSpan()->getContext();
             $options = $options->withParent($parentContext);
         }
 
         $span = $this->startSpan($operationName, $options);
+
         return $this->getScopeManager()->activate($span, $options->shouldFinishSpanOnClose());
     }
 
-
-    private function getParentSpanContext(StartSpanOptions $options)
+    private function getParentSpanContext(\OpenTracing\StartSpanOptions $options)
     {
         $references = $options->getReferences();
 
-        $parentSpan = null;
+        $parentSpanContext = null;
 
         foreach ($references as $ref) {
-            $parentSpan = $ref->getContext();
-            if ($ref->isType(Reference::CHILD_OF)) {
-                return $parentSpan;
+            $parentSpanContext = $ref->getSpanContext();
+            if ($ref->isType(\OpenTracing\Reference::CHILD_OF)) {
+                return $parentSpanContext;
             }
         }
 
-        if ($parentSpan) {
-            if (($parentSpan->isValid()
-                || (!$parentSpan->isTraceIdValid() && $parentSpan->debugId)
-                || count($parentSpan->baggage) > 0)
+        if ($parentSpanContext) {
+            assert($parentSpanContext instanceof \Jaeger\SpanContext);
+
+            if (($parentSpanContext->isValid()
+                || (!$parentSpanContext->isTraceIdValid() && $parentSpanContext->debugId)
+                || count($parentSpanContext->baggage) > 0)
             ) {
-                return $parentSpan;
+                return $parentSpanContext;
             }
         }
 
         return null;
     }
 
-
-    public function getEnvTags(){
+    public function getEnvTags()
+    {
         $tags = [];
-        if(isset($_SERVER['JAEGER_TAGS']) && $_SERVER['JAEGER_TAGS'] != ''){
+        if (isset($_SERVER['JAEGER_TAGS']) && '' != $_SERVER['JAEGER_TAGS']) {
             $envTags = explode(',', $_SERVER['JAEGER_TAGS']);
-            foreach ($envTags as $envK => $envTag){
-                list($key, $value) = explode('=', $envTag);
+            foreach ($envTags as $envK => $envTag) {
+                [$key, $value] = explode('=', $envTag);
                 $tags[$key] = $value;
             }
         }
@@ -241,22 +250,22 @@ class Jaeger implements Tracer{
         return $tags;
     }
 
-
-    public function gen128bit(){
+    public function gen128bit()
+    {
         $this->gen128bit = true;
     }
 
-
     /**
-     * 结束,发送信息到jaeger
+     * {@inheritDoc}
      */
-    public function flush(){
+    public function flush(): void
+    {
         $this->reportSpan();
         $this->reporter->close();
     }
 
-
-    private function generateId(){
-        return microtime(true) * 10000 . rand(10000, 99999);
+    private function generateId()
+    {
+        return microtime(true) * 10000 .random_int(10000, 99999);
     }
 }
