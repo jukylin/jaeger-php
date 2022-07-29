@@ -84,7 +84,6 @@ class UdpSender implements Sender
 
     public function close()
     {
-        fclose($this->socket);
-        $this->socket = null;
+        $this->socket ? fclose($this->socket) : null;
     }
 }
